@@ -27,7 +27,11 @@
         <service
             android:name=".BluetoothLeService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+
+        <activity
+            android:name=".MoveActivity"
+            android:label="@string/title_activity_move"></activity>
     </application>
 
 </manifest>

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Hangboard</string>
+    <string name="title_activity_move">MoveActivity</string>
 </resources>
