@@ -141,7 +141,7 @@ public class BluetoothLeService extends Service {
 //            Log.d(TAG, String.format("Received heart rate: %d", heartRate));
 //            intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
 //        } else {
-            // For all other profiles, writes the data formatted in HEX.
+        // For all other profiles, writes the data formatted in HEX.
         final byte[] data = characteristic.getValue();
         if (data != null && data.length > 0) {
             final StringBuilder stringBuilder = new StringBuilder(data.length);
