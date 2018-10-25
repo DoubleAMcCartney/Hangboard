@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -68,11 +69,11 @@ public class MoveActivity extends Activity {
             final String action = intent.getAction();
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 mConnected = true;
-                updateConnectionState(R.string.connected);
 
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
-                updateConnectionState(R.string.disconnected);
+                final Intent intent2 = new Intent(MoveActivity.this, ConnectActivity.class);
+                startActivity(intent2);
 
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
 
@@ -90,6 +91,9 @@ public class MoveActivity extends Activity {
         final Intent intent = getIntent();
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
+
+        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
+        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
     }
 
     @Override
@@ -99,6 +103,11 @@ public class MoveActivity extends Activity {
         if (mBluetoothLeService != null) {
             final boolean result = mBluetoothLeService.connect(mDeviceAddress);
             Log.d(TAG, "Connect request result=" + result);
+            if (!result) {
+                Toast.makeText(this, R.string.hag_board_dissconnect, Toast.LENGTH_SHORT).show();
+                final Intent intent = new Intent(this, ConnectActivity.class);
+                startActivity(intent);
+            }
         }
     }
 
@@ -115,14 +124,6 @@ public class MoveActivity extends Activity {
         mBluetoothLeService = null;
     }
 
-        private void updateConnectionState(final int resourceId) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mConnectionState.setText(resourceId);
-            }
-        });
-    }
 
     private static IntentFilter makeGattUpdateIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();

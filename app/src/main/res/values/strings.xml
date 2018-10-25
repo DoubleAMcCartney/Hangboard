@@ -7,4 +7,5 @@
     <string name="disconnected">Disconnected</string>
     <string name="no_hag_boards_found">No H.A.G. Boards found.</string>
     <string name="multiple_hag_boards">More than one H.A.G. Board in range.</string>
+    <string name="hag_board_dissconnect">H.A.G. Board disconnected!</string>
 </resources>

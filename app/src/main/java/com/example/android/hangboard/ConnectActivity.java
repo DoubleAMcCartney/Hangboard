@@ -22,9 +22,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+
 
 public class ConnectActivity extends AppCompatActivity {
     private LeDeviceListAdapter mLeDeviceListAdapter;
@@ -53,6 +55,8 @@ public class ConnectActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        mLeDeviceListAdapter = new LeDeviceListAdapter();
+
         // Ensures Bluetooth is available on the device and it is enabled. If not,
         // displays a dialog requesting user permission to enable Bluetooth.
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
@@ -70,8 +74,6 @@ public class ConnectActivity extends AppCompatActivity {
             // permission has been granted, continue as usual
             scanLeDevice(true);
         }
-
-        mLeDeviceListAdapter = new LeDeviceListAdapter();
     }
 
     @Override
@@ -129,6 +131,8 @@ public class ConnectActivity extends AppCompatActivity {
             if(!mLeDevices.contains(device)) {
                 if(device.getName() != null) {
                     if(device.getName().equals("Bluefruit52")) {
+                        final TextView statusText = findViewById(R.id.statusText);
+                        statusText.setText("H.A.G. Board found!");
                         mLeDevices.add(device);
                     }
                 }
@@ -157,20 +161,31 @@ public class ConnectActivity extends AppCompatActivity {
     }
 
     private void scanLeDevice(final boolean enable) {
+        final TextView statusText = findViewById(R.id.statusText);
         if (enable) {
             // Stops scanning after a pre-defined scan period.
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     mScanning = false;
+                    if (mLeDeviceListAdapter.getCount() == 0) {
+                        statusText.setText("H.A.G. Board not found!");
+                    }
                     mBluetoothAdapter.stopLeScan(mLeScanCallback);
                 }
             }, SCAN_PERIOD);
 
             mScanning = true;
+            if (mLeDeviceListAdapter.getCount() == 0) {
+                statusText.setText("Scanning");
+            }
             mBluetoothAdapter.startLeScan(mLeScanCallback);
         } else {
             mScanning = false;
+            if (mLeDeviceListAdapter.getCount() == 0) {
+                statusText.setText("H.A.G. Board not found!");
+            }
+
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
         }
     }
@@ -191,36 +206,27 @@ public class ConnectActivity extends AppCompatActivity {
             };
 
     public void connect(View view) {
-        final Button connectButton = findViewById(R.id.connectButton);
-        connectButton.setText("Connecting");
-
         int hagBoards = mLeDeviceListAdapter.getCount();
 
         if(hagBoards == 1) {
             final BluetoothDevice device = mLeDeviceListAdapter.getDevice(0);
-            if (device == null) return;
 
             final Intent intent = new Intent(this, MoveActivity.class);
             intent.putExtra(MoveActivity.EXTRAS_DEVICE_NAME, device.getName());
             intent.putExtra(MoveActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
 
             if (mScanning) {
-                mBluetoothAdapter.stopLeScan(mLeScanCallback);
-                mScanning = false;
+                scanLeDevice(false);
             }
             startActivity(intent);
         }
         else if (hagBoards > 1) {
             Toast.makeText(this, R.string.multiple_hag_boards, Toast.LENGTH_SHORT).show();
-            connectButton.setText("Connect");
+            scanLeDevice(true);
         }
         else {
             Toast.makeText(this, R.string.no_hag_boards_found, Toast.LENGTH_SHORT).show();
-            connectButton.setText("Connect");
+            scanLeDevice(true);
         }
     }
-
-
-
 }
-

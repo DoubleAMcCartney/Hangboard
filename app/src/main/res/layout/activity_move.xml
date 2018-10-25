@@ -7,10 +7,11 @@
     tools:context=".MoveActivity">
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="368dp"
-        android:layout_height="243dp"
-        android:layout_marginEnd="8dp"
+        android:layout_height="150dp"
         android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -18,28 +19,52 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <Button
+        <ImageButton
             android:id="@+id/Shallower"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:rotation="90"
             android:layout_marginEnd="96dp"
             android:layout_weight="1"
-            android:text="@string/shallowerButtonText"
+            android:src="@android:drawable/arrow_down_float"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/Deeper"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.186" />
 
-        <Button
+        <ImageButton
             android:id="@+id/Deeper"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:rotation="90"
             android:layout_weight="1"
-            android:text="@string/deeperButtonText"
+            android:src="@android:drawable/arrow_up_float"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.499"
             tools:layout_editor_absoluteX="214dp" />
     </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/steeper"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:scaleX="-1"
+        android:src="@android:drawable/ic_menu_rotate"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/flatter"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_marginBottom="8dp"
+        android:src="@android:drawable/ic_menu_rotate"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
