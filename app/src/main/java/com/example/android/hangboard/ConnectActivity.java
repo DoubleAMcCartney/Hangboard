@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -58,7 +59,9 @@ public class ConnectActivity extends AppCompatActivity {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
+
         mLeDeviceListAdapter = new LeDeviceListAdapter();
+        scanLeDevice(true);
     }
 
     @Override
@@ -171,16 +174,33 @@ public class ConnectActivity extends AppCompatActivity {
             };
 
     public void connect(View view) {
-        scanLeDevice(true);
+        final Button connectButton = (Button) findViewById(R.id.connectButton);
+        connectButton.setText("Connecting");
 
-        final BluetoothDevice device = mLeDeviceListAdapter.getDevice(0);
-        if (device == null) return;
-        final Intent intent = new Intent(this, MoveActivity.class);
-        if (mScanning) {
-            mBluetoothAdapter.stopLeScan(mLeScanCallback);
-            mScanning = false;
+        int hagBoards = mLeDeviceListAdapter.getCount();
+
+        if(hagBoards == 1) {
+            final BluetoothDevice device = mLeDeviceListAdapter.getDevice(0);
+            if (device == null) return;
+
+            final Intent intent = new Intent(this, MoveActivity.class);
+            intent.putExtra(MoveActivity.EXTRAS_DEVICE_NAME, device.getName());
+            intent.putExtra(MoveActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+
+            if (mScanning) {
+                mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                mScanning = false;
+            }
+            startActivity(intent);
         }
-        startActivity(intent);
+        else if (hagBoards > 1) {
+            Toast.makeText(this, R.string.multiple_hag_boards, Toast.LENGTH_SHORT).show();
+            connectButton.setText("Connect");
+        }
+        else {
+            Toast.makeText(this, R.string.no_hag_boards_found, Toast.LENGTH_SHORT).show();
+            connectButton.setText("Connect");
+        }
     }
 
 

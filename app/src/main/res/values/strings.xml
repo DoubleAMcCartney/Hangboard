@@ -3,4 +3,8 @@
     <string name="title_activity_move">MoveActivity</string>
     <string name="shallowerButtonText">Shallower</string>
     <string name="deeperButtonText">Deeper</string>
+    <string name="connected">Connected</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="no_hag_boards_found">No H.A.G. Boards found.</string>
+    <string name="multiple_hag_boards">More than one H.A.G. Board in range.</string>
 </resources>
