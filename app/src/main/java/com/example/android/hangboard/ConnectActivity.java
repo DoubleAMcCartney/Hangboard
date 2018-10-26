@@ -5,22 +5,15 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Handler;
-import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -49,6 +42,8 @@ public class ConnectActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mHandler = new Handler();
+
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // run only in portrait mode
         setContentView(R.layout.activity_connect);
 
         statusText = findViewById(R.id.statusText);
@@ -142,8 +137,14 @@ public class ConnectActivity extends AppCompatActivity {
             if(!mLeDevices.contains(device)) {
                 if(device.getName() != null) {
                     if(device.getName().equals(BLeDeviceName)) {
+                        if(getCount()!=0) {
+                            statusText.setText(R.string.multiple_hag_boards);
+                            Toast.makeText(getApplicationContext(), R.string.multiple_hag_boards, Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            statusText.setText(R.string.found_status);
+                        }
                         mLeDevices.add(device);
-                        statusText.setText(R.string.found_status);
                         connectButton.setEnabled(true);
                     }
                 }
@@ -162,13 +163,6 @@ public class ConnectActivity extends AppCompatActivity {
             return mLeDevices.size();
         }
 
-        public Object getItem(int i) {
-            return mLeDevices.get(i);
-        }
-
-        public long getItemId(int i) {
-            return i;
-        }
     }
 
     private void scanLeDevice(final boolean enable) {
@@ -225,29 +219,23 @@ public class ConnectActivity extends AppCompatActivity {
             };
 
     public void connect(View view) {
-        int hagBoards = mLeDeviceListAdapter.getCount();
-
         //One HAG Board found
-        if(hagBoards == 1) {
+        if(mLeDeviceListAdapter.getCount() == 1) {
             final BluetoothDevice device = mLeDeviceListAdapter.getDevice(0);
 
-            final Intent intent = new Intent(this, MoveActivity.class);
-            intent.putExtra(MoveActivity.EXTRAS_DEVICE_NAME, device.getName());
-            intent.putExtra(MoveActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+            final Intent intent = new Intent(this, WorkoutActivity.class);
+            intent.putExtra(WorkoutActivity.EXTRAS_DEVICE_NAME, device.getName());
+            intent.putExtra(WorkoutActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
 
             if (mScanning) {
                 scanLeDevice(false);
             }
             startActivity(intent);
         }
-        //Multiple HAG Boards found
-        else if (hagBoards > 1) {
-            Toast.makeText(this, R.string.multiple_hag_boards, Toast.LENGTH_SHORT).show();
-            scanLeDevice(true);
-        }
-        //No HAG Boards found
+        //No or Multiple HAG Boards found
         else {
             scanLeDevice(true);
         }
     }
+
 }

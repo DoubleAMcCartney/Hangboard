@@ -8,9 +8,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
-import android.os.Bundle;
-import android.app.Activity;
 import android.os.IBinder;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ExpandableListView;
@@ -19,7 +19,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class MoveActivity extends Activity {
+public class WorkoutActivity extends AppCompatActivity {
     private final static String TAG = MoveActivity.class.getSimpleName();
 
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
@@ -74,7 +74,7 @@ public class MoveActivity extends Activity {
 
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
-                final Intent intent2 = new Intent(MoveActivity.this, ConnectActivity.class);
+                final Intent intent2 = new Intent(WorkoutActivity.this, ConnectActivity.class);
                 startActivity(intent2);
 
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
@@ -88,8 +88,7 @@ public class MoveActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // run only in portrait mode
-        setContentView(R.layout.activity_move);
+        setContentView(R.layout.activity_workout);
 
         final Intent intent = getIntent();
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
@@ -137,4 +136,19 @@ public class MoveActivity extends Activity {
         return intentFilter;
     }
 
+    public void editWorkout(View view) {
+
+    }
+
+    public void workoutLog(View view) {
+
+    }
+
+    public void freeHang(View view) {
+        final Intent intent = new Intent(this, WorkoutActivity.class);
+        intent.putExtra(WorkoutActivity.EXTRAS_DEVICE_NAME, mDeviceName);
+        intent.putExtra(WorkoutActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
+
+        startActivity(intent);
+    }
 }
