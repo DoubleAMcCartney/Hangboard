@@ -29,7 +29,7 @@ public class ConnectActivity extends AppCompatActivity {
     private final static int REQUEST_ENABLE_BT = 1;
     private static final int REQUEST_LOCATION = 2;
     private static final long SCAN_PERIOD = 10000;
-    private static final String BLeDeviceName = "Bluefruit52";
+    private static final String BLeDeviceName = "Tile";
     private Handler mHandler;
     private boolean mScanning;
 
@@ -221,19 +221,24 @@ public class ConnectActivity extends AppCompatActivity {
     public void connect(View view) {
         //One HAG Board found
         if(mLeDeviceListAdapter.getCount() == 1) {
-            final BluetoothDevice device = mLeDeviceListAdapter.getDevice(0);
-
-            final Intent intent = new Intent(this, WorkoutActivity.class);
-            intent.putExtra(WorkoutActivity.EXTRAS_DEVICE_NAME, device.getName());
-            intent.putExtra(WorkoutActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
-
             if (mScanning) {
                 scanLeDevice(false);
             }
+
+            final BluetoothDevice device = mLeDeviceListAdapter.getDevice(0);
+            final Intent intent = new Intent(this, WorkoutActivity.class);
+
+            intent.putExtra(WorkoutActivity.EXTRAS_DEVICE_NAME, device.getName());
+            intent.putExtra(WorkoutActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
             startActivity(intent);
         }
         //No or Multiple HAG Boards found
         else {
+
+            //////  FOR TESTING  ///////
+            //final Intent intent = new Intent(this, WorkoutActivity.class);
+            //startActivity(intent);
+            ////////////////////////////
             scanLeDevice(true);
         }
     }

@@ -137,17 +137,19 @@ public class WorkoutActivity extends AppCompatActivity {
     }
 
     public void editWorkout(View view) {
-
+        final Intent intent = new Intent(this, EditWorkoutActivity.class);
+        startActivity(intent);
     }
 
     public void workoutLog(View view) {
-
+        final Intent intent = new Intent(this, LogActivity.class);
+        startActivity(intent);
     }
 
     public void freeHang(View view) {
-        final Intent intent = new Intent(this, WorkoutActivity.class);
-        intent.putExtra(WorkoutActivity.EXTRAS_DEVICE_NAME, mDeviceName);
-        intent.putExtra(WorkoutActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
+        final Intent intent = new Intent(this, MoveActivity.class);
+        intent.putExtra(MoveActivity.EXTRAS_DEVICE_NAME, mDeviceName);
+        intent.putExtra(MoveActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
 
         startActivity(intent);
     }
