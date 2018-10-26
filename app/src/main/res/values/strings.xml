@@ -1,11 +1,15 @@
 <resources>
-    <string name="app_name">Hangboard</string>
+    <string name="app_name">H.A.G. Board Trainer</string>
     <string name="title_activity_move">MoveActivity</string>
     <string name="shallowerButtonText">Shallower</string>
     <string name="deeperButtonText">Deeper</string>
     <string name="connected">Connected</string>
     <string name="disconnected">Disconnected</string>
-    <string name="no_hag_boards_found">No H.A.G. Boards found.</string>
-    <string name="multiple_hag_boards">More than one H.A.G. Board in range.</string>
+    <string name="multiple_hag_boards">More than one H.A.G. Board in range!</string>
     <string name="hag_board_dissconnect">H.A.G. Board disconnected!</string>
+    <string name="scanning_status">Searching for H.A.G. Boards</string>
+    <string name="not_found_status">H.A.G. Board not found!</string>
+    <string name="found_status">H.A.G. Board found!</string>
+    <string name="connect_button_search">Search</string>
+    <string name="connect_button_searching">Searching…</string>
 </resources>

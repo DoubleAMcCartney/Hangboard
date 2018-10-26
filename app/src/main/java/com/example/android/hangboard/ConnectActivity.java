@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,14 +36,25 @@ public class ConnectActivity extends AppCompatActivity {
     private final static int REQUEST_ENABLE_BT = 1;
     private static final int REQUEST_LOCATION = 2;
     private static final long SCAN_PERIOD = 10000;
+    private static final String BLeDeviceName = "Bluefruit52";
     private Handler mHandler;
     private boolean mScanning;
+
+
+    private TextView statusText;
+    private Button connectButton;
+    private ProgressBar spinner;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mHandler = new Handler();
         setContentView(R.layout.activity_connect);
+
+        statusText = findViewById(R.id.statusText);
+        connectButton = findViewById(R.id.connectButton);
+        spinner = findViewById(R.id.progressBar);
+        spinner.setVisibility(View.GONE);
 
         // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
         // BluetoothAdapter through BluetoothManager.
@@ -90,7 +102,6 @@ public class ConnectActivity extends AppCompatActivity {
         // User chose not to enable Bluetooth.
         if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
             finish();
-            return;
         }
     }
 
@@ -130,10 +141,10 @@ public class ConnectActivity extends AppCompatActivity {
         public void addDevice(BluetoothDevice device) {
             if(!mLeDevices.contains(device)) {
                 if(device.getName() != null) {
-                    if(device.getName().equals("Bluefruit52")) {
-                        final TextView statusText = findViewById(R.id.statusText);
-                        statusText.setText("H.A.G. Board found!");
+                    if(device.getName().equals(BLeDeviceName)) {
                         mLeDevices.add(device);
+                        statusText.setText(R.string.found_status);
+                        connectButton.setEnabled(true);
                     }
                 }
             }
@@ -161,7 +172,6 @@ public class ConnectActivity extends AppCompatActivity {
     }
 
     private void scanLeDevice(final boolean enable) {
-        final TextView statusText = findViewById(R.id.statusText);
         if (enable) {
             // Stops scanning after a pre-defined scan period.
             mHandler.postDelayed(new Runnable() {
@@ -169,7 +179,10 @@ public class ConnectActivity extends AppCompatActivity {
                 public void run() {
                     mScanning = false;
                     if (mLeDeviceListAdapter.getCount() == 0) {
-                        statusText.setText("H.A.G. Board not found!");
+                        spinner.setVisibility(View.INVISIBLE);
+                        statusText.setText(R.string.not_found_status);
+                        connectButton.setText(R.string.connect_button_search);
+                        connectButton.setEnabled(true);
                     }
                     mBluetoothAdapter.stopLeScan(mLeScanCallback);
                 }
@@ -177,13 +190,19 @@ public class ConnectActivity extends AppCompatActivity {
 
             mScanning = true;
             if (mLeDeviceListAdapter.getCount() == 0) {
-                statusText.setText("Scanning");
+                connectButton.setEnabled(false);
+                connectButton.setText(R.string.connect_button_searching);
+                statusText.setText(R.string.scanning_status);
+                spinner.setVisibility(View.VISIBLE);
             }
             mBluetoothAdapter.startLeScan(mLeScanCallback);
         } else {
             mScanning = false;
             if (mLeDeviceListAdapter.getCount() == 0) {
-                statusText.setText("H.A.G. Board not found!");
+                connectButton.setEnabled(true);
+                statusText.setText(R.string.not_found_status);
+                connectButton.setText(R.string.connect_button_search);
+                spinner.setVisibility(View.INVISIBLE);
             }
 
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
@@ -208,6 +227,7 @@ public class ConnectActivity extends AppCompatActivity {
     public void connect(View view) {
         int hagBoards = mLeDeviceListAdapter.getCount();
 
+        //One HAG Board found
         if(hagBoards == 1) {
             final BluetoothDevice device = mLeDeviceListAdapter.getDevice(0);
 
@@ -220,12 +240,13 @@ public class ConnectActivity extends AppCompatActivity {
             }
             startActivity(intent);
         }
+        //Multiple HAG Boards found
         else if (hagBoards > 1) {
             Toast.makeText(this, R.string.multiple_hag_boards, Toast.LENGTH_SHORT).show();
             scanLeDevice(true);
         }
+        //No HAG Boards found
         else {
-            Toast.makeText(this, R.string.no_hag_boards_found, Toast.LENGTH_SHORT).show();
             scanLeDevice(true);
         }
     }
