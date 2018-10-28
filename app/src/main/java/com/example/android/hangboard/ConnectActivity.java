@@ -236,8 +236,8 @@ public class ConnectActivity extends AppCompatActivity {
         else {
 
             //////  FOR TESTING  ///////
-            //final Intent intent = new Intent(this, WorkoutActivity.class);
-            //startActivity(intent);
+            final Intent intent = new Intent(this, WorkoutActivity.class);
+            startActivity(intent);
             ////////////////////////////
             scanLeDevice(true);
         }
