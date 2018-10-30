@@ -3,7 +3,6 @@ package com.example.android.hangboard;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.os.CountDownTimer;
-import android.widget.TextView;
 
 public class WorkoutViewModel extends ViewModel {
     private CountDownTimer timer;

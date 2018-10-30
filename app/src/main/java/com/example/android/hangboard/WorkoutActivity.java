@@ -2,7 +2,6 @@ package com.example.android.hangboard;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.BroadcastReceiver;
@@ -11,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -19,7 +17,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
