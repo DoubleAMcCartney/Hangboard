@@ -12,4 +12,11 @@
     <string name="found_status">H.A.G. Board found!</string>
     <string name="connect_button_search">Search</string>
     <string name="connect_button_searching">Searching…</string>
+    <string name="prepareText">Prepare</string>
+    <string name="startButtonText">Start</string>
+    <string name="timerStatusBreak">Break</string>
+    <string name="timerStatusRest">Rest</string>
+    <string name="timerStatusDone">Done</string>
+    <string name="timerStatusWork">Work</string>
+    <string name="pauseButtonText">Pause</string>
 </resources>

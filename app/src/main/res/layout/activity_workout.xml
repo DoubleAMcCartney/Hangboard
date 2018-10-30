@@ -56,24 +56,24 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <Button
-            android:id="@+id/startStopButton"
+            android:id="@+id/startPauseButton"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Start"
             android:textColor="@color/stertButtonColor"
             android:textSize="18sp"
             app:layout_constraintBottom_toTopOf="@+id/setText"
-            tools:layout_editor_absoluteX="34dp" />
+            tools:layout_editor_absoluteX="34dp"
+            tools:text="Start" />
 
         <Button
-            android:id="@+id/resetButton"
+            android:id="@+id/stopButton"
             style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Reset"
+            android:text="Stop"
             android:textColor="@color/resetButtonColor"
             android:textSize="18sp"
             app:layout_constraintBottom_toTopOf="@+id/setText"
@@ -84,7 +84,6 @@
         android:id="@+id/timerStatusTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
         android:textSize="36sp"
         app:layout_constraintBottom_toTopOf="@+id/timerTextView"
         app:layout_constraintEnd_toEndOf="parent"
@@ -97,14 +96,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="0:00"
         android:textSize="120sp"
         app:layout_constraintBottom_toTopOf="@+id/toolbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/currentWorkoutTextView"
-        tools:text="00:00" />
+        tools:text="0:00" />
 
     <TextView
         android:id="@+id/exerciseText"
