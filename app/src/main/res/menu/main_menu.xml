@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/action_editWorkout"
+        android:title="@string/change_workout"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/action_workoutLog"
+        android:title="@string/workout_log"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/action_freeHang"
+        android:title="@string/free_hang"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/action_disconnect"
+        android:title="@string/disconnect"
+        app:showAsAction="never" />
+</menu>

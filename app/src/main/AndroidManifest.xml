@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     package="com.example.android.hangboard">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -36,6 +37,7 @@
         <activity android:name=".WorkoutActivity" />
         <activity android:name=".LogActivity" />
         <activity android:name=".EditWorkoutActivity"></activity>
+
     </application>
 
 </manifest>

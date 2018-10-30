@@ -14,6 +14,7 @@ public class WorkoutViewModel extends ViewModel {
     private MutableLiveData<Integer> mRestTime;
     private MutableLiveData<Boolean> mTimerStarted;
     private MutableLiveData<String> mTimerState;
+    private MutableLiveData<String> mWorkoutTitle;
     private MutableLiveData<Long> mTimerValue;
     private MutableLiveData<Integer> mCurrentRep;
     private MutableLiveData<Integer> mCurrentSet;
@@ -32,6 +33,7 @@ public class WorkoutViewModel extends ViewModel {
         getRestTime().setValue(3000);
         getTimerStarted().setValue(false);
         getTimerState().setValue("Prepare");
+        getTimerState().setValue("Beginner");
         getTimerValue().setValue((long)getPrepareTime().getValue());
         getCurrentRep().setValue(1);
         getCurrentSet().setValue(1);
@@ -83,6 +85,13 @@ public class WorkoutViewModel extends ViewModel {
             mTimerState = new MutableLiveData<>();
         }
         return mTimerState;
+    }
+
+    public MutableLiveData<String> getWorkoutTitle() {
+        if (mWorkoutTitle == null) {
+            mWorkoutTitle = new MutableLiveData<>();
+        }
+        return mWorkoutTitle;
     }
 
     public MutableLiveData<Long> getTimerValue() {
@@ -172,6 +181,11 @@ public class WorkoutViewModel extends ViewModel {
         getTimerValue().setValue((long)getPrepareTime().getValue());
         getTimerState().setValue("Prepare");
         getTimerStarted().setValue(false);
+    }
+
+    public void skipTimer() {
+        timer.cancel();
+        timerFinished();
     }
 
     public void pauseTimer() {

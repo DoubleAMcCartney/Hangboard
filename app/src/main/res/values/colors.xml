@@ -3,7 +3,8 @@
     <color name="colorPrimary">#6a6b6e</color>
     <color name="colorPrimaryDark">#b9000000</color>
     <color name="colorAccent">#80937f</color>
-    <color name="stertButtonColor">#006e00</color>
+    <color name="startButtonColor">#006e00</color>
     <color name="pauseButtonColor">#000000</color>
+    <color name="skipButtonColor">#000000</color>
     <color name="resetButtonColor">#ff0000</color>
 </resources>

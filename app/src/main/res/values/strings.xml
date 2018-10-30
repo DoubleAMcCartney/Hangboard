@@ -19,4 +19,8 @@
     <string name="timerStatusDone">Done</string>
     <string name="timerStatusWork">Work</string>
     <string name="pauseButtonText">Pause</string>
+    <string name="change_workout">Change Workout</string>
+    <string name="workout_log">Workout Log</string>
+    <string name="free_hang">Free Hang</string>
+    <string name="disconnect">Disconnect</string>
 </resources>

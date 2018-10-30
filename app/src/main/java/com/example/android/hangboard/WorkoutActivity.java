@@ -1,6 +1,7 @@
 package com.example.android.hangboard;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -14,7 +15,9 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -55,6 +58,7 @@ public class WorkoutActivity extends AppCompatActivity {
     protected TextView depthText;
     protected Button startPauseButton;
     protected Button stopButton;
+    protected Button skipButton;
 
 
     // Code to manage Service lifecycle.
@@ -108,6 +112,15 @@ public class WorkoutActivity extends AppCompatActivity {
         @Override
         public void onChanged(@Nullable final String newValue) {
             timerStatusText.setText(newValue);
+        }
+    };
+
+    private final Observer<String> workoutTitleObserver = new Observer<String>() {
+        @Override
+        public void onChanged(@Nullable final String newValue) {
+            //Set activity title to the workout title
+            //This will be displayed in the app bar
+            setTitle(newValue);
         }
     };
 
@@ -202,6 +215,8 @@ public class WorkoutActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_workout);
+        Toolbar myToolbar = findViewById(R.id.workout_toolbar);
+        setSupportActionBar(myToolbar);
 
         //Bluetooth stuff
         final Intent intent = getIntent();
@@ -220,10 +235,12 @@ public class WorkoutActivity extends AppCompatActivity {
         depthText = findViewById(R.id.depthText);
         startPauseButton = findViewById(R.id.startPauseButton);
         stopButton = findViewById(R.id.stopButton);
+        skipButton = findViewById(R.id.skipButton);
 
         //ViewModel and live data stuff
         final WorkoutViewModel mModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
         mModel.getTimerState().observe(this, timerStateObserver);
+        mModel.getWorkoutTitle().observe(this, workoutTitleObserver);
         mModel.getTimerValue().observe(this, timerValueObserver);
         mModel.getTimerStarted().observe(this, timerStartedObserver);
         mModel.getCurrentRep().observe(this, currentRepObserver);
@@ -235,6 +252,9 @@ public class WorkoutActivity extends AppCompatActivity {
         mModel.getAngle().observe(this, angleObserver);
         mModel.getDepth().observe(this, depthObserver);
 
+        //Set activity title to the workout title
+        //This will be displayed in the app bar
+        setTitle(mModel.getWorkoutTitle().getValue());
 
         startPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -242,9 +262,25 @@ public class WorkoutActivity extends AppCompatActivity {
                 Button b = (Button) v;
                 if (b.getText().equals(getString(R.string.startButtonText))) {
                     mModel.startTimer();
+
+                    View decorView = getWindow().getDecorView();
+                    // Hide the status bar.
+                    int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+                    decorView.setSystemUiVisibility(uiOptions);
+                    // Hide action bar
+                    ActionBar actionBar = getActionBar();
+                    actionBar.hide();
                 }
                 else {
                     mModel.pauseTimer();
+
+                    View decorView = getWindow().getDecorView();
+                    // Show the status bar
+                    int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
+                    decorView.setSystemUiVisibility(uiOptions);
+                    // Hide action bar
+                    ActionBar actionBar = getActionBar();
+                    actionBar.show();
                 }
             }
         });
@@ -255,6 +291,15 @@ public class WorkoutActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mModel.stopTimer();
+            }
+        });
+
+        skipButton.setOnClickListener(new View.OnClickListener()
+        {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onClick(View v) {
+                mModel.skipTimer();
             }
         });
 
@@ -273,6 +318,26 @@ public class WorkoutActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         }
+
+        // Hide status and action bars if timer is started
+        if (startPauseButton.getText().equals(getString(R.string.startButtonText))) {
+            View decorView = getWindow().getDecorView();
+            // Hide the status bar.
+            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+            decorView.setSystemUiVisibility(uiOptions);
+            // Hide action bar
+            ActionBar actionBar = getActionBar();
+            actionBar.hide();
+        }
+        else {
+            View decorView = getWindow().getDecorView();
+            // Show the status bar.
+            int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
+            decorView.setSystemUiVisibility(uiOptions);
+            // Show action bar
+            ActionBar actionBar = getActionBar();
+            actionBar.show();
+        }
     }
 
     @Override
@@ -288,6 +353,42 @@ public class WorkoutActivity extends AppCompatActivity {
         mBluetoothLeService = null;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_editWorkout:
+                // User chose the "edit_workout" item, show the app edit workout UI...
+                final Intent intent1 = new Intent(this, EditWorkoutActivity.class);
+                startActivity(intent1);
+                return true;
+
+            case R.id.action_workoutLog:
+                final Intent intent2 = new Intent(this, LogActivity.class);
+                startActivity(intent2);
+                return true;
+
+            case R.id.action_freeHang:
+                final Intent intent3 = new Intent(this, MoveActivity.class);
+                intent3.putExtra(MoveActivity.EXTRAS_DEVICE_NAME, mDeviceName);
+                intent3.putExtra(MoveActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
+                startActivity(intent3);
+                return true;
+
+            case R.id.action_disconnect:
+                unbindService(mServiceConnection);
+                mBluetoothLeService = null;
+                final Intent intent4 = new Intent(this, ConnectActivity.class);
+                startActivity(intent4);
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
+
 
     private static IntentFilter makeGattUpdateIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
@@ -296,24 +397,6 @@ public class WorkoutActivity extends AppCompatActivity {
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
         intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
         return intentFilter;
-    }
-
-    public void editWorkout(View view) {
-        final Intent intent = new Intent(this, EditWorkoutActivity.class);
-        startActivity(intent);
-    }
-
-    public void workoutLog(View view) {
-        final Intent intent = new Intent(this, LogActivity.class);
-        startActivity(intent);
-    }
-
-    public void freeHang(View view) {
-        final Intent intent = new Intent(this, MoveActivity.class);
-        intent.putExtra(MoveActivity.EXTRAS_DEVICE_NAME, mDeviceName);
-        intent.putExtra(MoveActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
-
-        startActivity(intent);
     }
 
     private void updateText() {
