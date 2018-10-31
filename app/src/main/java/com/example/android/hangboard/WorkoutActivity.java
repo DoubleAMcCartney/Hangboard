@@ -1,7 +1,6 @@
 package com.example.android.hangboard;
 
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -11,14 +10,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -139,9 +142,29 @@ public class WorkoutActivity extends AppCompatActivity {
         public void onChanged(@Nullable final Boolean newValue) {
             if (newValue) {
                 startPauseButton.setText("Pause");
+
+                // If landscape Set fullscreen flag
+                if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+                    getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                }
+
+                // Hide action bar
+                ActionBar actionBar = getSupportActionBar();
+                actionBar.hide();
+
+                // Set keep screen on flag
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             }
             else {
                 startPauseButton.setText("Start");
+
+                // Clear keep screen on and fullscreen flags
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+                // Show action bar
+                ActionBar actionBar = getSupportActionBar();
+                actionBar.show();
             }
         }
     };
@@ -215,7 +238,7 @@ public class WorkoutActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_workout);
-        Toolbar myToolbar = findViewById(R.id.workout_toolbar);
+        final Toolbar myToolbar = findViewById(R.id.workout_toolbar);
         setSupportActionBar(myToolbar);
 
         //Bluetooth stuff
@@ -262,25 +285,9 @@ public class WorkoutActivity extends AppCompatActivity {
                 Button b = (Button) v;
                 if (b.getText().equals(getString(R.string.startButtonText))) {
                     mModel.startTimer();
-
-                    View decorView = getWindow().getDecorView();
-                    // Hide the status bar.
-                    int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-                    decorView.setSystemUiVisibility(uiOptions);
-                    // Hide action bar
-                    ActionBar actionBar = getActionBar();
-                    actionBar.hide();
                 }
                 else {
                     mModel.pauseTimer();
-
-                    View decorView = getWindow().getDecorView();
-                    // Show the status bar
-                    int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
-                    decorView.setSystemUiVisibility(uiOptions);
-                    // Hide action bar
-                    ActionBar actionBar = getActionBar();
-                    actionBar.show();
                 }
             }
         });
@@ -321,22 +328,26 @@ public class WorkoutActivity extends AppCompatActivity {
 
         // Hide status and action bars if timer is started
         if (startPauseButton.getText().equals(getString(R.string.startButtonText))) {
-            View decorView = getWindow().getDecorView();
-            // Hide the status bar.
-            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-            decorView.setSystemUiVisibility(uiOptions);
-            // Hide action bar
-            ActionBar actionBar = getActionBar();
-            actionBar.hide();
+            // Clear keep screen on and fullscreen flags
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+            // Show action bar
+            ActionBar actionBar = getSupportActionBar();
+            actionBar.show();
         }
         else {
-            View decorView = getWindow().getDecorView();
-            // Show the status bar.
-            int uiOptions = View.SYSTEM_UI_FLAG_VISIBLE;
-            decorView.setSystemUiVisibility(uiOptions);
-            // Show action bar
-            ActionBar actionBar = getActionBar();
-            actionBar.show();
+            // If landscape Set fullscreen flag
+            if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE){
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            }
+
+            // Hide action bar
+            ActionBar actionBar = getSupportActionBar();
+            actionBar.hide();
+
+            // Set keep screen on flag
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
     }
 
@@ -351,6 +362,13 @@ public class WorkoutActivity extends AppCompatActivity {
         super.onDestroy();
         unbindService(mServiceConnection);
         mBluetoothLeService = null;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
     }
 
     @Override

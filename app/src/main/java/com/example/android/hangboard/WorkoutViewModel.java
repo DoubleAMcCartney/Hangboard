@@ -33,7 +33,7 @@ public class WorkoutViewModel extends ViewModel {
         getRestTime().setValue(3000);
         getTimerStarted().setValue(false);
         getTimerState().setValue("Prepare");
-        getTimerState().setValue("Beginner");
+        getWorkoutTitle().setValue("Beginner Workout");
         getTimerValue().setValue((long)getPrepareTime().getValue());
         getCurrentRep().setValue(1);
         getCurrentSet().setValue(1);
@@ -200,14 +200,14 @@ public class WorkoutViewModel extends ViewModel {
                 getCurrentRep().setValue(getCurrentRep().getValue()+1);
                 getTimerState().setValue("Rest");
                 getTimerValue().setValue((long)getRestTime().getValue());
-                startTimer();
+                if (getTimerStarted().getValue()) startTimer();
             }
             else if (getCurrentSet().getValue() < getTotalSet().getValue()) {
                 getCurrentSet().setValue(getCurrentSet().getValue()+1);
                 getCurrentRep().setValue(1);
                 getTimerState().setValue("Break");
                 getTimerValue().setValue((long)getBreakTime().getValue());
-                startTimer();
+                if (getTimerStarted().getValue()) startTimer();
             }
             else if (getCurrentExercise().getValue() < getTotalExercise().getValue()) {
                 getCurrentExercise().setValue(getCurrentExercise().getValue()+1);
@@ -215,7 +215,7 @@ public class WorkoutViewModel extends ViewModel {
                 getCurrentSet().setValue(1);
                 getTimerState().setValue("Break");
                 getTimerValue().setValue((long)getBreakTime().getValue());
-                startTimer();
+                if (getTimerStarted().getValue()) startTimer();
             }
             else {
                 getCurrentRep().setValue(1);
@@ -225,10 +225,15 @@ public class WorkoutViewModel extends ViewModel {
                 getTimerStarted().setValue(false);
             }
         }
+        else if (getTimerState().getValue()=="Done"){
+            getTimerState().setValue("Prepare");
+            getTimerValue().setValue((long)getPrepareTime().getValue());
+            if (getTimerStarted().getValue()) startTimer();
+        }
         else {
             getTimerState().setValue("Work");
             getTimerValue().setValue((long)getWorkTime().getValue());
-            startTimer();
+            if (getTimerStarted().getValue()) startTimer();
         }
     }
 }
