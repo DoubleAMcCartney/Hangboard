@@ -44,7 +44,6 @@ public class WorkoutActivity extends AppCompatActivity {
 
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
-    private boolean connected = false;
 
     private int rep = 0;
     private int reps = 0;
@@ -100,8 +99,8 @@ public class WorkoutActivity extends AppCompatActivity {
 
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
-                final Intent intent2 = new Intent(WorkoutActivity.this, ConnectActivity.class);
-                startActivity(intent2);
+                invalidateOptionsMenu();
+                Toast.makeText(WorkoutActivity.this, R.string.hag_board_disconnect, Toast.LENGTH_SHORT).show();
 
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
 
@@ -257,7 +256,6 @@ public class WorkoutActivity extends AppCompatActivity {
         if (mDeviceName != null) {
             Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
             bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
-            connected = true;
         }
 
 
@@ -329,21 +327,17 @@ public class WorkoutActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if (mDeviceAddress != null) {
-            connected = true;
+        if (mConnected) {
             registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
             if (mBluetoothLeService != null) {
                 final boolean result = mBluetoothLeService.connect(mDeviceAddress);
                 Log.d(TAG, "Connect request result=" + result);
                 if (!result) {
-                    connected = false;
                     Toast.makeText(this, R.string.hag_board_disconnect, Toast.LENGTH_SHORT).show();
                 }
             }
         }
-        else {
-            connected = false;
-        }
+
         invalidateOptionsMenu();
 
         // Hide status and action bars if timer is started
@@ -374,7 +368,7 @@ public class WorkoutActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (connected) {
+        if (mConnected) {
             unregisterReceiver(mGattUpdateReceiver);
         }
     }
@@ -382,7 +376,7 @@ public class WorkoutActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (connected) {
+        if (mConnected) {
             unbindService(mServiceConnection);
             mBluetoothLeService = null;
         }
@@ -392,7 +386,7 @@ public class WorkoutActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.workout_menu, menu);
-        if (connected ){
+        if (mConnected ){
             menu.removeItem(R.id.action_connect);
         }
         else {
