@@ -44,6 +44,7 @@ public class WorkoutActivity extends AppCompatActivity {
 
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
+    private boolean connected = false;
 
     private int rep = 0;
     private int reps = 0;
@@ -111,6 +112,13 @@ public class WorkoutActivity extends AppCompatActivity {
     };
 
     //Live Data observers
+//    private final Observer<Boolean> connectedObserver = new Observer<Boolean>() {
+//        @Override
+//        public void onChanged(@Nullable final Boolean newValue) {
+//            connected = newValue;
+//        }
+//    };
+
     private final Observer<String> timerStateObserver = new Observer<String>() {
         @Override
         public void onChanged(@Nullable final String newValue) {
@@ -246,8 +254,12 @@ public class WorkoutActivity extends AppCompatActivity {
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
 
-        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
-        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+        if (mDeviceName != null) {
+            Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
+            bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+            connected = true;
+        }
+
 
         timerStatusText = findViewById(R.id.timerStatusTextView);
         timerText = findViewById(R.id.timerTextView);
@@ -262,6 +274,7 @@ public class WorkoutActivity extends AppCompatActivity {
 
         //ViewModel and live data stuff
         final WorkoutViewModel mModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
+//        mModel.getConnected().observe(this, connectedObserver);
         mModel.getTimerState().observe(this, timerStateObserver);
         mModel.getWorkoutTitle().observe(this, workoutTitleObserver);
         mModel.getTimerValue().observe(this, timerValueObserver);
@@ -315,16 +328,23 @@ public class WorkoutActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
-        if (mBluetoothLeService != null) {
-            final boolean result = mBluetoothLeService.connect(mDeviceAddress);
-            Log.d(TAG, "Connect request result=" + result);
-            if (!result) {
-                Toast.makeText(this, R.string.hag_board_dissconnect, Toast.LENGTH_SHORT).show();
-                final Intent intent = new Intent(this, ConnectActivity.class);
-                startActivity(intent);
+
+        if (mDeviceAddress != null) {
+            connected = true;
+            registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+            if (mBluetoothLeService != null) {
+                final boolean result = mBluetoothLeService.connect(mDeviceAddress);
+                Log.d(TAG, "Connect request result=" + result);
+                if (!result) {
+                    connected = false;
+                    Toast.makeText(this, R.string.hag_board_disconnect, Toast.LENGTH_SHORT).show();
+                }
             }
         }
+        else {
+            connected = false;
+        }
+        invalidateOptionsMenu();
 
         // Hide status and action bars if timer is started
         if (startPauseButton.getText().equals(getString(R.string.startButtonText))) {
@@ -354,20 +374,31 @@ public class WorkoutActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(mGattUpdateReceiver);
+        if (connected) {
+            unregisterReceiver(mGattUpdateReceiver);
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(mServiceConnection);
-        mBluetoothLeService = null;
+        if (connected) {
+            unbindService(mServiceConnection);
+            mBluetoothLeService = null;
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main_menu, menu);
+        getMenuInflater().inflate(R.menu.workout_menu, menu);
+        if (connected ){
+            menu.removeItem(R.id.action_connect);
+        }
+        else {
+            menu.removeItem(R.id.action_disconnect);
+            menu.removeItem(R.id.action_freeHang);
+        }
         return true;
     }
 
@@ -397,6 +428,11 @@ public class WorkoutActivity extends AppCompatActivity {
                 mBluetoothLeService = null;
                 final Intent intent4 = new Intent(this, ConnectActivity.class);
                 startActivity(intent4);
+                return true;
+
+            case R.id.action_connect:
+                final Intent intent5 = new Intent(this, ConnectActivity.class);
+                startActivity(intent5);
                 return true;
 
             default:

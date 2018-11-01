@@ -6,7 +6,7 @@
     <string name="connected">Connected</string>
     <string name="disconnected">Disconnected</string>
     <string name="multiple_hag_boards">More than one H.A.G. Board in range!</string>
-    <string name="hag_board_dissconnect">H.A.G. Board disconnected!</string>
+    <string name="hag_board_disconnect">H.A.G. Board disconnected!</string>
     <string name="scanning_status">Searching for H.A.G. Boards</string>
     <string name="not_found_status">H.A.G. Board not found!</string>
     <string name="found_status">H.A.G. Board found!</string>
@@ -23,4 +23,5 @@
     <string name="workout_log">Workout Log</string>
     <string name="free_hang">Free Hang</string>
     <string name="disconnect">Disconnect</string>
+    <string name="connect">Connect</string>
 </resources>

@@ -14,6 +14,11 @@
         android:title="@string/free_hang"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/action_connect"
+        android:title="@string/connect"
+        app:showAsAction="never" />
+
     <item android:id="@+id/action_disconnect"
         android:title="@string/disconnect"
         app:showAsAction="never" />

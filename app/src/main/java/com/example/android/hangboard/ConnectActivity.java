@@ -13,6 +13,9 @@ import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -45,6 +48,9 @@ public class ConnectActivity extends AppCompatActivity {
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // run only in portrait mode
         setContentView(R.layout.activity_connect);
+
+        final Toolbar myToolbar = findViewById(R.id.connect_toolbar);
+        setSupportActionBar(myToolbar);
 
         statusText = findViewById(R.id.statusText);
         connectButton = findViewById(R.id.connectButton);
@@ -88,6 +94,35 @@ public class ConnectActivity extends AppCompatActivity {
         super.onPause();
         mLeDeviceListAdapter.clear();
         scanLeDevice(false);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.connect_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+
+            case R.id.action_workoutLog:
+                final Intent intent1 = new Intent(this, LogActivity.class);
+                startActivity(intent1);
+                return true;
+
+            case R.id.action_timer:
+                final Intent intent2 = new Intent(this, WorkoutActivity.class);
+                startActivity(intent2);
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
     }
 
     @Override
@@ -234,11 +269,6 @@ public class ConnectActivity extends AppCompatActivity {
         }
         //No or Multiple HAG Boards found
         else {
-
-            //////  FOR TESTING  ///////
-            final Intent intent = new Intent(this, WorkoutActivity.class);
-            startActivity(intent);
-            ////////////////////////////
             scanLeDevice(true);
         }
     }

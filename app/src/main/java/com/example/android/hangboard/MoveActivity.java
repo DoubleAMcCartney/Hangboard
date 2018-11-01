@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -107,7 +106,7 @@ public class MoveActivity extends Activity {
             final boolean result = mBluetoothLeService.connect(mDeviceAddress);
             Log.d(TAG, "Connect request result=" + result);
             if (!result) {
-                Toast.makeText(this, R.string.hag_board_dissconnect, Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.hag_board_disconnect, Toast.LENGTH_SHORT).show();
                 final Intent intent = new Intent(this, ConnectActivity.class);
                 startActivity(intent);
             }

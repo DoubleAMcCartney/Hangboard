@@ -8,6 +8,8 @@ public class WorkoutViewModel extends ViewModel {
     private CountDownTimer timer;
 
     // Define  LiveData
+
+    private MutableLiveData<Boolean> mConnected;
     private MutableLiveData<Integer> mPrepareTime;
     private MutableLiveData<Integer> mWorkTime;
     private MutableLiveData<Integer> mBreakTime;
@@ -27,6 +29,7 @@ public class WorkoutViewModel extends ViewModel {
 
     //Constructor
     public WorkoutViewModel () {
+        getConnected().setValue(false);
         getPrepareTime().setValue(10000);
         getWorkTime().setValue(7000);
         getBreakTime().setValue(180000);
@@ -43,6 +46,13 @@ public class WorkoutViewModel extends ViewModel {
         getTotalExercise().setValue(3);
         getAngle().setValue(0);
         getDepth().setValue(0);
+    }
+
+    public MutableLiveData<Boolean> getConnected() {
+        if (mConnected == null) {
+            mConnected = new MutableLiveData<>();
+        }
+        return mConnected;
     }
 
     public MutableLiveData<Integer> getPrepareTime() {
