@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -23,10 +24,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.UUID;
 
 public class WorkoutActivity extends AppCompatActivity {
     private final static String TAG = MoveActivity.class.getSimpleName();
@@ -41,9 +48,23 @@ public class WorkoutActivity extends AppCompatActivity {
             new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
     private boolean mConnected = false;
     private BluetoothGattCharacteristic mNotifyCharacteristic;
+    private BluetoothGattCharacteristic HAGActual;
+    private BluetoothGattService HAGService;
+
+    List <BluetoothGattCharacteristic> bluetoothGattCharacteristic = new ArrayList<>();
+    Queue<BluetoothGattCharacteristic> mWriteCharacteristic = new LinkedList<>();
 
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
+
+    public final static UUID UUID_HAG_SERVICE =
+            UUID.fromString(GattAttributes.HAG_SERVICE);
+    public final static UUID UUID_HAG_CURRENT =
+            UUID.fromString(GattAttributes.HAG_CURRENT);
+    public final static UUID UUID_HAG_DESIRED =
+            UUID.fromString(GattAttributes.HAG_DESIRED);
+    public final static UUID UUID_HAG_MOVE =
+            UUID.fromString(GattAttributes.HAG_MOVE);
 
     private int rep = 0;
     private int reps = 0;
@@ -96,6 +117,7 @@ public class WorkoutActivity extends AppCompatActivity {
             final String action = intent.getAction();
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 mConnected = true;
+                invalidateOptionsMenu();
 
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
@@ -103,9 +125,35 @@ public class WorkoutActivity extends AppCompatActivity {
                 Toast.makeText(WorkoutActivity.this, R.string.hag_board_disconnect, Toast.LENGTH_SHORT).show();
 
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+                if (mBluetoothLeService != null) {
+                    List<BluetoothGattService> gattServices = mBluetoothLeService.getSupportedGattServices();
+                    for (BluetoothGattService gattService : gattServices) {
+                        UUID serviceUUID = gattService.getUuid();
+
+
+                        if (serviceUUID.equals(UUID_HAG_SERVICE)) {
+                            HAGService = gattService;
+                            List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
+
+                            for (BluetoothGattCharacteristic characteristic : gattCharacteristics) {
+                                if (characteristic.getUuid().equals(UUID_HAG_CURRENT)) {
+                                    HAGActual = characteristic;
+                                    final int charaProp = characteristic.getProperties();
+                                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                                        mNotifyCharacteristic = characteristic;
+                                        mBluetoothLeService.setCharacteristicNotification(
+                                                characteristic, true);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
 
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-
+                int depth = HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 1);
+                depthText.setText(depth + "mm");
             }
         }
     };
@@ -259,6 +307,8 @@ public class WorkoutActivity extends AppCompatActivity {
         }
 
 
+
+
         timerStatusText = findViewById(R.id.timerStatusTextView);
         timerText = findViewById(R.id.timerTextView);
         repText = findViewById(R.id.repText);
@@ -327,14 +377,15 @@ public class WorkoutActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if (mConnected) {
+        //if (mDeviceName != null) {
             registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
-            if (mBluetoothLeService != null) {
-                final boolean result = mBluetoothLeService.connect(mDeviceAddress);
-                Log.d(TAG, "Connect request result=" + result);
-                if (!result) {
-                    Toast.makeText(this, R.string.hag_board_disconnect, Toast.LENGTH_SHORT).show();
-                }
+        //}
+
+        if (mBluetoothLeService != null) {
+            final boolean result = mBluetoothLeService.connect(mDeviceAddress);
+            Log.d(TAG, "Connect request result=" + result);
+            if (!result) {
+                Toast.makeText(this, R.string.hag_board_disconnect, Toast.LENGTH_SHORT).show();
             }
         }
 
@@ -368,9 +419,9 @@ public class WorkoutActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (mConnected) {
+        //if (mConnected) {
             unregisterReceiver(mGattUpdateReceiver);
-        }
+        //}
     }
 
     @Override
@@ -378,8 +429,8 @@ public class WorkoutActivity extends AppCompatActivity {
         super.onDestroy();
         if (mConnected) {
             unbindService(mServiceConnection);
-            mBluetoothLeService = null;
         }
+        mBluetoothLeService = null;
     }
 
     @Override
@@ -436,6 +487,38 @@ public class WorkoutActivity extends AppCompatActivity {
 
         }
     }
+
+    private void displayGattServices(List<BluetoothGattService> gattServices)
+    {
+        for(BluetoothGattService service : gattServices)
+        {
+            Log.i(TAG, "Service UUID = " + service.getUuid());
+
+            bluetoothGattCharacteristic = service.getCharacteristics();
+
+            for(BluetoothGattCharacteristic character: bluetoothGattCharacteristic)
+            {
+                Log.i(TAG, "Service Character UUID = " + character.getUuid());
+
+                // Add your **preferred characteristic** in a Queue
+                mWriteCharacteristic.add(character);
+            }
+        }
+
+        if(mWriteCharacteristic.size() > 0)
+        {
+            read_Characteristic();
+        };
+    };
+
+    // make sure this method is called when there is more than one characteristic to read & set
+    private void read_Characteristic()
+    {
+
+        mBluetoothLeService.readCharacteristic(mWriteCharacteristic.element());
+        mBluetoothLeService.setCharacteristicNotification(mWriteCharacteristic.element(),true);
+        mWriteCharacteristic.remove();
+    };
 
 
     private static IntentFilter makeGattUpdateIntentFilter() {

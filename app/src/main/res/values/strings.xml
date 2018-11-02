@@ -10,6 +10,7 @@
     <string name="scanning_status">Searching for H.A.G. Boards</string>
     <string name="not_found_status">H.A.G. Board not found!</string>
     <string name="found_status">H.A.G. Board found!</string>
+    <string name="connect_button_connect">Connect</string>
     <string name="connect_button_search">Search</string>
     <string name="connect_button_searching">Searching…</string>
     <string name="prepareText">Prepare</string>

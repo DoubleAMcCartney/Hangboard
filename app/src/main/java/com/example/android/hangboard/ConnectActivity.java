@@ -180,6 +180,7 @@ public class ConnectActivity extends AppCompatActivity {
                             statusText.setText(R.string.found_status);
                         }
                         mLeDevices.add(device);
+                        connectButton.setText(R.string.connect);
                         connectButton.setEnabled(true);
                     }
                 }
@@ -206,14 +207,19 @@ public class ConnectActivity extends AppCompatActivity {
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
+                    mBluetoothAdapter.stopLeScan(mLeScanCallback);
                     mScanning = false;
+                    spinner.setVisibility(View.INVISIBLE);
                     if (mLeDeviceListAdapter.getCount() == 0) {
-                        spinner.setVisibility(View.INVISIBLE);
                         statusText.setText(R.string.not_found_status);
                         connectButton.setText(R.string.connect_button_search);
                         connectButton.setEnabled(true);
                     }
-                    mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                    else {
+                        statusText.setText(R.string.found_status);
+                        connectButton.setText(R.string.connect_button_connect);
+                        connectButton.setEnabled(true);
+                    }
                 }
             }, SCAN_PERIOD);
 

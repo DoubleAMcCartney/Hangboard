@@ -1,19 +1,19 @@
 #include <bluefruit.h>
 
 BLEService        hags = BLEService(0x53e74e5ad19247a08f0635ec90c73a3a);
-BLECharacteristic hagd = BLECharacteristic(0x655013bc5e864d908b609eff874e888d); //depth
-BLECharacteristic haga = BLECharacteristic(0x8a013e8fddcc4498a8f7579e923fda72); //angle
-BLECharacteristic hagw = BLECharacteristic(0x9a9ee845ae63476ca3dd183c9de1cb2e); //wieght
-BLECharacteristic hagm = BLECharacteristic(0x46aa885c4bd847dc95830c3f6639f4d4); //move
+BLECharacteristic hagd = BLECharacteristic(0x2d0319d8de1511e89f32f2801f1b9fd1); //desired
+BLECharacteristic hagc = BLECharacteristic(0x4e0f43c2de1511e89f32f2801f1b9fd2); //current
+BLECharacteristic hagm = BLECharacteristic(0x2d0317b2de1511e89f32f2801f1b9fd3); //move status
 
 BLEDis  bledis;
 BLEUart bleuart;
 BLEBas  blebas;
 
-uint8_t angel = 0;
+uint8_t angle = 0;
 uint8_t depth = 0;
 uint8_t wieght = 0;
-uint8_t battery = 0;
+uint8_t desiredAngle = 0;
+uint8_t desiredDepth = 0;
 
 void connect_callback(uint16_t conn_handle);
 void disconnect_callback(uint16_t conn_handle, uint8_t reason);
@@ -81,35 +81,27 @@ void setupHAG() {
   // Configure and Start HAG Service
   hags.begin();
 
-  // Start depth Service
-  hagd.setProperties(CHR_PROPS_NOTIFY);
+  // Start desired Service
+  hagd.setProperties(CHR_PROPS_WRITE);
   hagd.setPermission(SECMODE_OPEN, SECMODE_NO_ACCESS);
-  hagd.setFixedLen(1);
+  hagd.setFixedLen(2);
   hagd.begin();
-  uint8_t hagdata [1] = {0x00};
-  hagd.notify(hagdata, 1);
 
-  // Start angle Service
-  haga.setProperties(CHR_PROPS_NOTIFY);
-  haga.setPermission(SECMODE_OPEN, SECMODE_NO_ACCESS);
-  haga.setFixedLen(1);
-  haga.begin();
-  hagdata [1] = {0x00};
-  hagd.notify(hagdata, 1);
-
-  // Start wieght Service
-  hagw.setProperties(CHR_PROPS_NOTIFY);
-  hagw.setPermission(SECMODE_OPEN, SECMODE_NO_ACCESS);
-  hagw.setFixedLen(1);
-  hagw.begin();
-  hagdata [1] = {0x00};
-  hagw.notify(hagdata, 1);
+  // Start current Service
+  hagc.setProperties(CHR_PROPS_NOTIFY);
+  hagc.setPermission(SECMODE_OPEN, SECMODE_NO_ACCESS);
+  hagc.setFixedLen(3);
+  hagc.begin();
+  uint8_t hagCurrentData [3] = {angle, depth, wieght};
+  hagd.notify(hagCurrentData, 3);
   
-  // Start move Service
-  hagm.setProperties(CHR_PROPS_READ);
+  // Start move status Service
+  hagm.setProperties(CHR_PROPS_NOTIFY);
   hagm.setPermission(SECMODE_OPEN, SECMODE_NO_ACCESS);
   hagm.setFixedLen(1);
   hagm.begin();
+  uint8_t hagMoveData [1] = {0x00000000};
+  hagm.notify(hagMoveData, 1);
 }
 
 void loop()
@@ -117,8 +109,8 @@ void loop()
   digitalToggle(LED_RED);
 
   if ( Bluefruit.connected() ) {
-    uint8_t hagdata [1] = {depth++};
-    if ( hagd.notify(hagdata, 1) ){
+    uint8_t hagCurrentData [3] = {angle, depth++, wieght};
+    if ( hagc.notify(hagCurrentData, 3) ){
       Serial.print("Depth updated to: "); Serial.println(depth); 
     }else{
       Serial.println("ERROR: Notify not set in the CCCD or not connected!");
