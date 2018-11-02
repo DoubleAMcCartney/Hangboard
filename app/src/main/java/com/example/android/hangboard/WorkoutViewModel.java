@@ -1,10 +1,13 @@
 package com.example.android.hangboard;
 
+import android.app.Application;
+import android.arch.lifecycle.AndroidViewModel;
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.os.CountDownTimer;
 
-public class WorkoutViewModel extends ViewModel {
+public class WorkoutViewModel extends AndroidViewModel {
     private CountDownTimer timer;
 
     // Define  LiveData
@@ -26,26 +29,33 @@ public class WorkoutViewModel extends ViewModel {
     private MutableLiveData<Integer> mTotalExercises;
     private MutableLiveData<Integer> mCurrentAngle;
     private MutableLiveData<Integer> mCurrentDepth;
+    private LiveData<Workout> mCurrentWorkout;
 
     //Constructor
-    public WorkoutViewModel () {
+    public WorkoutViewModel (Application application) {
+        super(application);
+        AppDatabase db = AppDatabase.getInstance(this.getApplication());
+        WorkoutDAO mWorkoutDAO = db.getWorkoutDAO();
+
+        mCurrentWorkout = mWorkoutDAO.getWorkoutWithTitle("Intermediate");
+
         getConnected().setValue(false);
         getPrepareTime().setValue(10000);
-        getWorkTime().setValue(7000);
-        getBreakTime().setValue(180000);
-        getRestTime().setValue(3000);
+        getWorkTime().setValue(mCurrentWorkout.getValue().getWorkTime());
+        getBreakTime().setValue(mCurrentWorkout.getValue().getBreakTime());
+        getRestTime().setValue(mCurrentWorkout.getValue().getRestTime());
         getTimerStarted().setValue(false);
         getTimerState().setValue("Prepare");
-        getWorkoutTitle().setValue("Beginner Workout");
+        getWorkoutTitle().setValue(mCurrentWorkout.getValue().getWorkoutTitle());
         getTimerValue().setValue((long)getPrepareTime().getValue());
         getCurrentRep().setValue(1);
         getCurrentSet().setValue(1);
         getCurrentExercise().setValue(1);
-        getTotalSet().setValue(3);
-        getTotalRep().setValue(2);
-        getTotalExercise().setValue(3);
-        getAngle().setValue(0);
-        getDepth().setValue(0);
+        getTotalSet().setValue(mCurrentWorkout.getValue().getSets());
+        getTotalRep().setValue(mCurrentWorkout.getValue().getReps());
+        getTotalExercise().setValue(mCurrentWorkout.getValue().getExercises());
+        getAngle().setValue(mCurrentWorkout.getValue().getAngles().get(0));
+        getDepth().setValue(mCurrentWorkout.getValue().getDepths().get(0));
     }
 
     public MutableLiveData<Boolean> getConnected() {

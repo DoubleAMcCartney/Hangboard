@@ -1,5 +1,6 @@
 package com.example.android.hangboard;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
@@ -20,9 +21,9 @@ public interface WorkoutDAO {
     public void delete(Workout workout);
 
     @Query("SELECT * FROM workout")
-    public List<Workout> getWorkouts();
+    public LiveData<List<Workout>> getWorkouts();
 
-    @Query("SELECT * FROM workout WHERE workoutTitle = :number")
-    public Workout getContactWithId(String number);
+    @Query("SELECT * FROM workout WHERE workoutTitle = :title")
+    public LiveData<Workout> getWorkoutWithTitle(String title);
 
 }
