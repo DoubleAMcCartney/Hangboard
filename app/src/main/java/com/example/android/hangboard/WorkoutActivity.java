@@ -24,12 +24,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -436,7 +434,8 @@ public class WorkoutActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.workout_menu, menu);
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        menu.removeItem(R.id.action_timer);
         if (mConnected ){
             menu.removeItem(R.id.action_connect);
         }

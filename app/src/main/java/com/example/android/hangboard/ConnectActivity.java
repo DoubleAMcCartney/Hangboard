@@ -99,7 +99,11 @@ public class ConnectActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.connect_menu, menu);
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        menu.removeItem(R.id.action_connect);
+        menu.removeItem(R.id.action_disconnect);
+        menu.removeItem(R.id.action_freeHang);
+        menu.removeItem(R.id.action_editWorkout);
         return true;
     }
 

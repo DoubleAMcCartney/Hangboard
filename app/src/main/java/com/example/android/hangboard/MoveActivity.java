@@ -9,16 +9,19 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.app.Activity;
 import android.os.IBinder;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class MoveActivity extends Activity {
+public class MoveActivity extends AppCompatActivity {
     private final static String TAG = MoveActivity.class.getSimpleName();
 
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
@@ -90,6 +93,9 @@ public class MoveActivity extends Activity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // run only in portrait mode
         setContentView(R.layout.activity_move);
 
+        final Toolbar myToolbar = findViewById(R.id.move_toolbar);
+        setSupportActionBar(myToolbar);
+
         final Intent intent = getIntent();
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
@@ -124,6 +130,42 @@ public class MoveActivity extends Activity {
         super.onDestroy();
         unbindService(mServiceConnection);
         mBluetoothLeService = null;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        menu.removeItem(R.id.action_connect);
+        menu.removeItem(R.id.action_freeHang);
+        menu.removeItem(R.id.action_editWorkout);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+
+            case R.id.action_disconnect:
+                unbindService(mServiceConnection);
+                mBluetoothLeService = null;
+                final Intent intent1 = new Intent(this, ConnectActivity.class);
+                startActivity(intent1);
+                return true;
+
+            case R.id.action_timer:
+                final Intent intent2 = new Intent(this, WorkoutActivity.class);
+                intent2.putExtra(WorkoutActivity.EXTRAS_DEVICE_NAME, mDeviceName);
+                intent2.putExtra(WorkoutActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
+                startActivity(intent2);
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
     }
 
 
