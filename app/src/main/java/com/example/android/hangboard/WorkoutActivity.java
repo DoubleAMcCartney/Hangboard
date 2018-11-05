@@ -241,9 +241,12 @@ public class WorkoutActivity extends AppCompatActivity {
                 sets = workout.getSets();
                 reps = workout.getReps();
                 exercises = workout.getExercises();
+
+                //Set activity title to the workout title
+                //This will be displayed in the app bar
+                setTitle(workout.getWorkoutTitle());
                 depthText.setText(currentWorkout.getDepths().get(0) + "mm");
                 angleText.setText(currentWorkout.getAngles().get(0) + "°");
-                setTitle(workout.getWorkoutTitle());
                 updateText();
             }
             else {
@@ -275,9 +278,6 @@ public class WorkoutActivity extends AppCompatActivity {
             bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
         }
 
-
-
-
         timerStatusText = findViewById(R.id.timerStatusTextView);
         timerText = findViewById(R.id.timerTextView);
         repText = findViewById(R.id.repText);
@@ -299,21 +299,17 @@ public class WorkoutActivity extends AppCompatActivity {
         mModel.getCurrentExercise().observe(this, currentExerciseObserver);
         mModel.getWorkout().observe(this, currentWorkoutObserver);
 
-        //Set activity title to the workout title
-        //This will be displayed in the app bar
-        setTitle(mModel.getWorkoutTitle().getValue());
-
         startPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Button b = (Button) v;
                 if (b.getText().equals(getString(R.string.startButtonText))) {
-                    mModel.getTotalRep().setValue(currentWorkout.getReps());
-                    mModel.getTotalSet().setValue(currentWorkout.getSets());
-                    mModel.getTotalExercise().setValue(currentWorkout.getExercises());
-                    mModel.getWorkTime().setValue(currentWorkout.getWorkTime());
-                    mModel.getRestTime().setValue(currentWorkout.getRestTime());
-                    mModel.getBreakTime().setValue(currentWorkout.getBreakTime());
+                    mModel.setTotalRep(currentWorkout.getReps());
+                    mModel.setTotalSet(currentWorkout.getSets());
+                    mModel.setTotalExercises(currentWorkout.getExercises());
+                    mModel.setWorkTime(currentWorkout.getWorkTime());
+                    mModel.setRestTime(currentWorkout.getRestTime());
+                    mModel.setBreakTime(currentWorkout.getBreakTime());
                     mModel.startTimer();
                 }
                 else {
@@ -336,12 +332,12 @@ public class WorkoutActivity extends AppCompatActivity {
             @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v) {
-                mModel.getTotalRep().setValue(currentWorkout.getReps());
-                mModel.getTotalSet().setValue(currentWorkout.getSets());
-                mModel.getTotalExercise().setValue(currentWorkout.getExercises());
-                mModel.getWorkTime().setValue(currentWorkout.getWorkTime());
-                mModel.getRestTime().setValue(currentWorkout.getRestTime());
-                mModel.getBreakTime().setValue(currentWorkout.getBreakTime());
+                mModel.setTotalRep(currentWorkout.getReps());
+                mModel.setTotalSet(currentWorkout.getSets());
+                mModel.setTotalExercises(currentWorkout.getExercises());
+                mModel.setWorkTime(currentWorkout.getWorkTime());
+                mModel.setRestTime(currentWorkout.getRestTime());
+                mModel.setBreakTime(currentWorkout.getBreakTime());
                 mModel.skipTimer();
             }
         });

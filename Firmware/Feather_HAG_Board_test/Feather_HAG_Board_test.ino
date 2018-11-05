@@ -109,9 +109,9 @@ void loop()
   digitalToggle(LED_RED);
 
   if ( Bluefruit.connected() ) {
-    uint8_t hagCurrentData [3] = {angle, depth++, wieght};
+    uint8_t hagCurrentData [3] = {angle, depth, wieght++};
     if ( hagc.notify(hagCurrentData, 3) ){
-      Serial.print("Depth updated to: "); Serial.println(depth); 
+      Serial.print("Wieght updated to: "); Serial.println(wieght); 
     }else{
       Serial.println("ERROR: Notify not set in the CCCD or not connected!");
     }

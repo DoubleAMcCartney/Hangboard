@@ -4,32 +4,27 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
 import android.os.CountDownTimer;
 
 public class WorkoutViewModel extends AndroidViewModel {
     private CountDownTimer timer;
+    private int workTime;
+    private int breakTime;
+    private int restTime;
+    private int totalReps;
+    private int totalSets;
+    private int totalExercises;
 
     // Define  LiveData
-
+    private LiveData<Workout> mCurrentWorkout;
     private MutableLiveData<Boolean> mConnected;
     private MutableLiveData<Integer> mPrepareTime;
-    private MutableLiveData<Integer> mWorkTime;
-    private MutableLiveData<Integer> mBreakTime;
-    private MutableLiveData<Integer> mRestTime;
     private MutableLiveData<Boolean> mTimerStarted;
     private MutableLiveData<String> mTimerState;
-    private MutableLiveData<String> mWorkoutTitle;
     private MutableLiveData<Long> mTimerValue;
     private MutableLiveData<Integer> mCurrentRep;
     private MutableLiveData<Integer> mCurrentSet;
     private MutableLiveData<Integer> mCurrentExercise;
-    private MutableLiveData<Integer> mTotalReps;
-    private MutableLiveData<Integer> mTotalSets;
-    private MutableLiveData<Integer> mTotalExercises;
-    private MutableLiveData<Integer> mCurrentAngle;
-    private MutableLiveData<Integer> mCurrentDepth;
-    private LiveData<Workout> mCurrentWorkout;
 
     //Constructor
     public WorkoutViewModel (Application application) {
@@ -63,27 +58,6 @@ public class WorkoutViewModel extends AndroidViewModel {
         return mPrepareTime;
     }
 
-    public MutableLiveData<Integer> getWorkTime() {
-        if (mWorkTime == null) {
-            mWorkTime = new MutableLiveData<>();
-        }
-        return mWorkTime;
-    }
-
-    public MutableLiveData<Integer> getBreakTime() {
-        if (mBreakTime == null) {
-            mBreakTime = new MutableLiveData<>();
-        }
-        return mBreakTime;
-    }
-
-    public MutableLiveData<Integer> getRestTime() {
-        if (mRestTime == null) {
-            mRestTime = new MutableLiveData<>();
-        }
-        return mRestTime;
-    }
-
     public MutableLiveData<Boolean> getTimerStarted() {
         if (mTimerStarted == null) {
             mTimerStarted = new MutableLiveData<>();
@@ -96,13 +70,6 @@ public class WorkoutViewModel extends AndroidViewModel {
             mTimerState = new MutableLiveData<>();
         }
         return mTimerState;
-    }
-
-    public MutableLiveData<String> getWorkoutTitle() {
-        if (mWorkoutTitle == null) {
-            mWorkoutTitle = new MutableLiveData<>();
-        }
-        return mWorkoutTitle;
     }
 
     public MutableLiveData<Long> getTimerValue() {
@@ -133,46 +100,35 @@ public class WorkoutViewModel extends AndroidViewModel {
         return mCurrentExercise;
     }
 
-    public MutableLiveData<Integer> getTotalRep() {
-        if (mTotalReps == null) {
-            mTotalReps = new MutableLiveData<>();
-        }
-        return mTotalReps;
-    }
-
-    public MutableLiveData<Integer> getTotalSet() {
-        if (mTotalSets == null) {
-            mTotalSets = new MutableLiveData<>();
-        }
-        return mTotalSets;
-    }
-
-    public MutableLiveData<Integer> getTotalExercise() {
-        if (mTotalExercises == null) {
-            mTotalExercises = new MutableLiveData<>();
-        }
-        return mTotalExercises;
-    }
-
-    public MutableLiveData<Integer> getAngle() {
-        if (mCurrentAngle == null) {
-            mCurrentAngle = new MutableLiveData<>();
-        }
-        return mCurrentAngle;
-    }
-
-    public MutableLiveData<Integer> getDepth() {
-        if (mCurrentDepth == null) {
-            mCurrentDepth = new MutableLiveData<>();
-        }
-        return mCurrentDepth;
-    }
-
     public LiveData<Workout> getWorkout() {
         if (mCurrentWorkout == null) {
             mCurrentWorkout = new MutableLiveData<>();
         }
         return mCurrentWorkout;
+    }
+
+    void setTotalRep(int i) {
+        totalReps = i;
+    }
+
+    void setTotalSet(int i) {
+        totalSets = i;
+    }
+
+    void setTotalExercises(int i) {
+        totalExercises = i;
+    }
+
+    void setWorkTime(int i) {
+        workTime = i;
+    }
+
+    void setBreakTime(int i) {
+        breakTime = i;
+    }
+
+    void setRestTime(int i) {
+        restTime = i;
     }
 
 
@@ -218,25 +174,25 @@ public class WorkoutViewModel extends AndroidViewModel {
     private void timerFinished() {
 
         if (getTimerState().getValue()=="Work") {
-            if (getCurrentRep().getValue() < getTotalRep().getValue()) {
+            if (getCurrentRep().getValue() < totalReps) {
                 getCurrentRep().setValue(getCurrentRep().getValue()+1);
                 getTimerState().setValue("Rest");
-                getTimerValue().setValue((long)getRestTime().getValue());
+                getTimerValue().setValue((long) restTime);
                 if (getTimerStarted().getValue()) startTimer();
             }
-            else if (getCurrentSet().getValue() < getTotalSet().getValue()) {
+            else if (getCurrentSet().getValue() < totalSets) {
                 getCurrentSet().setValue(getCurrentSet().getValue()+1);
                 getCurrentRep().setValue(1);
                 getTimerState().setValue("Break");
-                getTimerValue().setValue((long)getBreakTime().getValue());
+                getTimerValue().setValue((long) breakTime);
                 if (getTimerStarted().getValue()) startTimer();
             }
-            else if (getCurrentExercise().getValue() < getTotalExercise().getValue()) {
+            else if (getCurrentExercise().getValue() < totalExercises) {
                 getCurrentExercise().setValue(getCurrentExercise().getValue()+1);
                 getCurrentRep().setValue(1);
                 getCurrentSet().setValue(1);
                 getTimerState().setValue("Break");
-                getTimerValue().setValue((long)getBreakTime().getValue());
+                getTimerValue().setValue((long) breakTime);
                 if (getTimerStarted().getValue()) startTimer();
             }
             else {
@@ -254,7 +210,7 @@ public class WorkoutViewModel extends AndroidViewModel {
         }
         else {
             getTimerState().setValue("Work");
-            getTimerValue().setValue((long)getWorkTime().getValue());
+            getTimerValue().setValue((long) workTime);
             if (getTimerStarted().getValue()) startTimer();
         }
     }
