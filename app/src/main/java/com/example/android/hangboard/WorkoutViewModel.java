@@ -22,6 +22,7 @@ public class WorkoutViewModel extends AndroidViewModel {
     private MutableLiveData<Boolean> mTimerStarted;
     private MutableLiveData<String> mTimerState;
     private MutableLiveData<Long> mTimerValue;
+    private MutableLiveData<Long> mTimeRemaining;
     private MutableLiveData<Integer> mCurrentRep;
     private MutableLiveData<Integer> mCurrentSet;
     private MutableLiveData<Integer> mCurrentExercise;
@@ -79,6 +80,13 @@ public class WorkoutViewModel extends AndroidViewModel {
         return mTimerValue;
     }
 
+    public MutableLiveData<Long> getTimeRemaining() {
+        if (mTimeRemaining == null) {
+            mTimeRemaining = new MutableLiveData<>();
+        }
+        return mTimeRemaining;
+    }
+
     public MutableLiveData<Integer> getCurrentRep() {
         if (mCurrentRep == null) {
             mCurrentRep = new MutableLiveData<>();
@@ -131,13 +139,19 @@ public class WorkoutViewModel extends AndroidViewModel {
         restTime = i;
     }
 
+    void setTimeRemaining() {
+        long r = ((totalExercises - getCurrentExercise().getValue()+1) * (totalSets - getCurrentSet().getValue()+1) * (((totalReps - getCurrentRep().getValue()+1) * (workTime + restTime) - restTime) + breakTime) - breakTime)+getPrepareTime().getValue();
+        getTimeRemaining().setValue(r);
+    }
+
 
     public void startTimer() {
         getTimerStarted().setValue(true);
-        timer = new CountDownTimer(getTimerValue().getValue(), 100) {
+        timer = new CountDownTimer(getTimerValue().getValue(), 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 getTimerValue().setValue(millisUntilFinished);
+                getTimeRemaining().setValue(getTimeRemaining().getValue()-1000);
             }
 
             @Override
@@ -157,12 +171,14 @@ public class WorkoutViewModel extends AndroidViewModel {
         getTimerValue().setValue((long)getPrepareTime().getValue());
         getTimerState().setValue("Prepare");
         getTimerStarted().setValue(false);
+        setTimeRemaining();
     }
 
     public void skipTimer() {
         if (timer != null) {
             timer.cancel();
         }
+        mTimeRemaining.setValue(mTimeRemaining.getValue()-mTimerValue.getValue());
         timerFinished();
     }
 
@@ -178,14 +194,12 @@ public class WorkoutViewModel extends AndroidViewModel {
                 getCurrentRep().setValue(getCurrentRep().getValue()+1);
                 getTimerState().setValue("Rest");
                 getTimerValue().setValue((long) restTime);
-                if (getTimerStarted().getValue()) startTimer();
             }
             else if (getCurrentSet().getValue() < totalSets) {
                 getCurrentSet().setValue(getCurrentSet().getValue()+1);
                 getCurrentRep().setValue(1);
                 getTimerState().setValue("Break");
                 getTimerValue().setValue((long) breakTime);
-                if (getTimerStarted().getValue()) startTimer();
             }
             else if (getCurrentExercise().getValue() < totalExercises) {
                 getCurrentExercise().setValue(getCurrentExercise().getValue()+1);
@@ -193,7 +207,6 @@ public class WorkoutViewModel extends AndroidViewModel {
                 getCurrentSet().setValue(1);
                 getTimerState().setValue("Break");
                 getTimerValue().setValue((long) breakTime);
-                if (getTimerStarted().getValue()) startTimer();
             }
             else {
                 getCurrentRep().setValue(1);
@@ -206,12 +219,12 @@ public class WorkoutViewModel extends AndroidViewModel {
         else if (getTimerState().getValue()=="Done"){
             getTimerState().setValue("Prepare");
             getTimerValue().setValue((long)getPrepareTime().getValue());
-            if (getTimerStarted().getValue()) startTimer();
+            setTimeRemaining();
         }
         else {
             getTimerState().setValue("Work");
             getTimerValue().setValue((long) workTime);
-            if (getTimerStarted().getValue()) startTimer();
         }
+        if (getTimerStarted().getValue()) startTimer();
     }
 }

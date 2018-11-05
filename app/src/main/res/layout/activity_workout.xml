@@ -13,7 +13,7 @@
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
 
     <TextView
@@ -22,23 +22,36 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Depth: 0mm"
+        android:text="Depth: 20mm"
         android:textAlignment="textStart"
-        android:textSize="24sp"
+        android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/workout_toolbar" />
 
     <TextView
         android:id="@+id/angleText"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:text="Angle: 0° "
+        android:text="Angle: 45°"
         android:textAlignment="center"
-        android:textSize="24sp"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/workout_toolbar" />
+
+    <TextView
+        android:id="@+id/weightText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Weight: N/A"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/workout_toolbar"
+        tools:text="Weight: 100lbs" />
 
     <LinearLayout
         android:id="@+id/linearLayout2"
@@ -113,6 +126,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/workout_toolbar"
         tools:text="0:00" />
+
+    <TextView
+        android:id="@+id/timeRemainingText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.503"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/timerTextView"
+        tools:text="Remaining: 0:00" />
 
     <TextView
         android:id="@+id/exerciseText"

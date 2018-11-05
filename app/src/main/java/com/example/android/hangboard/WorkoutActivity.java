@@ -2,7 +2,6 @@ package com.example.android.hangboard;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProviders;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
@@ -81,6 +80,8 @@ public class WorkoutActivity extends AppCompatActivity {
     protected TextView exerciseText;
     protected TextView angleText;
     protected TextView depthText;
+    protected TextView weightText;
+    protected TextView timeRemainingText;
     protected Button startPauseButton;
     protected Button stopButton;
     protected Button skipButton;
@@ -153,8 +154,8 @@ public class WorkoutActivity extends AppCompatActivity {
 
 
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                int depth = HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 1);
-                depthText.setText(depth + "mm");
+                int weight = HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 2);
+                weightText.setText(weight + "lbs");
             }
         }
     };
@@ -233,6 +234,16 @@ public class WorkoutActivity extends AppCompatActivity {
         }
     };
 
+    private final Observer<Long> timeRemainingObserver = new Observer<Long>() {
+        @Override
+        public void onChanged(@Nullable final Long newValue) {
+            int seconds =  (int)(newValue / 1000);
+            int minutes = seconds / 60;
+            seconds = seconds % 60;
+            timeRemainingText.setText("Remaining: " + String.format("%d:%02d", minutes, seconds));
+        }
+    };
+
     private final Observer<Workout> currentWorkoutObserver = new Observer<Workout>() {
         @Override
         public void onChanged(@Nullable Workout workout) {
@@ -248,6 +259,16 @@ public class WorkoutActivity extends AppCompatActivity {
                 depthText.setText(currentWorkout.getDepths().get(0) + "mm");
                 angleText.setText(currentWorkout.getAngles().get(0) + "°");
                 updateText();
+
+                if (startPauseButton.getText() == "Start") {
+                    mModel.setTotalRep(currentWorkout.getReps());
+                    mModel.setTotalSet(currentWorkout.getSets());
+                    mModel.setTotalExercises(currentWorkout.getExercises());
+                    mModel.setWorkTime(currentWorkout.getWorkTime());
+                    mModel.setRestTime(currentWorkout.getRestTime());
+                    mModel.setBreakTime(currentWorkout.getBreakTime());
+                    mModel.setTimeRemaining();
+                }
             }
             else {
                 sets = 0;
@@ -285,6 +306,8 @@ public class WorkoutActivity extends AppCompatActivity {
         exerciseText = findViewById(R.id.exerciseText);
         angleText = findViewById(R.id.angleText);
         depthText = findViewById(R.id.depthText);
+        weightText = findViewById(R.id.weightText);
+        timeRemainingText = findViewById(R.id.timeRemainingText);
         startPauseButton = findViewById(R.id.startPauseButton);
         stopButton = findViewById(R.id.stopButton);
         skipButton = findViewById(R.id.skipButton);
@@ -297,6 +320,7 @@ public class WorkoutActivity extends AppCompatActivity {
         mModel.getCurrentRep().observe(this, currentRepObserver);
         mModel.getCurrentSet().observe(this, currentSetObserver);
         mModel.getCurrentExercise().observe(this, currentExerciseObserver);
+        mModel.getTimeRemaining().observe(this, timeRemainingObserver);
         mModel.getWorkout().observe(this, currentWorkoutObserver);
 
         startPauseButton.setOnClickListener(new View.OnClickListener() {
@@ -304,12 +328,6 @@ public class WorkoutActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Button b = (Button) v;
                 if (b.getText().equals(getString(R.string.startButtonText))) {
-                    mModel.setTotalRep(currentWorkout.getReps());
-                    mModel.setTotalSet(currentWorkout.getSets());
-                    mModel.setTotalExercises(currentWorkout.getExercises());
-                    mModel.setWorkTime(currentWorkout.getWorkTime());
-                    mModel.setRestTime(currentWorkout.getRestTime());
-                    mModel.setBreakTime(currentWorkout.getBreakTime());
                     mModel.startTimer();
                 }
                 else {
@@ -332,12 +350,6 @@ public class WorkoutActivity extends AppCompatActivity {
             @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v) {
-                mModel.setTotalRep(currentWorkout.getReps());
-                mModel.setTotalSet(currentWorkout.getSets());
-                mModel.setTotalExercises(currentWorkout.getExercises());
-                mModel.setWorkTime(currentWorkout.getWorkTime());
-                mModel.setRestTime(currentWorkout.getRestTime());
-                mModel.setBreakTime(currentWorkout.getBreakTime());
                 mModel.skipTimer();
             }
         });
@@ -424,7 +436,7 @@ public class WorkoutActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.action_editWorkout:
                 // User chose the "edit_workout" item, show the app edit workout UI...
-                final Intent intent1 = new Intent(this, EditWorkoutActivity.class);
+                final Intent intent1 = new Intent(this, ViewWorkoutsActivity.class);
                 startActivity(intent1);
                 return true;
 

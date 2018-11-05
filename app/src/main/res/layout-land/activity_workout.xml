@@ -13,19 +13,19 @@
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
     <TextView
         android:id="@+id/depthText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         android:text="Depth: 0mm"
         android:textAlignment="textStart"
         android:textSize="24sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/workout_toolbar" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/weightText" />
 
     <TextView
         android:id="@+id/angleText"
@@ -35,6 +35,17 @@
         android:layout_marginEnd="8dp"
         android:text="Angle: 0° "
         android:textAlignment="center"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/depthText" />
+
+    <TextView
+        android:id="@+id/weightText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="Wieght: N/A"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/workout_toolbar" />
@@ -126,17 +137,28 @@
         app:layout_constraintTop_toBottomOf="@+id/setText" />
 
     <TextView
+        android:id="@+id/timeRemainingText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="Remaining: 0:00"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout3"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
         android:id="@+id/setText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:text="Set: 0 of 0"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/workout_toolbar"
-        app:layout_constraintVertical_bias="0.497" />
+        app:layout_constraintTop_toBottomOf="@+id/workout_toolbar" />
 
     <TextView
         android:id="@+id/repText"
