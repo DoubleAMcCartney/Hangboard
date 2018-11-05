@@ -41,21 +41,12 @@ public class WorkoutViewModel extends AndroidViewModel {
 
         getConnected().setValue(false);
         getPrepareTime().setValue(10000);
-        getWorkTime().setValue(mCurrentWorkout.getValue().getWorkTime());
-        getBreakTime().setValue(mCurrentWorkout.getValue().getBreakTime());
-        getRestTime().setValue(mCurrentWorkout.getValue().getRestTime());
         getTimerStarted().setValue(false);
         getTimerState().setValue("Prepare");
-        getWorkoutTitle().setValue(mCurrentWorkout.getValue().getWorkoutTitle());
         getTimerValue().setValue((long)getPrepareTime().getValue());
         getCurrentRep().setValue(1);
         getCurrentSet().setValue(1);
         getCurrentExercise().setValue(1);
-        getTotalSet().setValue(mCurrentWorkout.getValue().getSets());
-        getTotalRep().setValue(mCurrentWorkout.getValue().getReps());
-        getTotalExercise().setValue(mCurrentWorkout.getValue().getExercises());
-        getAngle().setValue(mCurrentWorkout.getValue().getAngles().get(0));
-        getDepth().setValue(mCurrentWorkout.getValue().getDepths().get(0));
     }
 
     public MutableLiveData<Boolean> getConnected() {
@@ -177,6 +168,13 @@ public class WorkoutViewModel extends AndroidViewModel {
         return mCurrentDepth;
     }
 
+    public LiveData<Workout> getWorkout() {
+        if (mCurrentWorkout == null) {
+            mCurrentWorkout = new MutableLiveData<>();
+        }
+        return mCurrentWorkout;
+    }
+
 
     public void startTimer() {
         getTimerStarted().setValue(true);
@@ -194,7 +192,9 @@ public class WorkoutViewModel extends AndroidViewModel {
     }
 
     public void stopTimer() {
-        timer.cancel();
+        if (timer != null) {
+            timer.cancel();
+        }
         getCurrentRep().setValue(1);
         getCurrentSet().setValue(1);
         getCurrentExercise().setValue(1);
@@ -204,7 +204,9 @@ public class WorkoutViewModel extends AndroidViewModel {
     }
 
     public void skipTimer() {
-        timer.cancel();
+        if (timer != null) {
+            timer.cancel();
+        }
         timerFinished();
     }
 

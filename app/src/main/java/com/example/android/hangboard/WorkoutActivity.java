@@ -2,6 +2,7 @@ package com.example.android.hangboard;
 
 import android.annotation.SuppressLint;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProviders;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattService;
@@ -64,6 +65,7 @@ public class WorkoutActivity extends AppCompatActivity {
     public final static UUID UUID_HAG_MOVE =
             UUID.fromString(GattAttributes.HAG_MOVE);
 
+    private Workout currentWorkout;
     private int rep = 0;
     private int reps = 0;
     private int set = 0;
@@ -71,6 +73,7 @@ public class WorkoutActivity extends AppCompatActivity {
     private int exercise = 0;
     private int exercises = 0;
 
+    private WorkoutViewModel mModel;
     protected TextView timerStatusText;
     protected TextView timerText;
     protected TextView repText;
@@ -157,26 +160,10 @@ public class WorkoutActivity extends AppCompatActivity {
     };
 
     //Live Data observers
-//    private final Observer<Boolean> connectedObserver = new Observer<Boolean>() {
-//        @Override
-//        public void onChanged(@Nullable final Boolean newValue) {
-//            connected = newValue;
-//        }
-//    };
-
     private final Observer<String> timerStateObserver = new Observer<String>() {
         @Override
         public void onChanged(@Nullable final String newValue) {
             timerStatusText.setText(newValue);
-        }
-    };
-
-    private final Observer<String> workoutTitleObserver = new Observer<String>() {
-        @Override
-        public void onChanged(@Nullable final String newValue) {
-            //Set activity title to the workout title
-            //This will be displayed in the app bar
-            setTitle(newValue);
         }
     };
 
@@ -246,42 +233,26 @@ public class WorkoutActivity extends AppCompatActivity {
         }
     };
 
-    private final Observer<Integer> totalRepObserver = new Observer<Integer>() {
+    private final Observer<Workout> currentWorkoutObserver = new Observer<Workout>() {
         @Override
-        public void onChanged(@Nullable final Integer newValue) {
-            reps = newValue;
-            updateText();
-        }
-    };
+        public void onChanged(@Nullable Workout workout) {
+            if (workout != null) {
+                currentWorkout = workout;
+                sets = workout.getSets();
+                reps = workout.getReps();
+                exercises = workout.getExercises();
+                depthText.setText(currentWorkout.getDepths().get(0) + "mm");
+                angleText.setText(currentWorkout.getAngles().get(0) + "°");
+                setTitle(workout.getWorkoutTitle());
+                updateText();
+            }
+            else {
+                sets = 0;
+                reps = 0;
+                exercises = 0;
+                updateText();
+            }
 
-    private final Observer<Integer> totalSetObserver = new Observer<Integer>() {
-        @Override
-        public void onChanged(@Nullable final Integer newValue) {
-            sets = newValue;
-            updateText();
-        }
-    };
-
-    private final Observer<Integer> totalExerciseObserver = new Observer<Integer>() {
-        @Override
-        public void onChanged(@Nullable final Integer newValue) {
-            exercises = newValue;
-            updateText();
-        }
-    };
-
-
-    private final Observer<Integer> angleObserver = new Observer<Integer>() {
-        @Override
-        public void onChanged(@Nullable final Integer newValue) {
-            angleText.setText(newValue + "°");
-        }
-    };
-
-    private final Observer<Integer> depthObserver = new Observer<Integer>() {
-        @Override
-        public void onChanged(@Nullable final Integer newValue) {
-            depthText.setText(newValue + "mm");
         }
     };
 
@@ -319,20 +290,14 @@ public class WorkoutActivity extends AppCompatActivity {
         skipButton = findViewById(R.id.skipButton);
 
         //ViewModel and live data stuff
-        final WorkoutViewModel mModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
-//        mModel.getConnected().observe(this, connectedObserver);
+        mModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
         mModel.getTimerState().observe(this, timerStateObserver);
-        mModel.getWorkoutTitle().observe(this, workoutTitleObserver);
         mModel.getTimerValue().observe(this, timerValueObserver);
         mModel.getTimerStarted().observe(this, timerStartedObserver);
         mModel.getCurrentRep().observe(this, currentRepObserver);
         mModel.getCurrentSet().observe(this, currentSetObserver);
         mModel.getCurrentExercise().observe(this, currentExerciseObserver);
-        mModel.getTotalRep().observe(this, totalRepObserver);
-        mModel.getTotalSet().observe(this, totalSetObserver);
-        mModel.getTotalExercise().observe(this, totalExerciseObserver);
-        mModel.getAngle().observe(this, angleObserver);
-        mModel.getDepth().observe(this, depthObserver);
+        mModel.getWorkout().observe(this, currentWorkoutObserver);
 
         //Set activity title to the workout title
         //This will be displayed in the app bar
@@ -343,6 +308,12 @@ public class WorkoutActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Button b = (Button) v;
                 if (b.getText().equals(getString(R.string.startButtonText))) {
+                    mModel.getTotalRep().setValue(currentWorkout.getReps());
+                    mModel.getTotalSet().setValue(currentWorkout.getSets());
+                    mModel.getTotalExercise().setValue(currentWorkout.getExercises());
+                    mModel.getWorkTime().setValue(currentWorkout.getWorkTime());
+                    mModel.getRestTime().setValue(currentWorkout.getRestTime());
+                    mModel.getBreakTime().setValue(currentWorkout.getBreakTime());
                     mModel.startTimer();
                 }
                 else {
@@ -365,6 +336,12 @@ public class WorkoutActivity extends AppCompatActivity {
             @SuppressLint("SetTextI18n")
             @Override
             public void onClick(View v) {
+                mModel.getTotalRep().setValue(currentWorkout.getReps());
+                mModel.getTotalSet().setValue(currentWorkout.getSets());
+                mModel.getTotalExercise().setValue(currentWorkout.getExercises());
+                mModel.getWorkTime().setValue(currentWorkout.getWorkTime());
+                mModel.getRestTime().setValue(currentWorkout.getRestTime());
+                mModel.getBreakTime().setValue(currentWorkout.getBreakTime());
                 mModel.skipTimer();
             }
         });

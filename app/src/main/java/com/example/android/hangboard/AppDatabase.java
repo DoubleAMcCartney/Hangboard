@@ -37,7 +37,8 @@ public abstract class AppDatabase extends RoomDatabase {
                         });
                     }
                 }).allowMainThreadQueries().build();
-
+                db.beginTransaction();
+                db.endTransaction();
         return db;
     }
 }

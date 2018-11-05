@@ -12,18 +12,18 @@ import java.util.List;
 @Dao
 public interface WorkoutDAO {
     @Insert
-    public void insert(Workout... workouts);
+    void insert(Workout... workouts);
 
     @Update
-    public void update(Workout... workouts);
+    void update(Workout... workouts);
 
     @Delete
-    public void delete(Workout workout);
+    void delete(Workout workout);
 
     @Query("SELECT * FROM workout")
-    public LiveData<List<Workout>> getWorkouts();
+    LiveData<List<Workout>> getWorkouts();
 
     @Query("SELECT * FROM workout WHERE workoutTitle = :title")
-    public LiveData<Workout> getWorkoutWithTitle(String title);
+    LiveData<Workout> getWorkoutWithTitle(String title);
 
 }
