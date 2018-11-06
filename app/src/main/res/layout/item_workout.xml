@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
     xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="64dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
@@ -13,49 +14,63 @@
         android:id="@+id/workoutTitle"
         android:layout_width="match_parent"
         android:layout_height="52dp"
+        android:layout_alignParentTop="true"
         android:textSize="24sp"
         android:textStyle="bold"
-        tools:text="Title"
-        android:layout_alignParentTop="true"/>
+        tools:text="Title" />
 
     <TextView
         android:id="@+id/reps"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
         android:text="reps" />
 
     <TextView
         android:id="@+id/sets"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="17dp"
         android:text="sets" />
 
     <TextView
         android:id="@+id/exercises"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:text="sets" />
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="2dp"
+        android:layout_marginBottom="20dp"
+        android:text="exercises" />
 
     <TextView
         android:id="@+id/workTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:text="sets" />
+        android:layout_above="@+id/reps"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:text="Work" />
 
     <TextView
         android:id="@+id/restTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:text="sets" />
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:text="Rest" />
 
     <TextView
         android:id="@+id/breakTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/sets"
         android:layout_alignParentRight="true"
-        android:text="sets" />
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="2dp"
+        android:text="Break" />
 </RelativeLayout>

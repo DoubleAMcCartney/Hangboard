@@ -24,7 +24,7 @@ public class WorkoutListAdapter extends
 
         private WorkoutViewHolder(View itemView) {
             super(itemView);
-            workoutItemView = itemView.findViewById(R.id.textView);
+            workoutItemView = itemView.findViewById(R.id.workoutTitle);
             repItemView = itemView.findViewById(R.id.reps);
             setItemView = itemView.findViewById(R.id.sets);
             exerciseItemView = itemView.findViewById(R.id.exercises);
@@ -50,12 +50,12 @@ public class WorkoutListAdapter extends
         if (mWorkouts != null) {
             Workout current = mWorkouts.get(position);
             holder.workoutItemView.setText(current.getWorkoutTitle());
-            holder.repItemView.setText(current.getReps());
-            holder.setItemView.setText(current.getSets());
-            holder.exerciseItemView.setText(current.getExercises());
-            holder.workTimeItemView.setText(current.getWorkTime());
-            holder.restTimeItemView.setText(current.getRestTime());
-            holder.breakTimeItemView.setText(current.getBreakTime());
+            holder.repItemView.setText("Reps: " + current.getReps());
+            holder.setItemView.setText("Sets: " + current.getSets());
+            holder.exerciseItemView.setText("Exercises: " + current.getExercises());
+            holder.workTimeItemView.setText("Work: " + (current.getWorkTime()/1000));
+            holder.restTimeItemView.setText("Rest: " + (current.getRestTime()/1000));
+            holder.breakTimeItemView.setText("Break: " + (current.getBreakTime()/1000));
         }
         else {
             holder.workoutItemView.setText("No Workout");
