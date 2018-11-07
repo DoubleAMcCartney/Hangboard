@@ -53,9 +53,9 @@ public class WorkoutListAdapter extends
             holder.repItemView.setText("Reps: " + current.getReps());
             holder.setItemView.setText("Sets: " + current.getSets());
             holder.exerciseItemView.setText("Exercises: " + current.getExercises());
-            holder.workTimeItemView.setText("Work: " + (current.getWorkTime()/1000));
-            holder.restTimeItemView.setText("Rest: " + (current.getRestTime()/1000));
-            holder.breakTimeItemView.setText("Break: " + (current.getBreakTime()/1000));
+            holder.workTimeItemView.setText("Work: " + (current.getWorkTime()/1000) + "sec");
+            holder.restTimeItemView.setText("Rest: " + (current.getRestTime()/1000) + "sec");
+            holder.breakTimeItemView.setText("Break: " + (current.getBreakTime()/60000) + "min");
         }
         else {
             holder.workoutItemView.setText("No Workout");

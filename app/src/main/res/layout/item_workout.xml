@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="64dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="80dp"
     android:background="?android:attr/selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
@@ -15,6 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="52dp"
         android:layout_alignParentTop="true"
+        android:layout_marginStart="3dp"
         android:textSize="24sp"
         android:textStyle="bold"
         tools:text="Title" />
@@ -25,7 +26,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="20dp"
+        android:layout_marginStart="3dp"
+        android:layout_marginBottom="28dp"
         android:text="reps" />
 
     <TextView
@@ -34,7 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="17dp"
+        android:layout_marginBottom="28dp"
         android:text="sets" />
 
     <TextView
@@ -43,8 +45,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginRight="2dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginRight="3dp"
+        android:layout_marginBottom="28dp"
         android:text="exercises" />
 
     <TextView
@@ -52,6 +54,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/reps"
+        android:layout_marginStart="3dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
         android:text="Work" />
@@ -60,8 +63,8 @@
         android:id="@+id/restTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
         android:text="Rest" />
 
     <TextView
@@ -71,6 +74,6 @@
         android:layout_above="@+id/sets"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginRight="2dp"
+        android:layout_marginRight="3dp"
         android:text="Break" />
 </RelativeLayout>
