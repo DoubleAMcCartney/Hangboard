@@ -33,6 +33,9 @@ import java.util.List;
 import java.util.Queue;
 import java.util.UUID;
 
+//TODO: fix issue where activity disconnects from bluetooth when device is still connected
+//TODO: Use weight to control timer
+
 public class WorkoutActivity extends AppCompatActivity {
     private final static String TAG = MoveActivity.class.getSimpleName();
 
@@ -164,9 +167,11 @@ public class WorkoutActivity extends AppCompatActivity {
 
 
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                int weight = HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 2);
-                weight += HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 3)*256;
-                weightText.setText(weight + "lbs");
+                if (HAGActual != null) {
+                    int weight = HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 2);
+                    weight += HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 3)*256;
+                    weightText.setText(weight + "lbs");
+                }
             }
         }
     };

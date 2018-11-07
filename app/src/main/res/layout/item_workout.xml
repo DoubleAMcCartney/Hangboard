@@ -16,6 +16,7 @@
         android:layout_height="52dp"
         android:layout_alignParentTop="true"
         android:layout_marginStart="3dp"
+        android:textColor="@color/Title"
         android:textSize="24sp"
         android:textStyle="bold"
         tools:text="Title" />
