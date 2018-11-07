@@ -47,6 +47,7 @@ public class WorkoutActivity extends AppCompatActivity {
     private boolean mConnected = false;
     private BluetoothGattCharacteristic mNotifyCharacteristic;
     private BluetoothGattCharacteristic HAGActual;
+    private BluetoothGattCharacteristic HAGMove;
     private BluetoothGattService HAGService;
 
     List <BluetoothGattCharacteristic> bluetoothGattCharacteristic = new ArrayList<>();
@@ -147,6 +148,15 @@ public class WorkoutActivity extends AppCompatActivity {
                                                 characteristic, true);
                                     }
                                 }
+                                else if (characteristic.getUuid().equals(UUID_HAG_MOVE)) {
+                                    HAGMove = characteristic;
+                                    final int charaProp = characteristic.getProperties();
+                                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                                        mNotifyCharacteristic = characteristic;
+                                        mBluetoothLeService.setCharacteristicNotification(
+                                                characteristic, true);
+                                    }
+                                }
                             }
                         }
                     }
@@ -155,10 +165,13 @@ public class WorkoutActivity extends AppCompatActivity {
 
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 int weight = HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 2);
+                weight += HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 3)*256;
                 weightText.setText(weight + "lbs");
             }
         }
     };
+
+
 
     //Live Data observers
     private final Observer<String> timerStateObserver = new Observer<String>() {
@@ -267,7 +280,6 @@ public class WorkoutActivity extends AppCompatActivity {
                     mModel.setWorkTime(currentWorkout.getWorkTime());
                     mModel.setRestTime(currentWorkout.getRestTime());
                     mModel.setBreakTime(currentWorkout.getBreakTime());
-                    mModel.setTimeRemaining();
                 }
             }
             else {

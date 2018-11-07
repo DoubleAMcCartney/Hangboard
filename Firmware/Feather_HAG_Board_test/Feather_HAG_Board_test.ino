@@ -11,12 +11,14 @@ BLEBas  blebas;
 
 uint8_t angle = 0;
 uint8_t depth = 0;
-uint8_t wieght = 0;
+uint16_t weight = 0;
+uint8_t weightArray[2];
 uint8_t desiredAngle = 0;
 uint8_t desiredDepth = 0;
 
 void connect_callback(uint16_t conn_handle);
 void disconnect_callback(uint16_t conn_handle, uint8_t reason);
+void write_callback(BLECharacteristic& chr, uint8_t* data, uint16_t len, uint16_t offset);
 
 void setup()
 {
@@ -33,9 +35,10 @@ void setup()
   Serial.println("Setting Device Name to 'H.A.G. Board'");
   Bluefruit.setName("H.A.G. Board");
 
-  // Set the connect/disconnect callback handlers
+  // Set the callback handlers
   Bluefruit.setConnectCallback(connect_callback);
   Bluefruit.setDisconnectCallback(disconnect_callback);
+  hagd.setWriteCallback(write_callback);
 
   // Setup the H.A.G. Board service using
   // BLEService and BLECharacteristic classes
@@ -90,10 +93,12 @@ void setupHAG() {
   // Start current Service
   hagc.setProperties(CHR_PROPS_NOTIFY);
   hagc.setPermission(SECMODE_OPEN, SECMODE_NO_ACCESS);
-  hagc.setFixedLen(3);
+  hagc.setFixedLen(4);
   hagc.begin();
-  uint8_t hagCurrentData [3] = {angle, depth, wieght};
-  hagd.notify(hagCurrentData, 3);
+  weightArray[0]=weight & 0xff;
+  weightArray[1]=(weight >> 8);
+  uint8_t hagCurrentData [4] = {angle, depth, weightArray[0], weightArray[1]};
+  hagd.notify(hagCurrentData, 4);
   
   // Start move status Service
   hagm.setProperties(CHR_PROPS_NOTIFY);
@@ -109,9 +114,12 @@ void loop()
   digitalToggle(LED_RED);
 
   if ( Bluefruit.connected() ) {
-    uint8_t hagCurrentData [3] = {angle, depth, wieght++};
-    if ( hagc.notify(hagCurrentData, 3) ){
-      Serial.print("Wieght updated to: "); Serial.println(wieght); 
+    weight++;
+    weightArray[0]=weight & 0xff;
+    weightArray[1]=(weight >> 8);
+    uint8_t hagCurrentData [4] = {angle, depth, weightArray[0], weightArray[1]};
+    if ( hagc.notify(hagCurrentData, 4) ){
+      Serial.print("Wieght updated to: "); Serial.println(weight); 
     }else{
       Serial.println("ERROR: Notify not set in the CCCD or not connected!");
     }
@@ -141,6 +149,15 @@ void disconnect_callback(uint16_t conn_handle, uint8_t reason)
   Serial.println("Disconnected");
   Serial.println("Bluefruit will start advertising again");
 }
+
+void write_callback(BLECharacteristic& chr, uint8_t* data, uint16_t len, uint16_t offset)
+{
+  Serial.print("Data0: "); Serial.println(data[0]);
+  Serial.print("Data1: "); Serial.println(data[1]);
+  Serial.print("Length: "); Serial.println(len);
+  Serial.print("Offset: "); Serial.println(offset);
+}
+
 
 /**
  * RTOS Idle callback is automatically invoked by FreeRTOS
