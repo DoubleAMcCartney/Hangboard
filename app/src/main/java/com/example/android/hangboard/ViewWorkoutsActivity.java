@@ -13,13 +13,16 @@ import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.NumberPicker;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class ViewWorkoutsActivity extends AppCompatActivity {
 
     private ViewWorkoutsViewModel mViewWorkoutsViewModel;
     private FloatingActionButton fab = findViewById(R.id.fab);
+    private Workout newWorkout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,22 +56,53 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
     void createNewWorkout() {
         DialogFragment AddWorkout = new AddWorkoutDialogFragment();
         AddWorkout.show(getSupportFragmentManager(), "AddWorkout");
-        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
 
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
         DisplayMetrics displayMetrics = new DisplayMetrics();
         ((ViewWorkoutsActivity) getApplicationContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
-        // TODO: calculate height and width and placement
+        // calculate height and width and placement
+        int margin = 20;
+        int screenWidth = displayMetrics.widthPixels;
+        int screenHeight = displayMetrics.heightPixels;
         lp.copyFrom(AddWorkout.getDialog().getWindow().getAttributes());
-        lp.width = displayMetrics.widthPixels;
-        lp.height = displayMetrics.heightPixels;
-        lp.x=-170;
-        lp.y=100;
+        lp.width = screenWidth - margin;
+        lp.height = screenHeight - margin;
+        lp.x = -margin;
+        lp.y = margin;
         AddWorkout.getDialog().getWindow().setAttributes(lp);
+
+        NumberPicker setsNP = findViewById(R.id.setsNumberPicker);
+        NumberPicker repsNP = findViewById(R.id.repsNumberPicker);
+        NumberPicker exercisesNP = findViewById(R.id.exercisesNumberPicker);
+        NumberPicker workNP = findViewById(R.id.workNumberPicker);
+        NumberPicker restNP = findViewById(R.id.restNumberPicker);
+        NumberPicker breakNP = findViewById(R.id.breakNumberPicker);
+
+        setsNP.setMinValue(1);
+        repsNP.setMinValue(1);
+        exercisesNP.setMinValue(1);
+        workNP.setMinValue(1);
+        restNP.setMinValue(1);
+        breakNP.setMinValue(1);
+        setsNP.setMaxValue(10);
+        repsNP.setMaxValue(10);
+        exercisesNP.setMaxValue(10);
+        workNP.setMaxValue(60);
+        restNP.setMaxValue(60);
+        breakNP.setMaxValue(60);
+
+        newWorkout = new Workout("Intermediate", 6, 5, 1, 7000, 3000, 240000,
+                        Arrays.asList(0), Arrays.asList(10));
+        // TODO: set setOnValueChangedListener for each numberPicker
     }
 
-    void addWorkout(Workout newWorkout) {
-        mViewWorkoutsViewModel.addWorkout(newWorkout);
+    void addWorkout() {
+        if (newWorkout!=null) {
+            if (newWorkout.isValid()){
+                mViewWorkoutsViewModel.addWorkout(newWorkout);
+            }
+        }
     }
 
 

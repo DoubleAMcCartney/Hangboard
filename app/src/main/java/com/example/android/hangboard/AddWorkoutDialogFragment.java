@@ -6,9 +6,9 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
+import android.widget.NumberPicker;
 
 public class AddWorkoutDialogFragment extends DialogFragment {
-    Workout newWorkout;
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -23,14 +23,16 @@ public class AddWorkoutDialogFragment extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         // add workout ...
-                        ((ViewWorkoutsActivity) getActivity()).addWorkout(newWorkout);
+                        ((ViewWorkoutsActivity) getActivity()).addWorkout();
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         AddWorkoutDialogFragment.this.getDialog().cancel();
                     }
-                });
+                })
+                .setTitle("Create Workout");
+
         return builder.create();
     }
 

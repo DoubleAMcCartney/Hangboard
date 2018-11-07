@@ -116,4 +116,10 @@ public class Workout {
                         Arrays.asList(0), Arrays.asList(10))
         };
     }
+
+    public boolean isValid() {
+        return (reps!=0)&(sets!=0)&(exercises!=0)&
+                (workTime!=0)&(restTime!=0)&(breakTime!=0)&
+                (angles.size()==exercises)&(depths.size()==exercises);
+    }
 }
