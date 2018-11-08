@@ -54,4 +54,9 @@ public class ExerciseListAdapter extends
             return mExercises.size();
         else return 0;
     }
+
+    void addExercise(Exercise exercise){
+        mExercises.add(exercise);
+        notifyDataSetChanged();
+    }
 }

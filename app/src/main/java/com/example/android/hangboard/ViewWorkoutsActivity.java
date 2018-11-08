@@ -15,6 +15,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.NumberPicker;
 
 import java.util.Arrays;
@@ -27,22 +29,34 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
     private Workout newWorkout;
     private LinearLayoutManager mLayoutManager;
 
+    private NumberPicker repsNP;
+    private NumberPicker setsNP;
+    private NumberPicker workNP;
+    private NumberPicker restNP;
+    private NumberPicker breakNP;
+    private NumberPicker angleNP;
+    private NumberPicker depthNP;
+    private ImageButton addExButton;
+    private RecyclerView exerciseRecyclerView;
+    private ExerciseListAdapter exerciseListAdapter;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // run only in portrait mode
         setContentView(R.layout.activity_edit_workout);
 
-        RecyclerView recyclerView = findViewById(R.id.rvWorkouts);
+        RecyclerView workoutRecyclerView = findViewById(R.id.rvWorkouts);
         fab = findViewById(R.id.fab);
-        final WorkoutListAdapter adapter = new WorkoutListAdapter(this);
-        recyclerView.setAdapter(adapter);
-        mLayoutManager = new LinearLayoutManager(recyclerView.getContext());
-        recyclerView.setLayoutManager(mLayoutManager);
+        final WorkoutListAdapter workoutListAdapter = new WorkoutListAdapter(this);
+        workoutRecyclerView.setAdapter(workoutListAdapter);
+        mLayoutManager = new LinearLayoutManager(workoutRecyclerView.getContext());
+        workoutRecyclerView.setLayoutManager(mLayoutManager);
 
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(workoutRecyclerView.getContext(),
                 mLayoutManager.getOrientation());
-        recyclerView.addItemDecoration(dividerItemDecoration);
+        workoutRecyclerView.addItemDecoration(dividerItemDecoration);
 
         //TODO: Add edit and delete workout options
 
@@ -52,7 +66,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
             @Override
             public void onChanged(@Nullable final List<Workout> workouts) {
                 // Update the cached copy of the words in the adapter.
-                adapter.setWorkouts(workouts);
+                workoutListAdapter.setWorkouts(workouts);
             }
         });
 
@@ -90,28 +104,40 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         newWorkout = new Workout("", 0, 0, 0, 0, 0, 0,
                 Arrays.asList(0), Arrays.asList(0));
 
-        NumberPicker repsNP = AddWorkout.getDialog().findViewById(R.id.repsNumberPicker);
-        NumberPicker setsNP = AddWorkout.getDialog().findViewById(R.id.setsNumberPicker);
-        NumberPicker workNP = AddWorkout.getDialog().findViewById(R.id.workNumberPicker);
-        NumberPicker restNP = AddWorkout.getDialog().findViewById(R.id.restNumberPicker);
-        NumberPicker breakNP = AddWorkout.getDialog().findViewById(R.id.breakNumberPicker);
+        repsNP = AddWorkout.getDialog().findViewById(R.id.repsNumberPicker);
+        setsNP = AddWorkout.getDialog().findViewById(R.id.setsNumberPicker);
+        workNP = AddWorkout.getDialog().findViewById(R.id.workNumberPicker);
+        restNP = AddWorkout.getDialog().findViewById(R.id.restNumberPicker);
+        breakNP = AddWorkout.getDialog().findViewById(R.id.breakNumberPicker);
+        angleNP = AddWorkout.getDialog().findViewById(R.id.addExAngleNP);
+        depthNP = AddWorkout.getDialog().findViewById(R.id.addExDepthNP);
+        addExButton = AddWorkout.getDialog().findViewById(R.id.addExerciseButton);
+        exerciseRecyclerView = AddWorkout.getDialog().findViewById(R.id.exercisesRecyclerView);
 
         repsNP.setOnValueChangedListener(repsNPListener);
         setsNP.setOnValueChangedListener(setsNPListener);
         workNP.setOnValueChangedListener(workNPListener);
         restNP.setOnValueChangedListener(restNPListener);
         breakNP.setOnValueChangedListener(breakNPListener);
+        addExButton.setOnClickListener(addExButtonListener);
 
         repsNP.setMinValue(1);
         setsNP.setMinValue(1);
         workNP.setMinValue(1);
         restNP.setMinValue(1);
         breakNP.setMinValue(1);
+        angleNP.setMinValue(0);
+        depthNP.setMinValue(0);
         repsNP.setMaxValue(10);
         setsNP.setMaxValue(10);
         workNP.setMaxValue(60);
         restNP.setMaxValue(60);
         breakNP.setMaxValue(60);
+        depthNP.setMaxValue(100);
+        angleNP.setMaxValue(60);
+
+        exerciseListAdapter = new ExerciseListAdapter(this);
+        exerciseRecyclerView.setAdapter(exerciseListAdapter);
 
         // TODO: set setOnValueChangedListener for each numberPicker
     }
@@ -163,4 +189,14 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                     newWorkout.setBreakTime(numberPicker.getValue());
                 }
             };
+
+    ImageButton.OnClickListener addExButtonListener =
+            new ImageButton.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+                    Exercise exercise = new Exercise(angleNP.getValue(), depthNP.getValue());
+                    exerciseListAdapter.addExercise(exercise);
+                }
+            };
+
 }
