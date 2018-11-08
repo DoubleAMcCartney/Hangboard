@@ -51,6 +51,7 @@ public class WorkoutActivity extends AppCompatActivity {
     private BluetoothGattCharacteristic mNotifyCharacteristic;
     private BluetoothGattCharacteristic HAGActual;
     private BluetoothGattCharacteristic HAGMove;
+    private BluetoothGattCharacteristic HAGDesired;
     private BluetoothGattService HAGService;
 
     List <BluetoothGattCharacteristic> bluetoothGattCharacteristic = new ArrayList<>();
@@ -160,6 +161,9 @@ public class WorkoutActivity extends AppCompatActivity {
                                                 characteristic, true);
                                     }
                                 }
+                                else if (characteristic.getUuid().equals(UUID_HAG_DESIRED)) {
+                                    HAGDesired = characteristic;
+                                }
                             }
                         }
                     }
@@ -248,6 +252,12 @@ public class WorkoutActivity extends AppCompatActivity {
         @Override
         public void onChanged(@Nullable final Integer newValue) {
             exercise = newValue;
+            byte[] value = new byte[2];
+            value[0] = (byte)(int)currentWorkout.getAngles().get(exercise);
+            value[1] = (byte)(int)currentWorkout.getDepths().get(exercise);
+            HAGDesired.setValue(value);
+            depthText.setText(currentWorkout.getDepths().get(exercise) + "mm");
+            angleText.setText(currentWorkout.getAngles().get(exercise) + "°");
             updateText();
         }
     };
@@ -274,6 +284,11 @@ public class WorkoutActivity extends AppCompatActivity {
                 //Set activity title to the workout title
                 //This will be displayed in the app bar
                 setTitle(workout.getWorkoutTitle());
+
+                byte[] value = new byte[2];
+                value[0] = (byte)(int)currentWorkout.getAngles().get(0);
+                value[1] = (byte)(int)currentWorkout.getDepths().get(0);
+                HAGDesired.setValue(value);
                 depthText.setText(currentWorkout.getDepths().get(0) + "mm");
                 angleText.setText(currentWorkout.getAngles().get(0) + "°");
                 updateText();
@@ -285,6 +300,7 @@ public class WorkoutActivity extends AppCompatActivity {
                     mModel.setWorkTime(currentWorkout.getWorkTime());
                     mModel.setRestTime(currentWorkout.getRestTime());
                     mModel.setBreakTime(currentWorkout.getBreakTime());
+                    mModel.setTimeRemaining();
                 }
             }
             else {
@@ -339,6 +355,7 @@ public class WorkoutActivity extends AppCompatActivity {
         mModel.getCurrentExercise().observe(this, currentExerciseObserver);
         mModel.getTimeRemaining().observe(this, timeRemainingObserver);
         mModel.getWorkout().observe(this, currentWorkoutObserver);
+
 
         startPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -536,4 +553,5 @@ public class WorkoutActivity extends AppCompatActivity {
         setText.setText("Set: " + Integer.toString(set) + " of " + Integer.toString(sets));
         exerciseText.setText("Exercise: " + Integer.toString(exercise) + " of " + Integer.toString(exercises));
     }
+
 }

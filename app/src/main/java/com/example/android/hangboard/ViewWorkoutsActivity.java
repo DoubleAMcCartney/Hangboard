@@ -2,6 +2,7 @@ package com.example.android.hangboard;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.pm.ActivityInfo;
 import android.graphics.Point;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -29,6 +30,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // run only in portrait mode
         setContentView(R.layout.activity_edit_workout);
 
         RecyclerView recyclerView = findViewById(R.id.rvWorkouts);
@@ -90,27 +92,23 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
 
         NumberPicker repsNP = AddWorkout.getDialog().findViewById(R.id.repsNumberPicker);
         NumberPicker setsNP = AddWorkout.getDialog().findViewById(R.id.setsNumberPicker);
-        NumberPicker exercisesNP = AddWorkout.getDialog().findViewById(R.id.exercisesNumberPicker);
         NumberPicker workNP = AddWorkout.getDialog().findViewById(R.id.workNumberPicker);
         NumberPicker restNP = AddWorkout.getDialog().findViewById(R.id.restNumberPicker);
         NumberPicker breakNP = AddWorkout.getDialog().findViewById(R.id.breakNumberPicker);
 
         repsNP.setOnValueChangedListener(repsNPListener);
         setsNP.setOnValueChangedListener(setsNPListener);
-        exercisesNP.setOnValueChangedListener(exercisesNPListener);
         workNP.setOnValueChangedListener(workNPListener);
         restNP.setOnValueChangedListener(restNPListener);
         breakNP.setOnValueChangedListener(breakNPListener);
 
         repsNP.setMinValue(1);
         setsNP.setMinValue(1);
-        exercisesNP.setMinValue(1);
         workNP.setMinValue(1);
         restNP.setMinValue(1);
         breakNP.setMinValue(1);
         repsNP.setMaxValue(10);
         setsNP.setMaxValue(10);
-        exercisesNP.setMaxValue(10);
         workNP.setMaxValue(60);
         restNP.setMaxValue(60);
         breakNP.setMaxValue(60);
@@ -139,14 +137,6 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                 @Override
                 public void onValueChange(NumberPicker numberPicker, int i, int i1) {
                     newWorkout.setReps(numberPicker.getValue());
-                }
-            };
-
-    NumberPicker.OnValueChangeListener exercisesNPListener =
-            new 	NumberPicker.OnValueChangeListener(){
-                @Override
-                public void onValueChange(NumberPicker numberPicker, int i, int i1) {
-                    newWorkout.setExercises(numberPicker.getValue());
                 }
             };
 
