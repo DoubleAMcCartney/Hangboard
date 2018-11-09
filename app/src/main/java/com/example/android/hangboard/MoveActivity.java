@@ -80,6 +80,42 @@ public class MoveActivity extends AppCompatActivity {
             }
             // Automatically connects to the device upon successful start-up initialization.
             mBluetoothLeService.connect(mDeviceAddress);
+            if (mBluetoothLeService != null) {
+                List<BluetoothGattService> gattServices = mBluetoothLeService.getSupportedGattServices();
+                for (BluetoothGattService gattService : gattServices) {
+                    UUID serviceUUID = gattService.getUuid();
+
+
+                    if (serviceUUID.equals(UUID_HAG_SERVICE)) {
+                        HAGService = gattService;
+                        List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
+
+                        for (BluetoothGattCharacteristic characteristic : gattCharacteristics) {
+                            if (characteristic.getUuid().equals(UUID_HAG_CURRENT)) {
+                                HAGActual = characteristic;
+                                final int charaProp = characteristic.getProperties();
+                                if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                                    mNotifyCharacteristic = characteristic;
+                                    mBluetoothLeService.setCharacteristicNotification(
+                                            characteristic, true);
+                                }
+                            }
+                            else if (characteristic.getUuid().equals(UUID_HAG_MOVE)) {
+                                HAGMove = characteristic;
+                                final int charaProp = characteristic.getProperties();
+                                if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                                    mNotifyCharacteristic = characteristic;
+                                    mBluetoothLeService.setCharacteristicNotification(
+                                            characteristic, true);
+                                }
+                            }
+                            else if (characteristic.getUuid().equals(UUID_HAG_DESIRED)) {
+                                HAGDesired = characteristic;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         @Override
@@ -108,42 +144,7 @@ public class MoveActivity extends AppCompatActivity {
                 Toast.makeText(com.example.android.hangboard.MoveActivity.this, R.string.hag_board_disconnect, Toast.LENGTH_SHORT).show();
 
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                if (mBluetoothLeService != null) {
-                    List<BluetoothGattService> gattServices = mBluetoothLeService.getSupportedGattServices();
-                    for (BluetoothGattService gattService : gattServices) {
-                        UUID serviceUUID = gattService.getUuid();
 
-
-                        if (serviceUUID.equals(UUID_HAG_SERVICE)) {
-                            HAGService = gattService;
-                            List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
-
-                            for (BluetoothGattCharacteristic characteristic : gattCharacteristics) {
-                                if (characteristic.getUuid().equals(UUID_HAG_CURRENT)) {
-                                    HAGActual = characteristic;
-                                    final int charaProp = characteristic.getProperties();
-                                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                                        mNotifyCharacteristic = characteristic;
-                                        mBluetoothLeService.setCharacteristicNotification(
-                                                characteristic, true);
-                                    }
-                                }
-                                else if (characteristic.getUuid().equals(UUID_HAG_MOVE)) {
-                                    HAGMove = characteristic;
-                                    final int charaProp = characteristic.getProperties();
-                                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                                        mNotifyCharacteristic = characteristic;
-                                        mBluetoothLeService.setCharacteristicNotification(
-                                                characteristic, true);
-                                    }
-                                }
-                                else if (characteristic.getUuid().equals(UUID_HAG_DESIRED)) {
-                                    HAGDesired = characteristic;
-                                }
-                            }
-                        }
-                    }
-                }
 
 
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
@@ -172,8 +173,10 @@ public class MoveActivity extends AppCompatActivity {
         Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
-        desiredAngle = (byte)(int)HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
-        desiredDepth = (byte)(int)HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 1);
+      //  List<BluetoothGattService> gattServices = mBluetoothLeService.getSupportedGattServices();
+
+      //  desiredAngle = (byte)(int)HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+       // desiredDepth = (byte)(int)HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 1);
 
         ImageButton shallowerButton = findViewById(R.id.Shallower);
         ImageButton deeperButton = findViewById(R.id.Deeper);
@@ -188,7 +191,7 @@ public class MoveActivity extends AppCompatActivity {
                     byte[] value = new byte[2];
                     value[0] = desiredAngle;
                     value[1] = desiredDepth;
-                    HAGDesired.setValue(value);
+                    mBluetoothLeService.writeCharac(HAGDesired,value);
                 }
             }
         });
@@ -201,7 +204,7 @@ public class MoveActivity extends AppCompatActivity {
                     byte[] value = new byte[2];
                     value[0] = desiredAngle;
                     value[1] = desiredDepth;
-                    HAGDesired.setValue(value);
+                    mBluetoothLeService.writeCharac(HAGDesired,value);
                 }
             }
         });

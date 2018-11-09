@@ -73,5 +73,8 @@ public class WorkoutListAdapter extends
         else return 0;
     }
 
+    Workout getWorkout(int position) {
+        return mWorkouts.get(position);
+    }
 
 }

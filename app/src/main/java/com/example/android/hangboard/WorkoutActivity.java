@@ -104,6 +104,40 @@ public class WorkoutActivity extends AppCompatActivity {
             }
             // Automatically connects to the device upon successful start-up initialization.
             mBluetoothLeService.connect(mDeviceAddress);
+            List<BluetoothGattService> gattServices = mBluetoothLeService.getSupportedGattServices();
+            for (BluetoothGattService gattService : gattServices) {
+                UUID serviceUUID = gattService.getUuid();
+
+
+                if (serviceUUID.equals(UUID_HAG_SERVICE)) {
+                    HAGService = gattService;
+                    List<BluetoothGattCharacteristic> gattCharacteristics = gattService.getCharacteristics();
+
+                    for (BluetoothGattCharacteristic characteristic : gattCharacteristics) {
+                        if (characteristic.getUuid().equals(UUID_HAG_CURRENT)) {
+                            HAGActual = characteristic;
+                            final int charaProp = characteristic.getProperties();
+                            if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                                mNotifyCharacteristic = characteristic;
+                                mBluetoothLeService.setCharacteristicNotification(
+                                        characteristic, true);
+                            }
+                        }
+                        else if (characteristic.getUuid().equals(UUID_HAG_MOVE)) {
+                            HAGMove = characteristic;
+                            final int charaProp = characteristic.getProperties();
+                            if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                                mNotifyCharacteristic = characteristic;
+                                mBluetoothLeService.setCharacteristicNotification(
+                                        characteristic, true);
+                            }
+                        }
+                        else if (characteristic.getUuid().equals(UUID_HAG_DESIRED)) {
+                            HAGDesired = characteristic;
+                        }
+                    }
+                }
+            }
         }
 
         @Override
@@ -251,14 +285,22 @@ public class WorkoutActivity extends AppCompatActivity {
     private final Observer<Integer> currentExerciseObserver = new Observer<Integer>() {
         @Override
         public void onChanged(@Nullable final Integer newValue) {
-            exercise = newValue;
-            byte[] value = new byte[2];
-            value[0] = (byte)(int)currentWorkout.getAngles().get(exercise);
-            value[1] = (byte)(int)currentWorkout.getDepths().get(exercise);
-            HAGDesired.setValue(value);
-            depthText.setText(currentWorkout.getDepths().get(exercise) + "mm");
-            angleText.setText(currentWorkout.getAngles().get(exercise) + "°");
-            updateText();
+            if (currentWorkout != null) {
+                exercise = newValue;
+                if (HAGDesired!= null) {
+                    byte[] value = new byte[2];
+                    value[0] = (byte)(int)currentWorkout.getAngles().get(exercise-1);
+                    value[1] = (byte)(int)currentWorkout.getDepths().get(exercise-1);
+                    HAGDesired.setValue(value);
+                }
+                depthText.setText(currentWorkout.getDepths().get(exercise-1) + "mm");
+                angleText.setText(currentWorkout.getAngles().get(exercise-1) + "°");
+                updateText();
+            }
+            else {
+                exercise = newValue;
+                updateText();
+            }
         }
     };
 
@@ -285,10 +327,13 @@ public class WorkoutActivity extends AppCompatActivity {
                 //This will be displayed in the app bar
                 setTitle(workout.getWorkoutTitle());
 
-                byte[] value = new byte[2];
-                value[0] = (byte)(int)currentWorkout.getAngles().get(0);
-                value[1] = (byte)(int)currentWorkout.getDepths().get(0);
-                HAGDesired.setValue(value);
+                if (HAGDesired != null) {
+                    byte[] value = new byte[2];
+                    value[0] = (byte)(int)currentWorkout.getAngles().get(0);
+                    value[1] = (byte)(int)currentWorkout.getDepths().get(0);
+                    HAGDesired.setValue(value);
+                }
+
                 depthText.setText(currentWorkout.getDepths().get(0) + "mm");
                 angleText.setText(currentWorkout.getAngles().get(0) + "°");
                 updateText();
@@ -476,7 +521,7 @@ public class WorkoutActivity extends AppCompatActivity {
 
             case R.id.action_workoutLog:
                 final Intent intent2 = new Intent(this, LogActivity.class);
-                startActivity(intent2);
+                startActivityForResult(intent2, 1);
                 return true;
 
             case R.id.action_freeHang:
@@ -506,37 +551,17 @@ public class WorkoutActivity extends AppCompatActivity {
         }
     }
 
-    private void displayGattServices(List<BluetoothGattService> gattServices)
-    {
-        for(BluetoothGattService service : gattServices)
-        {
-            Log.i(TAG, "Service UUID = " + service.getUuid());
-
-            bluetoothGattCharacteristic = service.getCharacteristics();
-
-            for(BluetoothGattCharacteristic character: bluetoothGattCharacteristic)
-            {
-                Log.i(TAG, "Service Character UUID = " + character.getUuid());
-
-                // Add your **preferred characteristic** in a Queue
-                mWriteCharacteristic.add(character);
-            }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            Bundle extras = data.getExtras();
+            String workoutTitle = (String) extras.get("result");
+            mModel.setCurrentWorkout(workoutTitle);
         }
 
-        if(mWriteCharacteristic.size() > 0)
-        {
-            read_Characteristic();
-        };
-    };
+    }
 
-    // make sure this method is called when there is more than one characteristic to read & set
-    private void read_Characteristic()
-    {
 
-        mBluetoothLeService.readCharacteristic(mWriteCharacteristic.element());
-        mBluetoothLeService.setCharacteristicNotification(mWriteCharacteristic.element(),true);
-        mWriteCharacteristic.remove();
-    };
 
 
     private static IntentFilter makeGattUpdateIntentFilter() {

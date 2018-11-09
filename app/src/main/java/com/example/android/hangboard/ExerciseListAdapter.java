@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ExerciseListAdapter extends
@@ -26,7 +27,7 @@ public class ExerciseListAdapter extends
     }
 
     private final LayoutInflater mInflater;
-    private List<Exercise> mExercises; // Cached copy of exercises
+    private List<Exercise> mExercises = new ArrayList<>(); // Cached copy of exercises
     
     ExerciseListAdapter(Context context) { mInflater = LayoutInflater.from(context); }
 

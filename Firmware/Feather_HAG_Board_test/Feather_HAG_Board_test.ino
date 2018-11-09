@@ -1,9 +1,9 @@
 #include <bluefruit.h>
 
-BLEService        hags = BLEService(0x53e74e5ad19247a08f0635ec90c73a3a);
-BLECharacteristic hagd = BLECharacteristic(0x2d0319d8de1511e89f32f2801f1b9fd1); //desired
-BLECharacteristic hagc = BLECharacteristic(0x4e0f43c2de1511e89f32f2801f1b9fd2); //current
-BLECharacteristic hagm = BLECharacteristic(0x2d0317b2de1511e89f32f2801f1b9fd3); //move status
+BLEService        hags = BLEService(0x53e74e5ad19247a08f0635ec90c73a3a);        //hag service
+BLECharacteristic hagd = BLECharacteristic(0x2d0319d8de1511e89f32f2801f1b9fd1); //desired char
+BLECharacteristic hagc = BLECharacteristic(0x4e0f43c2de1511e89f32f2801f1b9fd2); //current char
+BLECharacteristic hagm = BLECharacteristic(0x2d0317b2de1511e89f32f2801f1b9fd3); //move status char
 
 BLEDis  bledis;
 BLEUart bleuart;
@@ -123,6 +123,8 @@ void loop()
     }else{
       Serial.println("ERROR: Notify not set in the CCCD or not connected!");
     }
+//    uint16_t data = hagd.read16;  // doesn't work
+//    Serial.println(data);
   }
 
   
@@ -150,6 +152,7 @@ void disconnect_callback(uint16_t conn_handle, uint8_t reason)
   Serial.println("Bluefruit will start advertising again");
 }
 
+//doesn't get called
 void write_callback(BLECharacteristic& chr, uint8_t* data, uint16_t len, uint16_t offset)
 {
   Serial.print("Data0: "); Serial.println(data[0]);

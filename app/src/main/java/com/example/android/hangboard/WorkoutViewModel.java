@@ -14,6 +14,7 @@ public class WorkoutViewModel extends AndroidViewModel {
     private int totalReps;
     private int totalSets;
     private int totalExercises;
+    private WorkoutDAO mWorkoutDAO;
 
     // Define  LiveData
     private LiveData<Workout> mCurrentWorkout;
@@ -31,7 +32,7 @@ public class WorkoutViewModel extends AndroidViewModel {
     public WorkoutViewModel (Application application) {
         super(application);
         AppDatabase db = AppDatabase.getInstance(this.getApplication());
-        WorkoutDAO mWorkoutDAO = db.getWorkoutDAO();
+        mWorkoutDAO = db.getWorkoutDAO();
 
         mCurrentWorkout = mWorkoutDAO.getWorkoutWithTitle("Intermediate");
 
@@ -44,6 +45,7 @@ public class WorkoutViewModel extends AndroidViewModel {
         getCurrentSet().setValue(1);
         getCurrentExercise().setValue(1);
     }
+
 
     public MutableLiveData<Boolean> getConnected() {
         if (mConnected == null) {
@@ -109,9 +111,11 @@ public class WorkoutViewModel extends AndroidViewModel {
     }
 
     public LiveData<Workout> getWorkout() {
-        if (mCurrentWorkout == null) {
-            mCurrentWorkout = new MutableLiveData<>();
-        }
+        return mCurrentWorkout;
+    }
+
+    public LiveData<Workout> setCurrentWorkout(String workoutTitle) {
+        this.mCurrentWorkout = this.mWorkoutDAO.getWorkoutWithTitle(workoutTitle);
         return mCurrentWorkout;
     }
 

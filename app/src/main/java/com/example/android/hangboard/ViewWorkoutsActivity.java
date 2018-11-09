@@ -1,7 +1,10 @@
 package com.example.android.hangboard;
 
+import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Point;
 import android.support.annotation.Nullable;
@@ -13,6 +16,8 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.Display;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -57,6 +62,22 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(workoutRecyclerView.getContext(),
                 mLayoutManager.getOrientation());
         workoutRecyclerView.addItemDecoration(dividerItemDecoration);
+
+        workoutRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
+                workoutRecyclerView, new ClickListener() {
+            @Override
+            public void onClick(View view, final int position) {
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("result",workoutListAdapter.getWorkout(position).getWorkoutTitle());
+                setResult(Activity.RESULT_OK,returnIntent);
+                finish();
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+
+            }
+        }));
 
         //TODO: Add edit and delete workout options
 
@@ -136,10 +157,10 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         depthNP.setMaxValue(100);
         angleNP.setMaxValue(60);
 
-        exerciseListAdapter = new ExerciseListAdapter(this);
+        exerciseListAdapter = new ExerciseListAdapter(AddWorkout.getDialog().getContext());
         exerciseRecyclerView.setAdapter(exerciseListAdapter);
-
-        // TODO: set setOnValueChangedListener for each numberPicker
+        mLayoutManager = new LinearLayoutManager(exerciseRecyclerView.getContext());
+        exerciseRecyclerView.setLayoutManager(mLayoutManager);
     }
 
     void addWorkout() {
@@ -198,5 +219,69 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                     exerciseListAdapter.addExercise(exercise);
                 }
             };
+    /**
+     * RecyclerView: Implementing single item click and long press (Part-II)
+     *
+     * - creating an Interface for single tap and long press
+     * - Parameters are its respective view and its position
+     * */
+
+    public static interface ClickListener{
+        public void onClick(View view,int position);
+        public void onLongClick(View view,int position);
+    }
+
+    /**
+     * RecyclerView: Implementing single item click and long press (Part-II)
+     *
+     * - creating an innerclass implementing RevyvlerView.OnItemTouchListener
+     * - Pass clickListener interface as parameter
+     * */
+
+    class RecyclerTouchListener implements RecyclerView.OnItemTouchListener{
+
+        private ClickListener clicklistener;
+        private GestureDetector gestureDetector;
+
+        public RecyclerTouchListener(Context context, final RecyclerView recycleView, final ClickListener clicklistener){
+
+            this.clicklistener=clicklistener;
+            gestureDetector=new GestureDetector(context,new GestureDetector.SimpleOnGestureListener(){
+                @Override
+                public boolean onSingleTapUp(MotionEvent e) {
+                    return true;
+                }
+
+                @Override
+                public void onLongPress(MotionEvent e) {
+                    View child=recycleView.findChildViewUnder(e.getX(),e.getY());
+                    if(child!=null && clicklistener!=null){
+                        clicklistener.onLongClick(child,recycleView.getChildAdapterPosition(child));
+                    }
+                }
+            });
+        }
+
+        @Override
+        public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+            View child=rv.findChildViewUnder(e.getX(),e.getY());
+            if(child!=null && clicklistener!=null && gestureDetector.onTouchEvent(e)){
+                clicklistener.onClick(child,rv.getChildAdapterPosition(child));
+            }
+
+            return false;
+        }
+
+        @Override
+        public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+
+        }
+
+        @Override
+        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+        }
+    }
+
 
 }
