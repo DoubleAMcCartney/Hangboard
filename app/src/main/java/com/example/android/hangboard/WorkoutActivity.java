@@ -556,7 +556,8 @@ public class WorkoutActivity extends AppCompatActivity {
         if (requestCode == 1 && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
             String workoutTitle = (String) extras.get("result");
-            mModel.setCurrentWorkout(workoutTitle);
+            mModel.getWorkoutByTitle(workoutTitle).getValue();
+            mModel.getWorkout().observe(this, currentWorkoutObserver);
         }
 
     }

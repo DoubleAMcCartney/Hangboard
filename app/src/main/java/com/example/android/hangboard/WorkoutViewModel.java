@@ -114,7 +114,7 @@ public class WorkoutViewModel extends AndroidViewModel {
         return mCurrentWorkout;
     }
 
-    public LiveData<Workout> setCurrentWorkout(String workoutTitle) {
+    public LiveData<Workout> getWorkoutByTitle(String workoutTitle) {
         this.mCurrentWorkout = this.mWorkoutDAO.getWorkoutWithTitle(workoutTitle);
         return mCurrentWorkout;
     }
