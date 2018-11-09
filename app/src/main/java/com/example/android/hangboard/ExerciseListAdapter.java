@@ -41,7 +41,7 @@ public class ExerciseListAdapter extends
     public void onBindViewHolder(ExerciseListAdapter.ExerciseViewHolder holder, int position) {
         if (mExercises != null) {
             Exercise current = mExercises.get(position);
-            holder.numberTV.setText(position);
+            holder.numberTV.setText(Integer.toString(position+1));
             holder.depthTV.setText("Depth: " + current.getmDepth() + "mm");
             holder.angleTV.setText("Angle: " + current.getmAngle() + "°");
         }
