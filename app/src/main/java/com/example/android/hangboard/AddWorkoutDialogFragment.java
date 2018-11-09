@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
+import android.widget.Button;
 import android.widget.NumberPicker;
 
 public class AddWorkoutDialogFragment extends DialogFragment {
@@ -41,5 +42,16 @@ public class AddWorkoutDialogFragment extends DialogFragment {
         return builder.create();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        Button positiveButton;
+        AlertDialog d = (AlertDialog) getDialog();
+        if (d != null) {
+            positiveButton = d.getButton(Dialog.BUTTON_POSITIVE);
+            positiveButton.setEnabled(false);
+        }
+
+    }
 
 }

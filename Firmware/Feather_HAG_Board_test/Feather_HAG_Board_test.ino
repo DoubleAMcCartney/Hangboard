@@ -1,4 +1,5 @@
 #include <bluefruit.h>
+#include <Stepper.h>
 
 BLEService        hags = BLEService(0x53e74e5ad19247a08f0635ec90c73a3a);        //hag service
 BLECharacteristic hagd = BLECharacteristic(0x2d0319d8de1511e89f32f2801f1b9fd1); //desired char
@@ -8,6 +9,11 @@ BLECharacteristic hagm = BLECharacteristic(0x2d0317b2de1511e89f32f2801f1b9fd3); 
 BLEDis  bledis;
 BLEUart bleuart;
 BLEBas  blebas;
+ 
+int in1Pin = 12;
+int in2Pin = 11;
+int in3Pin = 10;
+int in4Pin = 9;
 
 uint8_t angle = 0;
 uint8_t depth = 0;
@@ -19,6 +25,8 @@ uint8_t desiredDepth = 0;
 void connect_callback(uint16_t conn_handle);
 void disconnect_callback(uint16_t conn_handle, uint8_t reason);
 void write_callback(BLECharacteristic& chr, uint8_t* data, uint16_t len, uint16_t offset);
+
+Stepper motor(512, in1Pin, in2Pin, in3Pin, in4Pin);
 
 void setup()
 {
@@ -50,6 +58,14 @@ void setup()
   startAdv();
 
   Serial.println("\nAdvertising");
+
+  // Set up for stepper motor
+  pinMode(in1Pin, OUTPUT);
+  pinMode(in2Pin, OUTPUT);
+  pinMode(in3Pin, OUTPUT);
+  pinMode(in4Pin, OUTPUT);
+  
+  motor.setSpeed(20);
 }
 
 void startAdv(void)
@@ -86,7 +102,7 @@ void setupHAG() {
 
   // Start desired Service
   hagd.setProperties(CHR_PROPS_WRITE);
-  hagd.setPermission(SECMODE_OPEN, SECMODE_NO_ACCESS);
+  hagd.setPermission(SECMODE_OPEN, SECMODE_OPEN);
   hagd.setFixedLen(2);
   hagd.begin();
 
@@ -119,14 +135,20 @@ void loop()
     weightArray[1]=(weight >> 8);
     uint8_t hagCurrentData [4] = {angle, depth, weightArray[0], weightArray[1]};
     if ( hagc.notify(hagCurrentData, 4) ){
-      Serial.print("Wieght updated to: "); Serial.println(weight); 
+      Serial.print("Wieght: "); Serial.println(weight);
+      Serial.print("Deptht: "); Serial.println(depth);
+      Serial.print("Angle: "); Serial.println(angle);
     }else{
       Serial.println("ERROR: Notify not set in the CCCD or not connected!");
     }
-//    uint16_t data = hagd.read16;  // doesn't work
-//    Serial.println(data);
   }
 
+  //update depth
+  if (depth != desiredDepth) {
+    int steps = depth - desiredDepth;
+    motor.step(steps);
+    depth = desiredDepth;
+  }
   
   delay(1000);
 
@@ -152,13 +174,12 @@ void disconnect_callback(uint16_t conn_handle, uint8_t reason)
   Serial.println("Bluefruit will start advertising again");
 }
 
-//doesn't get called
 void write_callback(BLECharacteristic& chr, uint8_t* data, uint16_t len, uint16_t offset)
 {
-  Serial.print("Data0: "); Serial.println(data[0]);
-  Serial.print("Data1: "); Serial.println(data[1]);
-  Serial.print("Length: "); Serial.println(len);
-  Serial.print("Offset: "); Serial.println(offset);
+  desiredAngle = data[0];
+  desiredDepth = data[1];
+  Serial.print("Desired depth updated to: "); Serial.println(desiredDepth);
+  Serial.print("Desired angle updated to: "); Serial.println(desiredAngle);
 }
 
 

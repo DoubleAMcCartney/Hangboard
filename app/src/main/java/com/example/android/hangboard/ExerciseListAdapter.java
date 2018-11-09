@@ -60,4 +60,25 @@ public class ExerciseListAdapter extends
         mExercises.add(exercise);
         notifyDataSetChanged();
     }
+
+    public void deleteExercise(int position) {
+        mExercises.remove(position);
+        notifyDataSetChanged();
+    }
+
+    public List<Integer> getAngles() {
+        List<Integer> angles = new ArrayList<>();
+        for (Exercise exercise : mExercises) {
+            angles.add(exercise.getmAngle());
+        }
+        return angles;
+    }
+
+    public List<Integer> getDepths() {
+        List<Integer> depth = new ArrayList<>();
+        for (Exercise exercise : mExercises) {
+            depth.add(exercise.getmDepth());
+        }
+        return depth;
+    }
 }

@@ -26,4 +26,7 @@ public interface WorkoutDAO {
     @Query("SELECT * FROM workout WHERE workoutTitle = :title")
     LiveData<Workout> getWorkoutWithTitle(String title);
 
+    @Query("SELECT * FROM workout WHERE workoutTitle = :title")
+    Workout getWorkoutWithTitleDirect(String title);
+
 }

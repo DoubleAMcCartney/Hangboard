@@ -1,6 +1,7 @@
 package com.example.android.hangboard;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -10,17 +11,21 @@ import android.graphics.Point;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.NumberPicker;
 
@@ -33,6 +38,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
     private FloatingActionButton fab;
     private Workout newWorkout;
     private LinearLayoutManager mLayoutManager;
+    private DialogFragment AddWorkout;
 
     private NumberPicker repsNP;
     private NumberPicker setsNP;
@@ -41,9 +47,11 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
     private NumberPicker breakNP;
     private NumberPicker angleNP;
     private NumberPicker depthNP;
+    private EditText workoutTitleET;
     private ImageButton addExButton;
     private RecyclerView exerciseRecyclerView;
     private ExerciseListAdapter exerciseListAdapter;
+    private Button positiveButton;
 
 
     @Override
@@ -101,7 +109,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
     }
 
     void createNewWorkout() {
-        DialogFragment AddWorkout = new AddWorkoutDialogFragment();
+        AddWorkout = new AddWorkoutDialogFragment();
         AddWorkout.show(getSupportFragmentManager(), "AddWorkout");
         getSupportFragmentManager().executePendingTransactions();
 
@@ -122,7 +130,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
 //        lp.y = margin;
 //        AddWorkout.getDialog().getWindow().setAttributes(lp);
 
-        newWorkout = new Workout("", 0, 0, 0, 0, 0, 0,
+        newWorkout = new Workout("", 1, 1, 0, 1, 1, 1,
                 Arrays.asList(0), Arrays.asList(0));
 
         repsNP = AddWorkout.getDialog().findViewById(R.id.repsNumberPicker);
@@ -132,14 +140,17 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         breakNP = AddWorkout.getDialog().findViewById(R.id.breakNumberPicker);
         angleNP = AddWorkout.getDialog().findViewById(R.id.addExAngleNP);
         depthNP = AddWorkout.getDialog().findViewById(R.id.addExDepthNP);
+        workoutTitleET = AddWorkout.getDialog().findViewById(R.id.titleEditText);
         addExButton = AddWorkout.getDialog().findViewById(R.id.addExerciseButton);
         exerciseRecyclerView = AddWorkout.getDialog().findViewById(R.id.exercisesRecyclerView);
+        positiveButton = ((AlertDialog)AddWorkout.getDialog()).getButton(Dialog.BUTTON_POSITIVE);
 
         repsNP.setOnValueChangedListener(repsNPListener);
         setsNP.setOnValueChangedListener(setsNPListener);
         workNP.setOnValueChangedListener(workNPListener);
         restNP.setOnValueChangedListener(restNPListener);
         breakNP.setOnValueChangedListener(breakNPListener);
+        workoutTitleET.addTextChangedListener(workoutTitleETListener);
         addExButton.setOnClickListener(addExButtonListener);
 
         repsNP.setMinValue(1);
@@ -161,11 +172,30 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         exerciseRecyclerView.setAdapter(exerciseListAdapter);
         mLayoutManager = new LinearLayoutManager(exerciseRecyclerView.getContext());
         exerciseRecyclerView.setLayoutManager(mLayoutManager);
+        exerciseRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
+                exerciseRecyclerView, new ClickListener() {
+            @Override
+            public void onClick(View view, final int position) {
+                ImageButton delete = view.findViewById(R.id.deleteExerciseIB);
+                delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        exerciseListAdapter.deleteExercise(position);
+                    }
+                });
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+
+            }
+        }));
+
     }
 
     void addWorkout() {
         if (newWorkout!=null) {
-            if (newWorkout.isValid()){
+            if (mViewWorkoutsViewModel.isValid(newWorkout)){
                 mViewWorkoutsViewModel.addWorkout(newWorkout);
             }
         }
@@ -176,6 +206,12 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                 @Override
                 public void onValueChange(NumberPicker numberPicker, int i, int i1) {
                     newWorkout.setSets(numberPicker.getValue());
+                    if (mViewWorkoutsViewModel.isValid(newWorkout)){
+                        positiveButton.setEnabled(true);
+                    }
+                    else {
+                        positiveButton.setEnabled(false);
+                    }
                 }
             };
 
@@ -184,6 +220,12 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                 @Override
                 public void onValueChange(NumberPicker numberPicker, int i, int i1) {
                     newWorkout.setReps(numberPicker.getValue());
+                    if (mViewWorkoutsViewModel.isValid(newWorkout)){
+                        positiveButton.setEnabled(true);
+                    }
+                    else {
+                        positiveButton.setEnabled(false);
+                    }
                 }
             };
 
@@ -191,7 +233,13 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
             new 	NumberPicker.OnValueChangeListener(){
                 @Override
                 public void onValueChange(NumberPicker numberPicker, int i, int i1) {
-                    newWorkout.setWorkTime(numberPicker.getValue());
+                    newWorkout.setWorkTime(numberPicker.getValue()*1000);
+                    if (mViewWorkoutsViewModel.isValid(newWorkout)){
+                        positiveButton.setEnabled(true);
+                    }
+                    else {
+                        positiveButton.setEnabled(false);
+                    }
                 }
             };
 
@@ -199,7 +247,13 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
             new 	NumberPicker.OnValueChangeListener(){
                 @Override
                 public void onValueChange(NumberPicker numberPicker, int i, int i1) {
-                    newWorkout.setRestTime(numberPicker.getValue());
+                    newWorkout.setRestTime(numberPicker.getValue()*1000);
+                    if (mViewWorkoutsViewModel.isValid(newWorkout)){
+                        positiveButton.setEnabled(true);
+                    }
+                    else {
+                        positiveButton.setEnabled(false);
+                    }
                 }
             };
 
@@ -207,9 +261,41 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
             new 	NumberPicker.OnValueChangeListener(){
                 @Override
                 public void onValueChange(NumberPicker numberPicker, int i, int i1) {
-                    newWorkout.setBreakTime(numberPicker.getValue());
+                    newWorkout.setBreakTime(numberPicker.getValue()*60000);
+                    if (mViewWorkoutsViewModel.isValid(newWorkout)){
+                        positiveButton.setEnabled(true);
+                    }
+                    else {
+                        positiveButton.setEnabled(false);
+                    }
                 }
             };
+
+    TextWatcher workoutTitleETListener =
+            new TextWatcher() {
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            // Fires right as the text is being changed (even supplies the range of text)
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count,
+        int after) {
+            // Fires right before text is changing
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            // Fires right after the text has changed
+            newWorkout.setWorkoutTitle(s.toString());
+            if (mViewWorkoutsViewModel.isValid(newWorkout)){
+                positiveButton.setEnabled(true);
+            }
+            else {
+                positiveButton.setEnabled(false);
+            }
+        }
+    };
 
     ImageButton.OnClickListener addExButtonListener =
             new ImageButton.OnClickListener(){
@@ -217,6 +303,15 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     Exercise exercise = new Exercise(angleNP.getValue(), depthNP.getValue());
                     exerciseListAdapter.addExercise(exercise);
+                    newWorkout.setExercises(exerciseListAdapter.getItemCount());
+                    newWorkout.setAngles(exerciseListAdapter.getAngles());
+                    newWorkout.setDepths(exerciseListAdapter.getDepths());
+                    if (mViewWorkoutsViewModel.isValid(newWorkout)){
+                        positiveButton.setEnabled(true);
+                    }
+                    else {
+                        positiveButton.setEnabled(false);
+                    }
                 }
             };
     /**
@@ -226,9 +321,9 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
      * - Parameters are its respective view and its position
      * */
 
-    public static interface ClickListener{
-        public void onClick(View view,int position);
-        public void onLongClick(View view,int position);
+    public interface ClickListener{
+        void onClick(View view,int position);
+        void onLongClick(View view,int position);
     }
 
     /**

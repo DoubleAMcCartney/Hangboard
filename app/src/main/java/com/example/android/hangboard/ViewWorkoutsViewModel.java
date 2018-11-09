@@ -26,6 +26,15 @@ public class ViewWorkoutsViewModel extends AndroidViewModel {
         new insertAsyncTask(mWorkoutDAO).execute(workout);
     }
 
+    public boolean isValid(Workout workout) {
+        Workout test = mWorkoutDAO.getWorkoutWithTitleDirect(workout.getWorkoutTitle());
+        return (workout.getReps()!=0)&(workout.getSets()!=0)&(workout.getExercises()!=0)&
+                (workout.getRestTime()!=0)&(workout.getWorkTime()!=0)&(workout.getSets()!=0)&
+                (workout.getAngles().size()==workout.getExercises())&(workout.getDepths().size()==workout.getExercises())&
+                (workout.getWorkoutTitle()!="")
+                &(test==null);
+    }
+
     private static class insertAsyncTask extends AsyncTask<Workout, Void, Void> {
 
         private WorkoutDAO mAsyncTaskDao;

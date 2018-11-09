@@ -208,11 +208,12 @@
         android:id="@+id/textView7"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
         android:text="Depth:"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="@+id/addExDepthNP"
-        app:layout_constraintTop_toTopOf="@+id/addExDepthNP"
-        tools:layout_editor_absoluteX="175dp" />
+        app:layout_constraintEnd_toStartOf="@+id/addExDepthNP"
+        app:layout_constraintTop_toTopOf="@+id/addExDepthNP" />
 
     <TextView
         android:id="@+id/textView8"

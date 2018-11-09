@@ -516,12 +516,12 @@ public class WorkoutActivity extends AppCompatActivity {
             case R.id.action_editWorkout:
                 // User chose the "edit_workout" item, show the app edit workout UI...
                 final Intent intent1 = new Intent(this, ViewWorkoutsActivity.class);
-                startActivity(intent1);
+                startActivityForResult(intent1, 1);
                 return true;
 
             case R.id.action_workoutLog:
                 final Intent intent2 = new Intent(this, LogActivity.class);
-                startActivityForResult(intent2, 1);
+                startActivity(intent2);
                 return true;
 
             case R.id.action_freeHang:
