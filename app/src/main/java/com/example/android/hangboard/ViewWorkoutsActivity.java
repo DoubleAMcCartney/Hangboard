@@ -16,11 +16,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Display;
 import android.view.GestureDetector;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
@@ -52,6 +54,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
     private RecyclerView exerciseRecyclerView;
     private ExerciseListAdapter exerciseListAdapter;
     private Button positiveButton;
+    private WorkoutListAdapter workoutListAdapter;
 
 
     @Override
@@ -60,9 +63,9 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // run only in portrait mode
         setContentView(R.layout.activity_edit_workout);
 
-        RecyclerView workoutRecyclerView = findViewById(R.id.rvWorkouts);
+        final RecyclerView workoutRecyclerView = findViewById(R.id.rvWorkouts);
         fab = findViewById(R.id.fab);
-        final WorkoutListAdapter workoutListAdapter = new WorkoutListAdapter(this);
+        workoutListAdapter = new WorkoutListAdapter(this);
         workoutRecyclerView.setAdapter(workoutListAdapter);
         mLayoutManager = new LinearLayoutManager(workoutRecyclerView.getContext());
         workoutRecyclerView.setLayoutManager(mLayoutManager);
@@ -75,10 +78,41 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                 workoutRecyclerView, new ClickListener() {
             @Override
             public void onClick(View view, final int position) {
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra("result",workoutListAdapter.getWorkout(position).getWorkoutTitle());
-                setResult(Activity.RESULT_OK,returnIntent);
-                finish();
+                final Button button = view.findViewById(R.id.workoutOptionsButton);
+                final Button workoutButton = view.findViewById(R.id.workoutButton);
+
+                workoutButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent returnIntent = new Intent();
+                        returnIntent.putExtra("result",workoutListAdapter.getWorkout(position).getWorkoutTitle());
+                        setResult(Activity.RESULT_OK,returnIntent);
+                        finish();
+                    }
+                });
+
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        PopupMenu popup = new PopupMenu(workoutRecyclerView.getContext(), button);
+
+                        popup.inflate(R.menu.workout_menu);
+
+                        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                            @Override
+                            public boolean onMenuItemClick(MenuItem item) {
+                                switch (item.getItemId()) {
+                                    case R.id.itemDelete:
+                                        mViewWorkoutsViewModel.deleteWorkout(workoutListAdapter.getWorkout(position));
+                                        workoutListAdapter.notifyItemRemoved(position);
+                                        return true;
+                                }
+                                return false;
+                            }
+                        });
+                        popup.show();
+                    }
+                });
             }
 
             @Override
@@ -90,6 +124,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         //TODO: Add edit and delete workout options
 
         mViewWorkoutsViewModel = ViewModelProviders.of(this).get(ViewWorkoutsViewModel.class);
+
 
         mViewWorkoutsViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
             @Override
@@ -113,22 +148,9 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         AddWorkout.show(getSupportFragmentManager(), "AddWorkout");
         getSupportFragmentManager().executePendingTransactions();
 
-        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
-
-//        // calculate height and width and placement
-//        // TODO: save below in viewModel or lock portrait
-//        int margin = 20;
-//        int screenWidth = size.x;
-//        int screenHeight = size.y;
-//        lp.copyFrom(AddWorkout.getDialog().getWindow().getAttributes());
-//        lp.width = screenWidth - margin;
-//        lp.height = screenHeight - margin;
-//        lp.x = -margin;
-//        lp.y = margin;
-//        AddWorkout.getDialog().getWindow().setAttributes(lp);
 
         newWorkout = new Workout("", 1, 1, 0, 1, 1, 1,
                 Arrays.asList(0), Arrays.asList(0));

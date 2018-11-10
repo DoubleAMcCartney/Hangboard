@@ -26,6 +26,10 @@ public class ViewWorkoutsViewModel extends AndroidViewModel {
         new insertAsyncTask(mWorkoutDAO).execute(workout);
     }
 
+    void deleteWorkout(Workout workout) {
+        mWorkoutDAO.delete(workout);
+    }
+
     public boolean isValid(Workout workout) {
         Workout test = mWorkoutDAO.getWorkoutWithTitleDirect(workout.getWorkoutTitle());
         return (workout.getReps()!=0)&(workout.getSets()!=0)&(workout.getExercises()!=0)&
