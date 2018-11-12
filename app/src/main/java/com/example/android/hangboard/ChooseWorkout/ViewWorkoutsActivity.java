@@ -189,6 +189,12 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         depthNP.setMaxValue(100);
         angleNP.setMaxValue(60);
 
+        workNP.setFormatter(secFormatter);
+        restNP.setFormatter(secFormatter);
+        breakNP.setFormatter(minFormatter);
+        depthNP.setFormatter(mmFormatter);
+        angleNP.setFormatter(degFormatter);
+
         exerciseListAdapter = new ExerciseListAdapter(AddWorkout.getDialog().getContext());
         exerciseRecyclerView.setAdapter(exerciseListAdapter);
         mLayoutManager = new LinearLayoutManager(exerciseRecyclerView.getContext());
@@ -221,6 +227,34 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
             }
         }
     }
+
+    NumberPicker.Formatter secFormatter = new NumberPicker.Formatter(){
+        @Override
+        public String format(int i) {
+            return i + "sec";
+        }
+    };
+
+    NumberPicker.Formatter minFormatter = new NumberPicker.Formatter(){
+        @Override
+        public String format(int i) {
+            return i + "min";
+        }
+    };
+
+    NumberPicker.Formatter degFormatter = new NumberPicker.Formatter(){
+        @Override
+        public String format(int i) {
+            return i + "°";
+        }
+    };
+
+    NumberPicker.Formatter mmFormatter = new NumberPicker.Formatter(){
+        @Override
+        public String format(int i) {
+            return i + "mm";
+        }
+    };
 
     NumberPicker.OnValueChangeListener setsNPListener =
             new 	NumberPicker.OnValueChangeListener(){
