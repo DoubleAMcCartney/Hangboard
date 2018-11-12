@@ -67,7 +67,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
 
         final RecyclerView workoutRecyclerView = findViewById(R.id.rvWorkouts);
         fab = findViewById(R.id.fab);
-        workoutListAdapter = new WorkoutListAdapter(this);
+        workoutListAdapter = new WorkoutListAdapter();
         workoutRecyclerView.setAdapter(workoutListAdapter);
         mLayoutManager = new LinearLayoutManager(workoutRecyclerView.getContext());
         workoutRecyclerView.setLayoutManager(mLayoutManager);
@@ -106,7 +106,6 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                                 switch (item.getItemId()) {
                                     case R.id.itemDelete:
                                         mViewWorkoutsViewModel.deleteWorkout(workoutListAdapter.getWorkout(position));
-                                        workoutListAdapter.notifyItemRemoved(position);
                                         return true;
                                 }
                                 return false;
@@ -123,8 +122,6 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
             }
         }));
 
-        //TODO: Add edit and delete workout options
-
         mViewWorkoutsViewModel = ViewModelProviders.of(this).get(ViewWorkoutsViewModel.class);
 
 
@@ -132,7 +129,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
             @Override
             public void onChanged(@Nullable final List<Workout> workouts) {
                 // Update the cached copy of the words in the adapter.
-                workoutListAdapter.setWorkouts(workouts);
+                workoutListAdapter.submitList(workouts);
             }
         });
 

@@ -1,6 +1,8 @@
 package com.example.android.hangboard.ChooseWorkout;
 
-import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.v7.recyclerview.extensions.ListAdapter;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,10 +12,27 @@ import android.widget.TextView;
 import com.example.android.hangboard.R;
 import com.example.android.hangboard.WorkoutDB.Workout;
 
-import java.util.List;
 
 public class WorkoutListAdapter extends
-        RecyclerView.Adapter<WorkoutListAdapter.WorkoutViewHolder> {
+        ListAdapter<Workout, WorkoutListAdapter.WorkoutViewHolder> {
+
+    public WorkoutListAdapter() {
+        super(DIFF_CALLBACK);
+    }
+
+    private static final DiffUtil.ItemCallback<Workout> DIFF_CALLBACK = new DiffUtil.ItemCallback<Workout>() {
+        @Override
+        public boolean areItemsTheSame(@NonNull Workout oldItem, @NonNull Workout newItem) {
+            return oldItem.getWorkoutTitle() == newItem.getWorkoutTitle();
+        }
+
+        @Override
+        public boolean areContentsTheSame(@NonNull Workout workout, @NonNull Workout t1) {
+            //TODO: fill in
+            return false;
+        }
+    };
+
 
     class WorkoutViewHolder extends RecyclerView.ViewHolder {
         private final TextView workoutItemView;
@@ -36,48 +55,28 @@ public class WorkoutListAdapter extends
         }
     }
 
-    private final LayoutInflater mInflater;
-    private List<Workout> mWorkouts; // Cached copy of words
-
-    WorkoutListAdapter(Context context) { mInflater = LayoutInflater.from(context); }
 
     @Override
     public WorkoutViewHolder onCreateViewHolder(ViewGroup parent, int position) {
-        View itemView = mInflater.inflate(R.layout.item_workout, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_workout, parent, false);
         return new WorkoutViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(WorkoutViewHolder holder, int position) {
-        if (mWorkouts != null) {
-            Workout current = mWorkouts.get(position);
-            holder.workoutItemView.setText(current.getWorkoutTitle());
-            holder.repItemView.setText("Reps: " + current.getReps());
-            holder.setItemView.setText("Sets: " + current.getSets());
-            holder.exerciseItemView.setText("Exercises: " + current.getExercises());
-            holder.workTimeItemView.setText("Work: " + (current.getWorkTime()/1000) + "sec");
-            holder.restTimeItemView.setText("Rest: " + (current.getRestTime()/1000) + "sec");
-            holder.breakTimeItemView.setText("Break: " + (current.getBreakTime()/60000) + "min");
-        }
-        else {
-            holder.workoutItemView.setText("No Workout");
-        }
+        Workout current = getItem(position);
+        holder.workoutItemView.setText(current.getWorkoutTitle());
+        holder.repItemView.setText("Reps: " + current.getReps());
+        holder.setItemView.setText("Sets: " + current.getSets());
+        holder.exerciseItemView.setText("Exercises: " + current.getExercises());
+        holder.workTimeItemView.setText("Work: " + (current.getWorkTime()/1000) + "sec");
+        holder.restTimeItemView.setText("Rest: " + (current.getRestTime()/1000) + "sec");
+        holder.breakTimeItemView.setText("Break: " + (current.getBreakTime()/60000) + "min");
     }
 
-    void setWorkouts(List<Workout> workouts){
-        mWorkouts = workouts;
-        notifyDataSetChanged();
-    }
-
-    @Override
-    public int getItemCount() {
-        if (mWorkouts != null)
-            return mWorkouts.size();
-        else return 0;
-    }
 
     Workout getWorkout(int position) {
-        return mWorkouts.get(position);
+        return getItem(position);
     }
 
 }
