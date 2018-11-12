@@ -32,6 +32,14 @@ public class WorkoutRepository {
         return allWorkouts;
     }
 
+    public LiveData<Workout> getWorkoutWithTitle(String title) {
+        return WorkoutDAO.getWorkoutWithTitle(title);
+    }
+
+    public Workout getWorkoutWithTitleDirect(String title) {
+        return WorkoutDAO.getWorkoutWithTitleDirect(title);
+    }
+
     private static class InsertWorkoutAsyncTask extends AsyncTask<Workout, Void, Void> {
         private WorkoutDAO WorkoutDAO;
 

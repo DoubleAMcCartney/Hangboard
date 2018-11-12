@@ -8,34 +8,38 @@ import android.os.AsyncTask;
 import com.example.android.hangboard.WorkoutDB.WorkoutDatabase;
 import com.example.android.hangboard.WorkoutDB.Workout;
 import com.example.android.hangboard.WorkoutDB.WorkoutDAO;
+import com.example.android.hangboard.WorkoutDB.WorkoutRepository;
 
 import java.util.List;
 
 public class ViewWorkoutsViewModel extends AndroidViewModel {
-    private LiveData<List<Workout>> mWorkouts;
-    private WorkoutDAO mWorkoutDAO;
+    private WorkoutRepository repository;
+    private LiveData<List<Workout>> allWorkouts;
 
     public ViewWorkoutsViewModel (Application application) {
         super(application);
-        WorkoutDatabase db = WorkoutDatabase.getInstance(this.getApplication());
-        mWorkoutDAO = db.getWorkoutDAO();
-        mWorkouts = mWorkoutDAO.getWorkouts();
+        repository = new WorkoutRepository(application);
+        allWorkouts = repository.getAllWorkouts();
     }
 
     LiveData<List<Workout>> getAllWorkouts() {
-        return mWorkouts;
+        return allWorkouts;
     }
 
     void addWorkout(Workout workout) {
-        new insertAsyncTask(mWorkoutDAO).execute(workout);
+        repository.insert(workout);
     }
 
     void deleteWorkout(Workout workout) {
-        mWorkoutDAO.delete(workout);
+        repository.delete(workout);
+    }
+
+    void updateWorkout(Workout workout) {
+        repository.update(workout);
     }
 
     public boolean isValid(Workout workout) {
-        Workout test = mWorkoutDAO.getWorkoutWithTitleDirect(workout.getWorkoutTitle());
+        Workout test = repository.getWorkoutWithTitleDirect(workout.getWorkoutTitle());
         return (workout.getReps()!=0)&(workout.getSets()!=0)&(workout.getExercises()!=0)&
                 (workout.getRestTime()!=0)&(workout.getWorkTime()!=0)&(workout.getSets()!=0)&
                 (workout.getAngles().size()==workout.getExercises())&(workout.getDepths().size()==workout.getExercises())&
@@ -43,18 +47,4 @@ public class ViewWorkoutsViewModel extends AndroidViewModel {
                 &(test==null);
     }
 
-    private static class insertAsyncTask extends AsyncTask<Workout, Void, Void> {
-
-        private WorkoutDAO mAsyncTaskDao;
-
-        insertAsyncTask(WorkoutDAO dao) {
-            mAsyncTaskDao = dao;
-        }
-
-        @Override
-        protected Void doInBackground(final Workout... params) {
-            mAsyncTaskDao.insert(params[0]);
-            return null;
-        }
-    }
 }
