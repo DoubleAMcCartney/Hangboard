@@ -1,9 +1,13 @@
-package com.example.android.hangboard;
+package com.example.android.hangboard.ChooseWorkout;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.os.AsyncTask;
+
+import com.example.android.hangboard.WorkoutDB.WorkoutDatabase;
+import com.example.android.hangboard.WorkoutDB.Workout;
+import com.example.android.hangboard.WorkoutDB.WorkoutDAO;
 
 import java.util.List;
 
@@ -13,7 +17,7 @@ public class ViewWorkoutsViewModel extends AndroidViewModel {
 
     public ViewWorkoutsViewModel (Application application) {
         super(application);
-        AppDatabase db = AppDatabase.getInstance(this.getApplication());
+        WorkoutDatabase db = WorkoutDatabase.getInstance(this.getApplication());
         mWorkoutDAO = db.getWorkoutDAO();
         mWorkouts = mWorkoutDAO.getWorkouts();
     }

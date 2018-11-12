@@ -27,6 +27,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.hangboard.ChooseWorkout.ViewWorkoutsActivity;
+import com.example.android.hangboard.WorkoutDB.Workout;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,7 +39,7 @@ import java.util.UUID;
 //TODO: fix issue where activity disconnects from bluetooth when device is still connected
 //TODO: Use weight to control timer
 
-public class WorkoutActivity extends AppCompatActivity {
+public class TimerActivity extends AppCompatActivity {
     private final static String TAG = MoveActivity.class.getSimpleName();
 
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
@@ -77,7 +80,7 @@ public class WorkoutActivity extends AppCompatActivity {
     private int exercise = 0;
     private int exercises = 0;
 
-    private WorkoutViewModel mModel;
+    private TimerViewModel mModel;
     protected TextView timerStatusText;
     protected TextView timerText;
     protected TextView repText;
@@ -163,7 +166,7 @@ public class WorkoutActivity extends AppCompatActivity {
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
                 invalidateOptionsMenu();
-                Toast.makeText(WorkoutActivity.this, R.string.hag_board_disconnect, Toast.LENGTH_SHORT).show();
+                Toast.makeText(TimerActivity.this, R.string.hag_board_disconnect, Toast.LENGTH_SHORT).show();
 
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 if (mBluetoothLeService != null) {
@@ -391,7 +394,7 @@ public class WorkoutActivity extends AppCompatActivity {
         skipButton = findViewById(R.id.skipButton);
 
         //ViewModel and live data stuff
-        mModel = ViewModelProviders.of(this).get(WorkoutViewModel.class);
+        mModel = ViewModelProviders.of(this).get(TimerViewModel.class);
         mModel.getTimerState().observe(this, timerStateObserver);
         mModel.getTimerValue().observe(this, timerValueObserver);
         mModel.getTimerStarted().observe(this, timerStartedObserver);

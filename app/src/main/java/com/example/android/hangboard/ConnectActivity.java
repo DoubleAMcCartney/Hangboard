@@ -117,7 +117,7 @@ public class ConnectActivity extends AppCompatActivity {
                 return true;
 
             case R.id.action_timer:
-                final Intent intent2 = new Intent(this, WorkoutActivity.class);
+                final Intent intent2 = new Intent(this, TimerActivity.class);
                 startActivity(intent2);
                 return true;
 
@@ -271,10 +271,10 @@ public class ConnectActivity extends AppCompatActivity {
             }
 
             final BluetoothDevice device = mLeDeviceListAdapter.getDevice(0);
-            final Intent intent = new Intent(this, WorkoutActivity.class);
+            final Intent intent = new Intent(this, TimerActivity.class);
 
-            intent.putExtra(WorkoutActivity.EXTRAS_DEVICE_NAME, device.getName());
-            intent.putExtra(WorkoutActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+            intent.putExtra(TimerActivity.EXTRAS_DEVICE_NAME, device.getName());
+            intent.putExtra(TimerActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
             startActivity(intent);
         }
         //No or Multiple HAG Boards found

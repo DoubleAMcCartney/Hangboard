@@ -1,4 +1,4 @@
-package com.example.android.hangboard;
+package com.example.android.hangboard.WorkoutDB;
 
 import android.arch.persistence.room.TypeConverter;
 

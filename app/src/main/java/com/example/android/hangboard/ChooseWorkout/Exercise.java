@@ -1,4 +1,4 @@
-package com.example.android.hangboard;
+package com.example.android.hangboard.ChooseWorkout;
 
 public class Exercise {
     private int mNumber;

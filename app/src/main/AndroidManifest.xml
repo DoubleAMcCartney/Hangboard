@@ -33,9 +33,9 @@
         <activity
             android:name=".MoveActivity"
             android:label="@string/title_activity_move" />
-        <activity android:name=".WorkoutActivity" />
+        <activity android:name=".TimerActivity" />
         <activity android:name=".LogActivity" />
-        <activity android:name=".ViewWorkoutsActivity"></activity>
+        <activity android:name=".ChooseWorkout.ViewWorkoutsActivity"></activity>
 
     </application>
 

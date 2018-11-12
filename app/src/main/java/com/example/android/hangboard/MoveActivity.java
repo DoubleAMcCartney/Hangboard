@@ -17,14 +17,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import com.example.android.hangboard.BluetoothLeService;
-import com.example.android.hangboard.GattAttributes;
-import com.example.android.hangboard.R;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -260,9 +254,9 @@ public class MoveActivity extends AppCompatActivity {
                 return true;
 
             case R.id.action_timer:
-                final Intent intent2 = new Intent(this, WorkoutActivity.class);
-                intent2.putExtra(WorkoutActivity.EXTRAS_DEVICE_NAME, mDeviceName);
-                intent2.putExtra(WorkoutActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
+                final Intent intent2 = new Intent(this, TimerActivity.class);
+                intent2.putExtra(TimerActivity.EXTRAS_DEVICE_NAME, mDeviceName);
+                intent2.putExtra(TimerActivity.EXTRAS_DEVICE_ADDRESS, mDeviceAddress);
                 startActivity(intent2);
                 return true;
 

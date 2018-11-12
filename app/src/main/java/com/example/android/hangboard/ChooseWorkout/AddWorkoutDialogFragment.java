@@ -1,4 +1,4 @@
-package com.example.android.hangboard;
+package com.example.android.hangboard.ChooseWorkout;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -7,7 +7,8 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.widget.Button;
-import android.widget.NumberPicker;
+
+import com.example.android.hangboard.R;
 
 public class AddWorkoutDialogFragment extends DialogFragment {
     @Override

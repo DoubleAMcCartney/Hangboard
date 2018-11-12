@@ -1,4 +1,4 @@
-package com.example.android.hangboard;
+package com.example.android.hangboard.ChooseWorkout;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -25,11 +25,13 @@ import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.NumberPicker;
+
+import com.example.android.hangboard.R;
+import com.example.android.hangboard.WorkoutDB.Workout;
 
 import java.util.Arrays;
 import java.util.List;

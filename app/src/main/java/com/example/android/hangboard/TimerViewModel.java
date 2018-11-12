@@ -6,7 +6,11 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.os.CountDownTimer;
 
-public class WorkoutViewModel extends AndroidViewModel {
+import com.example.android.hangboard.WorkoutDB.WorkoutDatabase;
+import com.example.android.hangboard.WorkoutDB.Workout;
+import com.example.android.hangboard.WorkoutDB.WorkoutDAO;
+
+public class TimerViewModel extends AndroidViewModel {
     private CountDownTimer timer;
     private int workTime;
     private int breakTime;
@@ -29,9 +33,9 @@ public class WorkoutViewModel extends AndroidViewModel {
     private MutableLiveData<Integer> mCurrentExercise;
 
     //Constructor
-    public WorkoutViewModel (Application application) {
+    public TimerViewModel(Application application) {
         super(application);
-        AppDatabase db = AppDatabase.getInstance(this.getApplication());
+        WorkoutDatabase db = WorkoutDatabase.getInstance(this.getApplication());
         mWorkoutDAO = db.getWorkoutDAO();
 
         mCurrentWorkout = mWorkoutDAO.getWorkoutWithTitle("Intermediate");
