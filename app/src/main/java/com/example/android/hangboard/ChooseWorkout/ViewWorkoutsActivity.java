@@ -14,7 +14,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -71,10 +70,6 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         workoutRecyclerView.setAdapter(workoutListAdapter);
         mLayoutManager = new LinearLayoutManager(workoutRecyclerView.getContext());
         workoutRecyclerView.setLayoutManager(mLayoutManager);
-
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(workoutRecyclerView.getContext(),
-                mLayoutManager.getOrientation());
-        workoutRecyclerView.addItemDecoration(dividerItemDecoration);
 
         workoutRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
                 workoutRecyclerView, new ClickListener() {

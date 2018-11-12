@@ -25,4 +25,5 @@
     <string name="free_hang">Free Hang</string>
     <string name="disconnect">Disconnect</string>
     <string name="connect">Connect</string>
+    <string name="optionsMenuButton">⋮</string>
 </resources>
