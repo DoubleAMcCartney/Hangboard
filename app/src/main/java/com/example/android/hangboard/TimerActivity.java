@@ -520,6 +520,7 @@ public class TimerActivity extends AppCompatActivity {
                 // User chose the "edit_workout" item, show the app edit workout UI...
                 final Intent intent1 = new Intent(this, ViewWorkoutsActivity.class);
                 startActivityForResult(intent1, 1);
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                 return true;
 
             case R.id.action_workoutLog:
