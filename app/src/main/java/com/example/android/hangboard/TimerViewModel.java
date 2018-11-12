@@ -6,9 +6,8 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.os.CountDownTimer;
 
-import com.example.android.hangboard.WorkoutDB.WorkoutDatabase;
 import com.example.android.hangboard.WorkoutDB.Workout;
-import com.example.android.hangboard.WorkoutDB.WorkoutDAO;
+import com.example.android.hangboard.WorkoutDB.WorkoutRepository;
 
 public class TimerViewModel extends AndroidViewModel {
     private CountDownTimer timer;
@@ -18,7 +17,7 @@ public class TimerViewModel extends AndroidViewModel {
     private int totalReps;
     private int totalSets;
     private int totalExercises;
-    private WorkoutDAO mWorkoutDAO;
+    private WorkoutRepository repository;
 
     // Define  LiveData
     private LiveData<Workout> mCurrentWorkout;
@@ -35,10 +34,9 @@ public class TimerViewModel extends AndroidViewModel {
     //Constructor
     public TimerViewModel(Application application) {
         super(application);
-        WorkoutDatabase db = WorkoutDatabase.getInstance(this.getApplication());
-        mWorkoutDAO = db.getWorkoutDAO();
+        repository = new WorkoutRepository(application);
 
-        mCurrentWorkout = mWorkoutDAO.getWorkoutWithTitle("Intermediate");
+        mCurrentWorkout = repository.getWorkoutWithTitle("Intermediate");
 
         getConnected().setValue(false);
         getPrepareTime().setValue(10000);
@@ -119,7 +117,7 @@ public class TimerViewModel extends AndroidViewModel {
     }
 
     public LiveData<Workout> getWorkoutByTitle(String workoutTitle) {
-        this.mCurrentWorkout = this.mWorkoutDAO.getWorkoutWithTitle(workoutTitle);
+        this.mCurrentWorkout = this.repository.getWorkoutWithTitle(workoutTitle);
         return mCurrentWorkout;
     }
 
