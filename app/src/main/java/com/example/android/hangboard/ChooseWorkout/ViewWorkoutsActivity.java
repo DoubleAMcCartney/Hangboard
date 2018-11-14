@@ -153,6 +153,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         newWorkout = new Workout("", 1, 1, 0, 1, 1, 1,
                 Arrays.asList(0), Arrays.asList(0));
 
+        // Define UI components
         repsNP = AddWorkout.getDialog().findViewById(R.id.repsNumberPicker);
         setsNP = AddWorkout.getDialog().findViewById(R.id.setsNumberPicker);
         workNP = AddWorkout.getDialog().findViewById(R.id.workNumberPicker);
@@ -165,6 +166,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         exerciseRecyclerView = AddWorkout.getDialog().findViewById(R.id.exercisesRecyclerView);
         positiveButton = ((AlertDialog)AddWorkout.getDialog()).getButton(Dialog.BUTTON_POSITIVE);
 
+        // Set listeners
         repsNP.setOnValueChangedListener(repsNPListener);
         setsNP.setOnValueChangedListener(setsNPListener);
         workNP.setOnValueChangedListener(workNPListener);
@@ -173,6 +175,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         workoutTitleET.addTextChangedListener(workoutTitleETListener);
         addExButton.setOnClickListener(addExButtonListener);
 
+        // Set MinValue for each number picker
         repsNP.setMinValue(1);
         setsNP.setMinValue(1);
         workNP.setMinValue(1);
@@ -180,6 +183,8 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         breakNP.setMinValue(1);
         angleNP.setMinValue(0);
         depthNP.setMinValue(0);
+
+        // Set MaxValues for each number picker
         repsNP.setMaxValue(10);
         setsNP.setMaxValue(10);
         workNP.setMaxValue(60);
@@ -188,6 +193,16 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         depthNP.setMaxValue(100);
         angleNP.setMaxValue(60);
 
+        // Set the number pickers to not wrap around
+        repsNP.setWrapSelectorWheel(false);
+        setsNP.setWrapSelectorWheel(false);
+        workNP.setWrapSelectorWheel(false);
+        restNP.setWrapSelectorWheel(false);
+        breakNP.setWrapSelectorWheel(false);
+        angleNP.setWrapSelectorWheel(false);
+        depthNP.setWrapSelectorWheel(false);
+
+        // Set formatters for the number pickers
         workNP.setFormatter(secFormatter);
         restNP.setFormatter(secFormatter);
         breakNP.setFormatter(minFormatter);
@@ -256,6 +271,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         }
     }
 
+    // Add "sec" to the end of each value in number picker
     NumberPicker.Formatter secFormatter = new NumberPicker.Formatter(){
         @Override
         public String format(int i) {
@@ -263,6 +279,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         }
     };
 
+    // Add "min" to the end of each value in number picker
     NumberPicker.Formatter minFormatter = new NumberPicker.Formatter(){
         @Override
         public String format(int i) {
@@ -270,6 +287,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         }
     };
 
+    // Add "°" to the end of each value in number picker
     NumberPicker.Formatter degFormatter = new NumberPicker.Formatter(){
         @Override
         public String format(int i) {
@@ -277,6 +295,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         }
     };
 
+    // Add "mm" to the end of each value in number picker
     NumberPicker.Formatter mmFormatter = new NumberPicker.Formatter(){
         @Override
         public String format(int i) {
