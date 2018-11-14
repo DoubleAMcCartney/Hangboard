@@ -1,21 +1,27 @@
+/*
+Exercise class. This is the class used when a workout is being created by the user to hold
+information about each exercise in the workout.
+ */
+
 package com.example.android.hangboard.ChooseWorkout;
 
-public class Exercise {
-    private int mNumber;
-    private int mAngle;
-    private int mDepth;
+class Exercise {
+    private int angle;
+    private int depth;
 
-    public Exercise(int angle, int depth) {
-        mAngle = angle;
-        mDepth = depth;
+    // Constructor
+    Exercise(int angle, int depth) {
+        this.angle = angle;
+        this.depth = depth;
     }
 
-    public int getmAngle() {
-        return mAngle;
+    // Getters
+    int getAngle() {
+        return angle;
     }
 
-    public int getmDepth() {
-        return mDepth;
+    int getDepth() {
+        return depth;
     }
 
 }

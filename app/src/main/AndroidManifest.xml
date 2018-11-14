@@ -1,15 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!--This is the Android Manifest file. Every app project must have one. The manifest file describes
+    essential information about the app to the Android build tools, the Android operating system,
+    and Google Play-->
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.android.hangboard">
 
+    <!--Permissions that this app will request:-->
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <!--Location is required for BLE to work, even though it is not used in this app-->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
+    <!--This app requires the host phone to have Bluetooth LE-->
     <uses-feature
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
 
+    <!--Declare the app's icon, name, etc. -->
+    <!--Also, declare the activities and services included in the app-->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"

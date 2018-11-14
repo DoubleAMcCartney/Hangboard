@@ -10,10 +10,10 @@ BLEDis  bledis;
 BLEUart bleuart;
 BLEBas  blebas;
  
-int in1Pin = 12;
-int in2Pin = 11;
-int in3Pin = 10;
-int in4Pin = 9;
+int in1Pin = A0;
+int in2Pin = A1;
+int in3Pin = A2;
+int in4Pin = A3;
 
 uint8_t angle = 0;
 uint8_t depth = 0;
@@ -65,7 +65,7 @@ void setup()
   pinMode(in3Pin, OUTPUT);
   pinMode(in4Pin, OUTPUT);
   
-  motor.setSpeed(20);
+  motor.setSpeed(10);
 }
 
 void startAdv(void)
@@ -130,14 +130,14 @@ void loop()
   digitalToggle(LED_RED);
 
   if ( Bluefruit.connected() ) {
-    weight++;
+    //weight++;
     weightArray[0]=weight & 0xff;
     weightArray[1]=(weight >> 8);
     uint8_t hagCurrentData [4] = {angle, depth, weightArray[0], weightArray[1]};
     if ( hagc.notify(hagCurrentData, 4) ){
-      Serial.print("Wieght: "); Serial.println(weight);
-      Serial.print("Deptht: "); Serial.println(depth);
-      Serial.print("Angle: "); Serial.println(angle);
+      //Serial.print("Wieght: "); Serial.println(weight);
+      //Serial.print("Deptht: "); Serial.println(depth);
+      //Serial.print("Angle: "); Serial.println(angle);
     }else{
       Serial.println("ERROR: Notify not set in the CCCD or not connected!");
     }
@@ -145,9 +145,10 @@ void loop()
 
   //update depth
   if (depth != desiredDepth) {
-    int steps = depth - desiredDepth;
+    int steps = (depth - desiredDepth)*100;
     motor.step(steps);
     depth = desiredDepth;
+    Serial.println("Motor Moving");
   }
   
   delay(1000);

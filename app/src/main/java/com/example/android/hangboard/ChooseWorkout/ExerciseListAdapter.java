@@ -1,3 +1,8 @@
+/*
+Adapter that provides a binding from the Workout data set to views that are displayed within a
+RecyclerView in the ViewWorkouts Activity.
+ */
+
 package com.example.android.hangboard.ChooseWorkout;
 
 import android.content.Context;
@@ -44,8 +49,8 @@ public class ExerciseListAdapter extends
         if (mExercises != null) {
             Exercise current = mExercises.get(position);
             holder.numberTV.setText(Integer.toString(position+1));
-            holder.depthTV.setText("Depth: " + current.getmDepth() + "mm");
-            holder.angleTV.setText("Angle: " + current.getmAngle() + "°");
+            holder.depthTV.setText("Depth: " + current.getDepth() + "mm");
+            holder.angleTV.setText("Angle: " + current.getAngle() + "°");
         }
         else {
         }
@@ -71,7 +76,7 @@ public class ExerciseListAdapter extends
     public List<Integer> getAngles() {
         List<Integer> angles = new ArrayList<>();
         for (Exercise exercise : mExercises) {
-            angles.add(exercise.getmAngle());
+            angles.add(exercise.getAngle());
         }
         return angles;
     }
@@ -79,7 +84,7 @@ public class ExerciseListAdapter extends
     public List<Integer> getDepths() {
         List<Integer> depth = new ArrayList<>();
         for (Exercise exercise : mExercises) {
-            depth.add(exercise.getmDepth());
+            depth.add(exercise.getDepth());
         }
         return depth;
     }

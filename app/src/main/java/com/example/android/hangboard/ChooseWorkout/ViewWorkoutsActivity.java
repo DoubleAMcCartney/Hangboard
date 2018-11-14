@@ -18,6 +18,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.view.Display;
 import android.view.GestureDetector;
@@ -32,6 +33,7 @@ import android.widget.NumberPicker;
 import com.example.android.hangboard.R;
 import com.example.android.hangboard.WorkoutDB.Workout;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
@@ -122,7 +124,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
 
         mViewWorkoutsViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
             @Override
-            public void onChanged(@Nullable final List<Workout> workouts) {
+            public void onChanged(@Nullable List<Workout> workouts) {
                 // Update the cached copy of the words in the adapter.
                 workoutListAdapter.submitList(workouts);
             }
@@ -148,10 +150,6 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         AddWorkout.show(getSupportFragmentManager(), "AddWorkout");
         getSupportFragmentManager().executePendingTransactions();
 
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-
         newWorkout = new Workout("", 1, 1, 0, 1, 1, 1,
                 Arrays.asList(0), Arrays.asList(0));
 
@@ -166,6 +164,12 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         addExButton = AddWorkout.getDialog().findViewById(R.id.addExerciseButton);
         exerciseRecyclerView = AddWorkout.getDialog().findViewById(R.id.exercisesRecyclerView);
         positiveButton = ((AlertDialog)AddWorkout.getDialog()).getButton(Dialog.BUTTON_POSITIVE);
+
+        workNP.setFormatter(secFormatter);
+        restNP.setFormatter(secFormatter);
+        breakNP.setFormatter(minFormatter);
+        depthNP.setFormatter(mmFormatter);
+        angleNP.setFormatter(degFormatter);
 
         repsNP.setOnValueChangedListener(repsNPListener);
         setsNP.setOnValueChangedListener(setsNPListener);
@@ -189,12 +193,6 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         breakNP.setMaxValue(60);
         depthNP.setMaxValue(100);
         angleNP.setMaxValue(60);
-
-        workNP.setFormatter(secFormatter);
-        restNP.setFormatter(secFormatter);
-        breakNP.setFormatter(minFormatter);
-        depthNP.setFormatter(mmFormatter);
-        angleNP.setFormatter(degFormatter);
 
         exerciseListAdapter = new ExerciseListAdapter(AddWorkout.getDialog().getContext());
         exerciseRecyclerView.setAdapter(exerciseListAdapter);

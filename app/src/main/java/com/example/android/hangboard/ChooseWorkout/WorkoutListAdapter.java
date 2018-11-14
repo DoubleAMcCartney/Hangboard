@@ -23,13 +23,20 @@ public class WorkoutListAdapter extends
     private static final DiffUtil.ItemCallback<Workout> DIFF_CALLBACK = new DiffUtil.ItemCallback<Workout>() {
         @Override
         public boolean areItemsTheSame(@NonNull Workout oldItem, @NonNull Workout newItem) {
-            return oldItem.getWorkoutTitle() == newItem.getWorkoutTitle();
+            return oldItem.getWorkoutTitle().equals(newItem.getWorkoutTitle());
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull Workout workout, @NonNull Workout t1) {
-            //TODO: fill in
-            return false;
+        public boolean areContentsTheSame(@NonNull Workout oldItem, @NonNull Workout newItem) {
+            return oldItem.getWorkoutTitle().equals(newItem.getWorkoutTitle()) &&
+                    oldItem.getAngles().equals(newItem.getAngles()) &&
+                    oldItem.getDepths().equals(newItem.getDepths()) &&
+                    oldItem.getBreakTime() == newItem.getBreakTime() &&
+                    oldItem.getRestTime() == newItem.getRestTime() &&
+                    oldItem.getWorkTime() == newItem.getWorkTime() &&
+                    oldItem.getReps() == newItem.getReps() &&
+                    oldItem.getSets() == newItem.getSets() &&
+                    oldItem.getExercises() == newItem.getExercises();
         }
     };
 
