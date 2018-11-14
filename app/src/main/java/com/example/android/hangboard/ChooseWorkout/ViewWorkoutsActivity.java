@@ -165,12 +165,6 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         exerciseRecyclerView = AddWorkout.getDialog().findViewById(R.id.exercisesRecyclerView);
         positiveButton = ((AlertDialog)AddWorkout.getDialog()).getButton(Dialog.BUTTON_POSITIVE);
 
-        workNP.setFormatter(secFormatter);
-        restNP.setFormatter(secFormatter);
-        breakNP.setFormatter(minFormatter);
-        depthNP.setFormatter(mmFormatter);
-        angleNP.setFormatter(degFormatter);
-
         repsNP.setOnValueChangedListener(repsNPListener);
         setsNP.setOnValueChangedListener(setsNPListener);
         workNP.setOnValueChangedListener(workNPListener);
@@ -194,6 +188,35 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         depthNP.setMaxValue(100);
         angleNP.setMaxValue(60);
 
+        workNP.setFormatter(secFormatter);
+        restNP.setFormatter(secFormatter);
+        breakNP.setFormatter(minFormatter);
+        depthNP.setFormatter(mmFormatter);
+        angleNP.setFormatter(degFormatter);
+
+        // Below is a workaround to fix an android bug that causes the first value of number pickers
+        //      to not format until touched.
+        View firstItem = workNP.getChildAt(0);
+        if (firstItem != null) {
+            firstItem.setVisibility(View.INVISIBLE);
+        }
+        firstItem = restNP.getChildAt(0);
+        if (firstItem != null) {
+            firstItem.setVisibility(View.INVISIBLE);
+        }
+        firstItem = breakNP.getChildAt(0);
+        if (firstItem != null) {
+            firstItem.setVisibility(View.INVISIBLE);
+        }
+        firstItem = depthNP.getChildAt(0);
+        if (firstItem != null) {
+            firstItem.setVisibility(View.INVISIBLE);
+        }
+        firstItem = angleNP.getChildAt(0);
+        if (firstItem != null) {
+            firstItem.setVisibility(View.INVISIBLE);
+        }
+
         exerciseListAdapter = new ExerciseListAdapter(AddWorkout.getDialog().getContext());
         exerciseRecyclerView.setAdapter(exerciseListAdapter);
         mLayoutManager = new LinearLayoutManager(exerciseRecyclerView.getContext());
@@ -207,6 +230,12 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         exerciseListAdapter.deleteExercise(position);
+                        if (mViewWorkoutsViewModel.isValid(newWorkout)){
+                            positiveButton.setEnabled(true);
+                        }
+                        else {
+                            positiveButton.setEnabled(false);
+                        }
                     }
                 });
             }
