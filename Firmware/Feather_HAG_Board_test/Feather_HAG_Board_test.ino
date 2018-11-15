@@ -9,6 +9,10 @@ BLECharacteristic hagm = BLECharacteristic(0x2d0317b2de1511e89f32f2801f1b9fd3); 
 BLEDis  bledis;
 BLEUart bleuart;
 BLEBas  blebas;
+
+// TODO: map homeButton and toFarButton to limit switch pins
+bool homeButton = true;
+bool toFarButton = false;
  
 int in1Pin = A0;
 int in2Pin = A1;
@@ -28,6 +32,7 @@ void write_callback(BLECharacteristic& chr, uint8_t* data, uint16_t len, uint16_
 
 Stepper motor(512, in1Pin, in2Pin, in3Pin, in4Pin);
 
+// Runs once at power up
 void setup()
 {
   Serial.begin(115200);
@@ -66,6 +71,8 @@ void setup()
   pinMode(in4Pin, OUTPUT);
   
   motor.setSpeed(10);
+
+  homeStepper();
 }
 
 void startAdv(void)
@@ -101,15 +108,15 @@ void setupHAG() {
   hags.begin();
 
   // Start desired Service
-  hagd.setProperties(CHR_PROPS_WRITE);
-  hagd.setPermission(SECMODE_OPEN, SECMODE_OPEN);
-  hagd.setFixedLen(2);
+  hagd.setProperties(CHR_PROPS_WRITE); // client (app) will write to this charactoristic
+  hagd.setPermission(SECMODE_OPEN, SECMODE_OPEN); // open reading access, open writing access
+  hagd.setFixedLen(2); // two byte length
   hagd.begin();
 
   // Start current Service
-  hagc.setProperties(CHR_PROPS_NOTIFY);
-  hagc.setPermission(SECMODE_OPEN, SECMODE_NO_ACCESS);
-  hagc.setFixedLen(4);
+  hagc.setProperties(CHR_PROPS_NOTIFY); // client (app) will be notified when this charactoristic changes
+  hagc.setPermission(SECMODE_OPEN, SECMODE_NO_ACCESS); // open reading access, no write access
+  hagc.setFixedLen(4); // four byte length
   hagc.begin();
   weightArray[0]=weight & 0xff;
   weightArray[1]=(weight >> 8);
@@ -117,14 +124,22 @@ void setupHAG() {
   hagd.notify(hagCurrentData, 4);
   
   // Start move status Service
-  hagm.setProperties(CHR_PROPS_NOTIFY);
-  hagm.setPermission(SECMODE_OPEN, SECMODE_NO_ACCESS);
-  hagm.setFixedLen(1);
+  hagm.setProperties(CHR_PROPS_NOTIFY); // client (app) will be notified when this charactoristic changes
+  hagm.setPermission(SECMODE_OPEN, SECMODE_NO_ACCESS); // open reading access, no write access
+  hagm.setFixedLen(1); // one byte length
   hagm.begin();
   uint8_t hagMoveData [1] = {0x00000000};
   hagm.notify(hagMoveData, 1);
 }
 
+void homeStepper() {
+  while (!homeButton) {
+    motor.step(-1);
+  }
+  depth=0;
+}
+
+// main loop
 void loop()
 {
   digitalToggle(LED_RED);
@@ -145,9 +160,41 @@ void loop()
 
   //update depth
   if (depth != desiredDepth) {
-    int steps = (depth - desiredDepth)*100;
-    motor.step(steps);
-    depth = desiredDepth;
+    // calculate steps to be moved
+    // TODO: calculate the conversion for mm to steps and update mmToSteps appropriatly
+    int mmToSteps = 100;
+    long steps = (depth - desiredDepth)*mmToSteps;
+
+    while (steps != 0) {
+      if (steps > 0) {
+        motor.step(1);
+        steps--; // move stepper
+      }
+      else {
+        motor.step(-1);
+        steps++; // move stepper
+      }
+      // Check limit switches
+      if (homeButton) {
+        steps = 0;
+      }
+      else if (toFarButton){
+        steps = 0;
+      }
+    }
+
+    // Check limit switches
+    // Update current depth
+    if (homeButton) {
+      depth = 0;
+    }
+    else if (toFarButton){
+      depth = 100;  // TODO: change to max depth when we know what that is
+    }
+    else {
+      depth = desiredDepth;
+    }
+    
     Serial.println("Motor Moving");
   }
   

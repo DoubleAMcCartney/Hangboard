@@ -12,6 +12,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
@@ -30,6 +32,7 @@ import android.widget.Toast;
 import com.example.android.hangboard.ChooseWorkout.ViewWorkoutsActivity;
 import com.example.android.hangboard.WorkoutDB.Workout;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -93,6 +96,9 @@ public class TimerActivity extends AppCompatActivity {
     protected Button startPauseButton;
     protected Button stopButton;
     protected Button skipButton;
+
+    private MediaPlayer pitch1;
+    private MediaPlayer pitch2;
 
 
     // Code to manage Service lifecycle.
@@ -234,6 +240,13 @@ public class TimerActivity extends AppCompatActivity {
             int minutes = seconds / 60;
             seconds = seconds % 60;
             timerText.setText(String.format("%d:%02d", minutes, seconds));
+
+            if (seconds == 1 && minutes == 0 || seconds==2 && minutes == 0) {
+                pitch1.start();
+            }
+            else if (seconds==0 && minutes == 0) {
+                pitch2.start();
+            }
         }
     };
 
@@ -404,6 +417,9 @@ public class TimerActivity extends AppCompatActivity {
         mModel.getTimeRemaining().observe(this, timeRemainingObserver);
         mModel.getWorkout().observe(this, currentWorkoutObserver);
 
+        pitch1 = MediaPlayer.create(getApplicationContext(), R.raw.beep1);
+        pitch2 = MediaPlayer.create(getApplicationContext(), R.raw.beep2);
+
 
         startPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -479,14 +495,14 @@ public class TimerActivity extends AppCompatActivity {
             // Set keep screen on flag
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        //if (mConnected) {
-            unregisterReceiver(mGattUpdateReceiver);
-        //}
+
+        unregisterReceiver(mGattUpdateReceiver);
     }
 
     @Override
