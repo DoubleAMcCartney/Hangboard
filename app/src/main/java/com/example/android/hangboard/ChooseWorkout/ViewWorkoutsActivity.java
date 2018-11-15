@@ -40,34 +40,25 @@ import java.util.List;
 public class ViewWorkoutsActivity extends AppCompatActivity {
 
     private ViewWorkoutsViewModel mViewWorkoutsViewModel;
-    private FloatingActionButton fab;
     private Workout newWorkout;
     private LinearLayoutManager mLayoutManager;
-    private DialogFragment AddWorkout;
-
-    private NumberPicker repsNP;
-    private NumberPicker setsNP;
-    private NumberPicker workNP;
-    private NumberPicker restNP;
-    private NumberPicker breakNP;
     private NumberPicker angleNP;
     private NumberPicker depthNP;
-    private EditText workoutTitleET;
-    private ImageButton addExButton;
-    private RecyclerView exerciseRecyclerView;
-    private ExerciseListAdapter exerciseListAdapter;
     private Button positiveButton;
     private WorkoutListAdapter workoutListAdapter;
+    private ExerciseListAdapter exerciseListAdapter;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // run only in portrait mode
-        setContentView(R.layout.activity_edit_workout);
+        super.onCreate(savedInstanceState); // Pass savedInstanceState to super class
 
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // run only in portrait mode
+        setContentView(R.layout.activity_edit_workout); // Set the layout
+
+        // definitions
         final RecyclerView workoutRecyclerView = findViewById(R.id.rvWorkouts);
-        fab = findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         workoutListAdapter = new WorkoutListAdapter();
         workoutRecyclerView.setAdapter(workoutListAdapter);
         mLayoutManager = new LinearLayoutManager(workoutRecyclerView.getContext());
@@ -146,31 +137,27 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
     }
 
     void createNewWorkout() {
-        AddWorkout = new AddWorkoutDialogFragment();
-        AddWorkout.show(getSupportFragmentManager(), "AddWorkout");
+        DialogFragment addWorkout = new AddWorkoutDialogFragment();
+        addWorkout.show(getSupportFragmentManager(), "AddWorkout");
         getSupportFragmentManager().executePendingTransactions();
 
         newWorkout = new Workout("", 1, 1, 0, 1, 1, 1,
                 Arrays.asList(0), Arrays.asList(0));
 
-        repsNP = AddWorkout.getDialog().findViewById(R.id.repsNumberPicker);
-        setsNP = AddWorkout.getDialog().findViewById(R.id.setsNumberPicker);
-        workNP = AddWorkout.getDialog().findViewById(R.id.workNumberPicker);
-        restNP = AddWorkout.getDialog().findViewById(R.id.restNumberPicker);
-        breakNP = AddWorkout.getDialog().findViewById(R.id.breakNumberPicker);
-        angleNP = AddWorkout.getDialog().findViewById(R.id.addExAngleNP);
-        depthNP = AddWorkout.getDialog().findViewById(R.id.addExDepthNP);
-        workoutTitleET = AddWorkout.getDialog().findViewById(R.id.titleEditText);
-        addExButton = AddWorkout.getDialog().findViewById(R.id.addExerciseButton);
-        exerciseRecyclerView = AddWorkout.getDialog().findViewById(R.id.exercisesRecyclerView);
-        positiveButton = ((AlertDialog)AddWorkout.getDialog()).getButton(Dialog.BUTTON_POSITIVE);
+        // Define UI components
+        NumberPicker repsNP = addWorkout.getDialog().findViewById(R.id.repsNumberPicker);
+        NumberPicker setsNP = addWorkout.getDialog().findViewById(R.id.setsNumberPicker);
+        NumberPicker workNP = addWorkout.getDialog().findViewById(R.id.workNumberPicker);
+        NumberPicker restNP = addWorkout.getDialog().findViewById(R.id.restNumberPicker);
+        NumberPicker breakNP = addWorkout.getDialog().findViewById(R.id.breakNumberPicker);
+        angleNP = addWorkout.getDialog().findViewById(R.id.addExAngleNP);
+        depthNP = addWorkout.getDialog().findViewById(R.id.addExDepthNP);
+        EditText workoutTitleET = addWorkout.getDialog().findViewById(R.id.titleEditText);
+        ImageButton addExButton = addWorkout.getDialog().findViewById(R.id.addExerciseButton);
+        RecyclerView exerciseRecyclerView = addWorkout.getDialog().findViewById(R.id.exercisesRecyclerView);
+        positiveButton = ((AlertDialog) addWorkout.getDialog()).getButton(Dialog.BUTTON_POSITIVE);
 
-        workNP.setFormatter(secFormatter);
-        restNP.setFormatter(secFormatter);
-        breakNP.setFormatter(minFormatter);
-        depthNP.setFormatter(mmFormatter);
-        angleNP.setFormatter(degFormatter);
-
+        // Set listeners
         repsNP.setOnValueChangedListener(repsNPListener);
         setsNP.setOnValueChangedListener(setsNPListener);
         workNP.setOnValueChangedListener(workNPListener);
@@ -179,6 +166,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         workoutTitleET.addTextChangedListener(workoutTitleETListener);
         addExButton.setOnClickListener(addExButtonListener);
 
+        // Set MinValue for each number picker
         repsNP.setMinValue(1);
         setsNP.setMinValue(1);
         workNP.setMinValue(1);
@@ -186,6 +174,8 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         breakNP.setMinValue(1);
         angleNP.setMinValue(0);
         depthNP.setMinValue(0);
+
+        // Set MaxValues for each number picker
         repsNP.setMaxValue(10);
         setsNP.setMaxValue(10);
         workNP.setMaxValue(60);
@@ -194,7 +184,46 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         depthNP.setMaxValue(100);
         angleNP.setMaxValue(60);
 
-        exerciseListAdapter = new ExerciseListAdapter(AddWorkout.getDialog().getContext());
+        // Set the number pickers to not wrap around
+        repsNP.setWrapSelectorWheel(false);
+        setsNP.setWrapSelectorWheel(false);
+        workNP.setWrapSelectorWheel(false);
+        restNP.setWrapSelectorWheel(false);
+        breakNP.setWrapSelectorWheel(false);
+        angleNP.setWrapSelectorWheel(false);
+        depthNP.setWrapSelectorWheel(false);
+
+        // Set formatters for the number pickers
+        workNP.setFormatter(secFormatter);
+        restNP.setFormatter(secFormatter);
+        breakNP.setFormatter(minFormatter);
+        depthNP.setFormatter(mmFormatter);
+        angleNP.setFormatter(degFormatter);
+
+        // Below is a workaround to fix an android bug that causes the first value of number pickers
+        //      to not format until touched.
+        View firstItem = workNP.getChildAt(0);
+        if (firstItem != null) {
+            firstItem.setVisibility(View.INVISIBLE);
+        }
+        firstItem = restNP.getChildAt(0);
+        if (firstItem != null) {
+            firstItem.setVisibility(View.INVISIBLE);
+        }
+        firstItem = breakNP.getChildAt(0);
+        if (firstItem != null) {
+            firstItem.setVisibility(View.INVISIBLE);
+        }
+        firstItem = depthNP.getChildAt(0);
+        if (firstItem != null) {
+            firstItem.setVisibility(View.INVISIBLE);
+        }
+        firstItem = angleNP.getChildAt(0);
+        if (firstItem != null) {
+            firstItem.setVisibility(View.INVISIBLE);
+        }
+
+        exerciseListAdapter = new ExerciseListAdapter(addWorkout.getDialog().getContext());
         exerciseRecyclerView.setAdapter(exerciseListAdapter);
         mLayoutManager = new LinearLayoutManager(exerciseRecyclerView.getContext());
         exerciseRecyclerView.setLayoutManager(mLayoutManager);
@@ -207,6 +236,12 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         exerciseListAdapter.deleteExercise(position);
+                        if (mViewWorkoutsViewModel.isValid(newWorkout)){
+                            positiveButton.setEnabled(true);
+                        }
+                        else {
+                            positiveButton.setEnabled(false);
+                        }
                     }
                 });
             }
@@ -227,6 +262,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         }
     }
 
+    // Add "sec" to the end of each value in number picker
     NumberPicker.Formatter secFormatter = new NumberPicker.Formatter(){
         @Override
         public String format(int i) {
@@ -234,6 +270,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         }
     };
 
+    // Add "min" to the end of each value in number picker
     NumberPicker.Formatter minFormatter = new NumberPicker.Formatter(){
         @Override
         public String format(int i) {
@@ -241,6 +278,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         }
     };
 
+    // Add "°" to the end of each value in number picker
     NumberPicker.Formatter degFormatter = new NumberPicker.Formatter(){
         @Override
         public String format(int i) {
@@ -248,6 +286,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         }
     };
 
+    // Add "mm" to the end of each value in number picker
     NumberPicker.Formatter mmFormatter = new NumberPicker.Formatter(){
         @Override
         public String format(int i) {
