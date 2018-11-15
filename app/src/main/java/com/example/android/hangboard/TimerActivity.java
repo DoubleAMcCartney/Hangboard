@@ -417,9 +417,9 @@ public class TimerActivity extends AppCompatActivity {
         mModel.getTimeRemaining().observe(this, timeRemainingObserver);
         mModel.getWorkout().observe(this, currentWorkoutObserver);
 
+        // timer sounds
         pitch1 = MediaPlayer.create(getApplicationContext(), R.raw.beep1);
         pitch2 = MediaPlayer.create(getApplicationContext(), R.raw.beep2);
-
 
         startPauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
