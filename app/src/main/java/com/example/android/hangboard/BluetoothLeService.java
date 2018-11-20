@@ -1,22 +1,5 @@
 package com.example.android.hangboard;
 
-/*
- * Copyright (C) 2013 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -128,24 +111,6 @@ public class BluetoothLeService extends Service {
                                  final BluetoothGattCharacteristic characteristic) {
         final Intent intent = new Intent(action);
 
-//        // This is special handling for the Heart Rate Measurement profile.  Data parsing is
-//        // carried out as per profile specifications:
-//        // http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
-//        if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
-//            int flag = characteristic.getProperties();
-//            int format = -1;
-//            if ((flag & 0x01) != 0) {
-//                format = BluetoothGattCharacteristic.FORMAT_UINT16;
-//                Log.d(TAG, "Heart rate format UINT16.");
-//            } else {
-//                format = BluetoothGattCharacteristic.FORMAT_UINT8;
-//                Log.d(TAG, "Heart rate format UINT8.");
-//            }
-//            final int heartRate = characteristic.getIntValue(format, 1);
-//            Log.d(TAG, String.format("Received heart rate: %d", heartRate));
-//            intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
-//        } else {
-        // For all other profiles, writes the data formatted in HEX.
         final byte[] data = characteristic.getValue();
         if (data != null && data.length > 0) {
             final StringBuilder stringBuilder = new StringBuilder(data.length);
@@ -326,10 +291,7 @@ public class BluetoothLeService extends Service {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
-/*
-            BluetoothGattCharacteristic charac = gattService
-                    .getCharacteristic(uuid);
-*/
+
         if (charac == null) {
             Log.e(TAG, "char not found!");
         }
