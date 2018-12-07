@@ -1,10 +1,11 @@
+/*
+ * This class includes GATT attributes required for connection to the HAG Board.
+ */
+
 package com.example.android.hangboard;
 
 import java.util.HashMap;
 
-/**
- * This class includes a small subset of standard GATT attributes for demonstration purposes.
- */
 public class GattAttributes {
     private static HashMap<String, String> attributes = new HashMap();
     public static String HAG_CURRENT = "00009fd2-0000-1000-8000-00805f9b34fb";

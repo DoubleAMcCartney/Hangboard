@@ -1,3 +1,9 @@
+/*
+This is the ViewWorkoutsActivity class. It controls the UI for the view workouts activity. This
+activity displays a list of workouts and provides the user a way to create new workouts. When a
+workout is chosen, it is passed back to the timer activity.
+ */
+
 package com.example.android.hangboard.ChooseWorkout;
 
 import android.app.Activity;
@@ -7,7 +13,6 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.graphics.Point;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.DialogFragment;
@@ -18,9 +23,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.InputFilter;
 import android.text.TextWatcher;
-import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -33,7 +36,6 @@ import android.widget.NumberPicker;
 import com.example.android.hangboard.R;
 import com.example.android.hangboard.WorkoutDB.Workout;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
@@ -64,6 +66,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         mLayoutManager = new LinearLayoutManager(workoutRecyclerView.getContext());
         workoutRecyclerView.setLayoutManager(mLayoutManager);
 
+        // add touch and click listeners
         workoutRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
                 workoutRecyclerView, new ClickListener() {
             @Override
@@ -71,9 +74,11 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                 final Button button = view.findViewById(R.id.workoutOptionsButton);
                 final Button workoutButton = view.findViewById(R.id.workoutButton);
 
+                // on click listener for the workout items
                 workoutButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        // When a workout is taped, send it to the timer activity
                         Intent returnIntent = new Intent();
                         returnIntent.putExtra("result",workoutListAdapter.getWorkout(position).getWorkoutTitle());
                         setResult(Activity.RESULT_OK,returnIntent);
@@ -81,6 +86,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                     }
                 });
 
+                // on click listener for the options menu of the workout items
                 button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -93,6 +99,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                             public boolean onMenuItemClick(MenuItem item) {
                                 switch (item.getItemId()) {
                                     case R.id.itemDelete:
+                                        // Delete workout from the database
                                         mViewWorkoutsViewModel.deleteWorkout(workoutListAdapter.getWorkout(position));
                                         return true;
                                 }
@@ -110,8 +117,8 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
             }
         }));
 
+        // set the view model
         mViewWorkoutsViewModel = ViewModelProviders.of(this).get(ViewWorkoutsViewModel.class);
-
 
         mViewWorkoutsViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
             @Override
@@ -121,6 +128,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
             }
         });
 
+        // use the fab button for adding workouts
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -133,15 +141,17 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
     @Override
     public void finish() {
         super.finish();
+        // add animation to the changing of activities
         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 
     void createNewWorkout() {
+        // create and show dialog
         DialogFragment addWorkout = new AddWorkoutDialogFragment();
         addWorkout.show(getSupportFragmentManager(), "AddWorkout");
         getSupportFragmentManager().executePendingTransactions();
 
-        newWorkout = new Workout("", 1, 1, 0, 1, 1, 1,
+        newWorkout = new Workout("", 1, 1, 0, 1000, 1000, 60000,
                 Arrays.asList(0), Arrays.asList(0));
 
         // Define UI components
@@ -223,19 +233,23 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
             firstItem.setVisibility(View.INVISIBLE);
         }
 
+        // set exercise list
         exerciseListAdapter = new ExerciseListAdapter(addWorkout.getDialog().getContext());
         exerciseRecyclerView.setAdapter(exerciseListAdapter);
         mLayoutManager = new LinearLayoutManager(exerciseRecyclerView.getContext());
         exerciseRecyclerView.setLayoutManager(mLayoutManager);
         exerciseRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
                 exerciseRecyclerView, new ClickListener() {
+            // set click listeners for delete exercise buttons
             @Override
             public void onClick(View view, final int position) {
                 ImageButton delete = view.findViewById(R.id.deleteExerciseIB);
                 delete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        // delete the exercise
                         exerciseListAdapter.deleteExercise(position);
+                        // dis/enable add workout button according to if workout is valid
                         if (mViewWorkoutsViewModel.isValid(newWorkout)){
                             positiveButton.setEnabled(true);
                         }
@@ -299,6 +313,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                 @Override
                 public void onValueChange(NumberPicker numberPicker, int i, int i1) {
                     newWorkout.setSets(numberPicker.getValue());
+                    // dis/enable add workout button according to if workout is valid
                     if (mViewWorkoutsViewModel.isValid(newWorkout)){
                         positiveButton.setEnabled(true);
                     }
@@ -313,6 +328,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                 @Override
                 public void onValueChange(NumberPicker numberPicker, int i, int i1) {
                     newWorkout.setReps(numberPicker.getValue());
+                    // dis/enable add workout button according to if workout is valid
                     if (mViewWorkoutsViewModel.isValid(newWorkout)){
                         positiveButton.setEnabled(true);
                     }
@@ -326,7 +342,8 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
             new 	NumberPicker.OnValueChangeListener(){
                 @Override
                 public void onValueChange(NumberPicker numberPicker, int i, int i1) {
-                    newWorkout.setWorkTime(numberPicker.getValue()*1000);
+                    newWorkout.setWorkTime(numberPicker.getValue()*1000); // milliseconds to seconds
+                    // dis/enable add workout button according to if workout is valid
                     if (mViewWorkoutsViewModel.isValid(newWorkout)){
                         positiveButton.setEnabled(true);
                     }
@@ -340,7 +357,8 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
             new 	NumberPicker.OnValueChangeListener(){
                 @Override
                 public void onValueChange(NumberPicker numberPicker, int i, int i1) {
-                    newWorkout.setRestTime(numberPicker.getValue()*1000);
+                    newWorkout.setRestTime(numberPicker.getValue()*1000); // milliseconds to seconds
+                    // dis/enable add workout button according to if workout is valid
                     if (mViewWorkoutsViewModel.isValid(newWorkout)){
                         positiveButton.setEnabled(true);
                     }
@@ -354,7 +372,8 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
             new 	NumberPicker.OnValueChangeListener(){
                 @Override
                 public void onValueChange(NumberPicker numberPicker, int i, int i1) {
-                    newWorkout.setBreakTime(numberPicker.getValue()*60000);
+                    newWorkout.setBreakTime(numberPicker.getValue()*60000); // milliseconds to min
+                    // dis/enable add workout button according to if workout is valid
                     if (mViewWorkoutsViewModel.isValid(newWorkout)){
                         positiveButton.setEnabled(true);
                     }
@@ -381,6 +400,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         public void afterTextChanged(Editable s) {
             // Fires right after the text has changed
             newWorkout.setWorkoutTitle(s.toString());
+            // dis/enable add workout button according to if workout is valid
             if (mViewWorkoutsViewModel.isValid(newWorkout)){
                 positiveButton.setEnabled(true);
             }
@@ -390,6 +410,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         }
     };
 
+    // add exercise button click listener
     ImageButton.OnClickListener addExButtonListener =
             new ImageButton.OnClickListener(){
                 @Override
@@ -399,6 +420,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                     newWorkout.setExercises(exerciseListAdapter.getItemCount());
                     newWorkout.setAngles(exerciseListAdapter.getAngles());
                     newWorkout.setDepths(exerciseListAdapter.getDepths());
+                    // dis/enable add workout button according to if workout is valid
                     if (mViewWorkoutsViewModel.isValid(newWorkout)){
                         positiveButton.setEnabled(true);
                     }

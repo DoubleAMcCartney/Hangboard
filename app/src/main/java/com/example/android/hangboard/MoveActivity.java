@@ -1,3 +1,8 @@
+/*
+This is the MoveActivity class. It controls the UI for the move activity. The move activity gives
+the user a way to directly control the angle and depth of the HAG Board without workout timers.
+ */
+
 package com.example.android.hangboard;
 
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -46,9 +51,6 @@ public class MoveActivity extends AppCompatActivity {
 
     List<BluetoothGattCharacteristic> bluetoothGattCharacteristic = new ArrayList<>();
     Queue<BluetoothGattCharacteristic> mWriteCharacteristic = new LinkedList<>();
-
-    private final String LIST_NAME = "NAME";
-    private final String LIST_UUID = "UUID";
 
     public final static UUID UUID_HAG_SERVICE =
             UUID.fromString(GattAttributes.HAG_SERVICE);

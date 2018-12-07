@@ -1,10 +1,11 @@
 /*
-This is the TimerActivity class. It controls the UI for the timer activity.
+This is the TimerActivity class. It controls the UI for the timer activity. The timer activity
+provides the user with workout timers and controls the depth and angle of the HAG Board according to
+the current workout.
  */
 
 package com.example.android.hangboard;
 
-import android.annotation.SuppressLint;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.bluetooth.BluetoothGattCharacteristic;

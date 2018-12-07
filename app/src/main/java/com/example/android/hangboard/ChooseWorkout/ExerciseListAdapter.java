@@ -39,7 +39,8 @@ public class ExerciseListAdapter extends
     ExerciseListAdapter(Context context) { mInflater = LayoutInflater.from(context); }
 
     @Override
-    public ExerciseListAdapter.ExerciseViewHolder onCreateViewHolder(ViewGroup parent, int position) {
+    public ExerciseListAdapter
+            .ExerciseViewHolder onCreateViewHolder(ViewGroup parent, int position) {
         View itemView = mInflater.inflate(R.layout.item_exercise, parent, false);
         return new ExerciseListAdapter.ExerciseViewHolder(itemView);
     }
@@ -47,6 +48,7 @@ public class ExerciseListAdapter extends
     @Override
     public void onBindViewHolder(ExerciseListAdapter.ExerciseViewHolder holder, int position) {
         if (mExercises != null) {
+            // Set the text
             Exercise current = mExercises.get(position);
             holder.numberTV.setText(Integer.toString(position+1));
             holder.depthTV.setText("Depth: " + current.getDepth() + "mm");
@@ -65,14 +67,15 @@ public class ExerciseListAdapter extends
 
     void addExercise(Exercise exercise){
         mExercises.add(exercise);
-        notifyDataSetChanged();
+        notifyDataSetChanged(); // update the recycler view with new data
     }
 
     public void deleteExercise(int position) {
         mExercises.remove(position);
-        notifyDataSetChanged();
+        notifyDataSetChanged(); // update the recycler view with new data
     }
 
+    // return a list of the angle of each exercise
     public List<Integer> getAngles() {
         List<Integer> angles = new ArrayList<>();
         for (Exercise exercise : mExercises) {
@@ -81,6 +84,7 @@ public class ExerciseListAdapter extends
         return angles;
     }
 
+    // return a list of the depth of each exercise
     public List<Integer> getDepths() {
         List<Integer> depth = new ArrayList<>();
         for (Exercise exercise : mExercises) {

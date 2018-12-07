@@ -26,4 +26,5 @@
     <string name="disconnect">Disconnect</string>
     <string name="connect">Connect</string>
     <string name="optionsMenuButton">⋮</string>
+    <string name="timer">Timer</string>
 </resources>

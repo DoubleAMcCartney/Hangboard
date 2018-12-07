@@ -1,3 +1,8 @@
+/*
+Adapter that provides a binding from the Exercise data set to views that are displayed within a
+RecyclerView in the AddWorkout Dialog.
+ */
+
 package com.example.android.hangboard.ChooseWorkout;
 
 import android.support.annotation.NonNull;
@@ -20,7 +25,11 @@ public class WorkoutListAdapter extends
         super(DIFF_CALLBACK);
     }
 
-    private static final DiffUtil.ItemCallback<Workout> DIFF_CALLBACK = new DiffUtil.ItemCallback<Workout>() {
+    // DiffUtil handles data set changes in the recycler view, so the entire database doesn't
+    // get reloaded every time it is changed. This also allows for animations when workouts are
+    // added and deleted.
+    private static final DiffUtil.ItemCallback<Workout> DIFF_CALLBACK =
+            new DiffUtil.ItemCallback<Workout>() {
         @Override
         public boolean areItemsTheSame(@NonNull Workout oldItem, @NonNull Workout newItem) {
             return oldItem.getWorkoutTitle().equals(newItem.getWorkoutTitle());
@@ -65,13 +74,15 @@ public class WorkoutListAdapter extends
 
     @Override
     public WorkoutViewHolder onCreateViewHolder(ViewGroup parent, int position) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_workout, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_workout, parent, false);
         return new WorkoutViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(WorkoutViewHolder holder, int position) {
         Workout current = getItem(position);
+        // set the text
         holder.workoutItemView.setText(current.getWorkoutTitle());
         holder.repItemView.setText("Reps: " + current.getReps());
         holder.setItemView.setText("Sets: " + current.getSets());
@@ -85,5 +96,4 @@ public class WorkoutListAdapter extends
     Workout getWorkout(int position) {
         return getItem(position);
     }
-
 }

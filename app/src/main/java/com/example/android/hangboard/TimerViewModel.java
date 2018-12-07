@@ -1,3 +1,5 @@
+
+
 package com.example.android.hangboard;
 
 import android.app.Application;
@@ -48,7 +50,7 @@ public class TimerViewModel extends AndroidViewModel {
         getCurrentExercise().setValue(1);
     }
 
-
+    // Getters
     public MutableLiveData<Boolean> getConnected() {
         if (mConnected == null) {
             mConnected = new MutableLiveData<>();
@@ -121,6 +123,7 @@ public class TimerViewModel extends AndroidViewModel {
         return mCurrentWorkout;
     }
 
+    // Setters
     void setTotalRep(int i) {
         totalReps = i;
     }
@@ -150,7 +153,7 @@ public class TimerViewModel extends AndroidViewModel {
         getTimeRemaining().setValue(r);
     }
 
-
+    // Timer functions
     public void startTimer() {
         getTimerStarted().setValue(true);
         timer = new CountDownTimer(getTimerValue().getValue(), 1000) {
@@ -194,7 +197,7 @@ public class TimerViewModel extends AndroidViewModel {
     }
 
     private void timerFinished() {
-
+        // Set next timer state based on current state
         if (getTimerState().getValue()=="Work") {
             if (getCurrentRep().getValue() < totalReps) {
                 getCurrentRep().setValue(getCurrentRep().getValue()+1);

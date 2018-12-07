@@ -1,3 +1,8 @@
+/*
+This is the ConnectActivity class. It controls the UI for the connect activity. The connect activity
+is the first activity that opens when the app is opened. It searches and connects to the HAG Board.
+ */
+
 package com.example.android.hangboard;
 
 import android.Manifest;
@@ -147,10 +152,10 @@ public class ConnectActivity extends AppCompatActivity {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay! Do the
+                    // permission was granted. Do the
                     // contacts-related task you need to do.
                 } else {
-                    // permission denied, boo! Disable the
+                    // permission denied. Disable the
                     // functionality that depends on this permission.
                     finish();
                     return;
@@ -264,7 +269,7 @@ public class ConnectActivity extends AppCompatActivity {
             };
 
     public void connect(View view) {
-        //One HAG Board found
+        // One HAG Board found
         if(mLeDeviceListAdapter.getCount() == 1) {
             if (mScanning) {
                 scanLeDevice(false);
@@ -277,7 +282,7 @@ public class ConnectActivity extends AppCompatActivity {
             intent.putExtra(TimerActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
             startActivity(intent);
         }
-        //No or Multiple HAG Boards found
+        // No or multiple HAG Boards found
         else {
             scanLeDevice(true);
         }
