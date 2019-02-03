@@ -1,5 +1,11 @@
 #include <bluefruit.h>
 #include <Stepper.h>
+#include <HX711.h>
+
+#define calibration_factor -7050.0 //This value is obtained using the SparkFun_HX711_Calibration sketch
+
+#define DOUT  3
+#define CLK  2
 
 BLEService        hags = BLEService(0x53e74e5ad19247a08f0635ec90c73a3a);        //hag service
 BLECharacteristic hagd = BLECharacteristic(0x2d0319d8de1511e89f32f2801f1b9fd1); //desired char
@@ -29,8 +35,10 @@ uint8_t desiredDepth = 0;
 void connect_callback(uint16_t conn_handle);
 void disconnect_callback(uint16_t conn_handle, uint8_t reason);
 void write_callback(BLECharacteristic& chr, uint8_t* data, uint16_t len, uint16_t offset);
+void updateWeight();
 
 Stepper motor(512, in1Pin, in2Pin, in3Pin, in4Pin);
+HX711 scale(DOUT, CLK);
 
 // Runs once at power up
 void setup()
@@ -63,6 +71,10 @@ void setup()
   startAdv();
 
   Serial.println("\nAdvertising");
+
+  // Set up for scale
+  scale.set_scale(calibration_factor); //This value is obtained by using the SparkFun_HX711_Calibration sketch
+  scale.tare(); //Assuming there is no weight on the scale at start up, reset the scale to 0
 
   // Set up for stepper motor
   pinMode(in1Pin, OUTPUT);
@@ -139,13 +151,18 @@ void homeStepper() {
   depth=0;
 }
 
+void updateWeight() {
+  weight = (int)scale.get_units();
+  Serial.print("Wieght: "); Serial.println(weight);
+}
+
 // main loop
 void loop()
 {
   digitalToggle(LED_RED);
 
   if ( Bluefruit.connected() ) {
-    //weight++;
+    updateWeight();
     weightArray[0]=weight & 0xff;
     weightArray[1]=(weight >> 8);
     uint8_t hagCurrentData [4] = {angle, depth, weightArray[0], weightArray[1]};

@@ -16,16 +16,19 @@
 
             <item
                 android:id="@+id/action_editWorkout"
+                android:icon="@drawable/ic_baseline_fitness_center_24px"
                 android:title="@string/change_workout"
                 app:showAsAction="never" />
 
             <item
                 android:id="@+id/action_workoutLog"
+                android:icon="@drawable/ic_baseline_assessment_24px"
                 android:title="@string/workout_log"
                 app:showAsAction="never" />
 
             <item
                 android:id="@+id/action_freeHang"
+                android:icon="@drawable/ic_baseline_settings_remote_24px"
                 android:title="@string/free_hang"
                 app:showAsAction="never" />
 

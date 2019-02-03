@@ -565,13 +565,13 @@ public class TimerActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main_menu, menu);
-        menu.removeItem(R.id.action_timer);
+        menu.findItem(R.id.action_timer).setVisible(false);
         if (mConnected ){
-            menu.removeItem(R.id.action_connect);
+            menu.findItem(R.id.action_connect).setVisible(false);
         }
         else {
-            menu.removeItem(R.id.action_disconnect);
-            menu.removeItem(R.id.action_freeHang);
+            menu.findItem(R.id.action_disconnect).setVisible(false);
+            menu.findItem(R.id.action_freeHang).setVisible(false);
         }
         return true;
     }
