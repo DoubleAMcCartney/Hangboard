@@ -111,8 +111,16 @@ public class Workout {
 
     public static Workout[] populateData() {
         return new Workout[] {
-                new Workout("Intermediate", 6, 5, 1, 7000, 3000, 240000,
-                        Arrays.asList(0), Arrays.asList(10))
+                new Workout("Beginner", 6, 5, 1, 10000, 5000, 240000,
+                        Arrays.asList(0), Arrays.asList(20)),
+                new Workout("Intermediate", 6, 6, 1, 7000, 3000, 240000,
+                        Arrays.asList(0), Arrays.asList(15)),
+                new Workout("Max Hangs", 1, 6, 1, 1000, 3000, 240000,
+                        Arrays.asList(0), Arrays.asList(8)),
+                new Workout("Endurance", 6, 6, 1, 1000, 5000, 60000,
+                        Arrays.asList(0), Arrays.asList(10)),
+                new Workout("Advanced", 7, 7, 2, 7000, 3000, 240000,
+                        Arrays.asList(0,0), Arrays.asList(15,12))
         };
     }
 
