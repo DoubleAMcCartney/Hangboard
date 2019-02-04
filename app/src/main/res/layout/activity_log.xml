@@ -6,4 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".LogActivity">
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rvWorkoutLog"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:listitem="@layout/item_workout_log" />
+
 </android.support.constraint.ConstraintLayout>
