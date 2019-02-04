@@ -271,12 +271,14 @@ public class TimerActivity extends AppCompatActivity {
             // Update text with new value
             timerText.setText(String.format("%d:%02d", minutes, seconds));
 
-            // Play sound at two, one and zero seconds
-            if (seconds == 1 && minutes == 0 || seconds==2 && minutes == 0) {
-                pitch1.start();
-            }
-            else if (seconds==0 && minutes == 0) {
-                pitch2.start();
+            // Play sound at two, one and zero seconds if timer is started
+            if (startPauseButton.getText()=="Pause") {
+                if (seconds == 1 && minutes == 0 || seconds==2 && minutes == 0) {
+                    pitch1.start();
+                }
+                else if (seconds==0 && minutes == 0) {
+                    pitch2.start();
+                }
             }
         }
     };
