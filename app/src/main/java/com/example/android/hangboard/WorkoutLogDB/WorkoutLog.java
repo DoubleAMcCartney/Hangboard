@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 
 import com.example.android.hangboard.Converters;
 
+import java.util.Calendar;
 import java.util.Date;
 
 @Entity(tableName = "workoutLog")
@@ -151,5 +152,12 @@ public class WorkoutLog {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public static WorkoutLog[] populateData() {
+        return new WorkoutLog[] {
+                new WorkoutLog("Beginner", 6, 5, 1, 10000, 5000, 240000,
+                        10, 150, 10000, 20, Calendar.getInstance().getTime(), "Test")
+        };
     }
 }

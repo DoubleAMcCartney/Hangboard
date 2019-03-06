@@ -38,6 +38,7 @@ public class LogActivity extends AppCompatActivity {
         // Add toolbar
         final Toolbar myToolbar = findViewById(R.id.workoutLog_toolbar);
         setSupportActionBar(myToolbar);
+        setTitle("Workout Log");
 
         // definitions
         final RecyclerView workoutLogRecyclerView = findViewById(R.id.rvWorkoutLog);

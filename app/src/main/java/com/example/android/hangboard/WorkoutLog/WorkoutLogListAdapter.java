@@ -79,13 +79,13 @@ public class WorkoutLogListAdapter extends
     @Override
     public void onBindViewHolder(WorkoutLogViewHolder holder, int position) {
         WorkoutLog current = getItem(position);
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+        DateFormat dateFormat = new SimpleDateFormat("MMM. dd yyyy");
         // set the text
         holder.workoutTitleItemView.setText(current.getWorkoutTitle());
         holder.dateItemView.setText(dateFormat.format(current.getDate()));
-        holder.DepthItemView.setText(current.getDepth());
-        holder.scoreItemView.setText(current.getScore());
-        holder.weightItemView.setText(current.getWeight());
+        holder.DepthItemView.setText(current.getDepth() + "mm");
+        holder.scoreItemView.setText("Score: " + current.getScore());
+        holder.weightItemView.setText(current.getWeight() + "lbs");
     }
 
 
