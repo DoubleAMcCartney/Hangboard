@@ -6,10 +6,23 @@
     android:layout_height="match_parent"
     tools:context=".WorkoutLog.LogActivity">
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/workoutLog_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rvWorkoutLog"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/workoutLog_toolbar"
+        tools:layout_editor_absoluteX="0dp"
         tools:listitem="@layout/item_workout_log" />
 
 </android.support.constraint.ConstraintLayout>

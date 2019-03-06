@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 
 import com.example.android.hangboard.ChooseWorkout.WorkoutListAdapter;
 import com.example.android.hangboard.R;
@@ -34,6 +35,10 @@ public class LogActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // run only in portrait mode
         setContentView(R.layout.activity_log); // Set the layout
 
+        // Add toolbar
+        final Toolbar myToolbar = findViewById(R.id.workoutLog_toolbar);
+        setSupportActionBar(myToolbar);
+
         // definitions
         final RecyclerView workoutLogRecyclerView = findViewById(R.id.rvWorkoutLog);
         workoutLogListAdapter = new WorkoutLogListAdapter();
@@ -53,10 +58,4 @@ public class LogActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    public void finish() {
-        super.finish();
-        // add animation to the changing of activities
-        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-    }
 }
