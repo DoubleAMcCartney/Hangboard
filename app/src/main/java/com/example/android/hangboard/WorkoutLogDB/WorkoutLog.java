@@ -23,18 +23,20 @@ public class WorkoutLog {
     private int angle;
     private int depth;
 
+    private int weight;
     private int actualWorkTime;
     private int score;
     private Date date;
     private String notes;
 
     public WorkoutLog(String workoutTitle, int reps, int sets, int workTime, int restTime, int breakTime,
-                   int angle, int depth, int actualWorkTime, int score, Date date, String notes) {
+                   int angle, int depth, int weight, int actualWorkTime, int score, Date date, String notes) {
         this.workoutTitle = workoutTitle;
         this.reps = reps;
         this.sets = sets;
         this.angle = angle;
         this.depth = depth;
+        this.weight = weight;
         this.workTime = workTime;
         this.restTime = restTime;
         this.breakTime = breakTime;
@@ -76,6 +78,10 @@ public class WorkoutLog {
 
     public int getDepth() {
         return depth;
+    }
+
+    public int getWeight() {
+        return weight;
     }
 
     public int getActualWorkTime() {
@@ -125,6 +131,10 @@ public class WorkoutLog {
 
     public void setDepth(int depths) {
         this.depth = depths;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
     }
 
     public void setActualWorkTime(int actualWorkTime) {

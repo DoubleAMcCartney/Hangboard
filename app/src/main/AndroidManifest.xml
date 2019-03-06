@@ -44,7 +44,7 @@
             android:name=".MoveActivity"
             android:label="@string/title_activity_move" />
         <activity android:name=".TimerActivity" />
-        <activity android:name=".LogActivity" />
+        <activity android:name=".WorkoutLog.LogActivity" />
         <activity android:name=".ChooseWorkout.ViewWorkoutsActivity"></activity>
 
     </application>

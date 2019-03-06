@@ -19,7 +19,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/WorkoutDate"
+            android:id="@+id/workoutLogDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -31,7 +31,7 @@
             tools:text="Jan. 12 2019" />
 
         <TextView
-            android:id="@+id/workoutTitle"
+            android:id="@+id/workoutLogTitle"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:layout_marginTop="4dp"
@@ -40,12 +40,12 @@
             android:textIsSelectable="false"
             android:textSize="12sp"
             android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/workoutOptionsButton"
+            app:layout_constraintEnd_toStartOf="@+id/workoutLogOptionsButton"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Workout Title" />
 
         <TextView
-            android:id="@+id/Score"
+            android:id="@+id/logScore"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -53,33 +53,33 @@
             android:textColor="@color/Title"
             android:textSize="24sp"
             android:textStyle="bold"
-            app:layout_constraintBottom_toTopOf="@+id/HangTime"
-            app:layout_constraintEnd_toStartOf="@+id/workoutOptionsButton"
+            app:layout_constraintBottom_toTopOf="@+id/logDepth"
+            app:layout_constraintEnd_toStartOf="@+id/workoutLogOptionsButton"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/WorkoutDate"
+            app:layout_constraintTop_toBottomOf="@+id/WorkoutLogDate"
             tools:text="Score: 1000" />
 
         <TextView
-            android:id="@+id/HangTime"
+            android:id="@+id/logDepth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:text="Hung 100sec of 100sec" />
+            tools:text="10mm" />
 
         <TextView
-            android:id="@+id/Weight"
+            android:id="@+id/logWeight"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/workoutOptionsButton"
+            app:layout_constraintEnd_toStartOf="@+id/workoutLogOptionsButton"
             tools:text="100lbs Avg." />
 
         <Button
-            android:id="@+id/workoutOptionsButton"
+            android:id="@+id/workoutLogOptionsButton"
             android:layout_width="30dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
@@ -91,13 +91,13 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/workoutButton"
+            android:id="@+id/workoutLogButton"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_marginEnd="16dp"
             android:background="@android:color/transparent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/workoutOptionsButton"
+            app:layout_constraintEnd_toStartOf="@+id/workoutLogOptionsButton"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </android.support.constraint.ConstraintLayout>

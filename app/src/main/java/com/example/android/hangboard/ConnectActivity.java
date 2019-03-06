@@ -27,6 +27,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.hangboard.WorkoutLog.LogActivity;
+
 import java.util.ArrayList;
 
 

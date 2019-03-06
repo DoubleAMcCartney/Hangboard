@@ -35,6 +35,7 @@ import android.widget.Toast;
 
 import com.example.android.hangboard.ChooseWorkout.ViewWorkoutsActivity;
 import com.example.android.hangboard.WorkoutDB.Workout;
+import com.example.android.hangboard.WorkoutLog.LogActivity;
 
 import java.util.List;
 import java.util.UUID;

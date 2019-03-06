@@ -19,7 +19,8 @@ public abstract class WorkoutLogDatabase extends RoomDatabase {
     }
 
     static WorkoutLogDatabase buildDatabase(final Context context) {
-        final WorkoutLogDatabase db = Room.databaseBuilder(context, WorkoutLogDatabase.class, "log-database").build();
+        final WorkoutLogDatabase db = Room.databaseBuilder(context, WorkoutLogDatabase.class, "log-database")
+                .allowMainThreadQueries().build();
         db.beginTransaction();
         db.endTransaction();
         return db;
