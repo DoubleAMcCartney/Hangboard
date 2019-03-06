@@ -8,6 +8,8 @@ import android.arch.persistence.room.TypeConverters;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.example.android.hangboard.Converters;
+
 import java.util.concurrent.Executors;
 
 @Database(entities = {Workout.class}, version = 1)

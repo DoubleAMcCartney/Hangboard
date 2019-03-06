@@ -1,4 +1,4 @@
-package com.example.android.hangboard.WorkoutDB;
+package com.example.android.hangboard;
 
 import android.arch.persistence.room.TypeConverter;
 
@@ -7,6 +7,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 public class Converters {
@@ -26,5 +27,15 @@ public class Converters {
     public static String someObjectListToString(List<Integer> someObjects) {
         Gson gson = new Gson();
         return gson.toJson(someObjects);
+    }
+
+    @TypeConverter
+    public static Date fromTimestamp(Long value) {
+        return value == null ? null : new Date(value);
+    }
+
+    @TypeConverter
+    public static Long dateToTimestamp(Date date) {
+        return date == null ? null : date.getTime();
     }
 }

@@ -2,10 +2,10 @@
 #include <Stepper.h>
 #include <HX711.h>
 
+// definitions for weight sensor
 #define calibration_factor -7050.0 //This value is obtained using the SparkFun_HX711_Calibration sketch
-
-#define DOUT  3
-#define CLK  2
+#define DOUT  4
+#define CLK  5
 
 BLEService        hags = BLEService(0x53e74e5ad19247a08f0635ec90c73a3a);        //hag service
 BLECharacteristic hagd = BLECharacteristic(0x2d0319d8de1511e89f32f2801f1b9fd1); //desired char
@@ -17,7 +17,7 @@ BLEUart bleuart;
 BLEBas  blebas;
 
 // TODO: map homeButton and toFarButton to limit switch pins
-bool homeButton = true;
+bool homeButton = false;
 bool toFarButton = false;
  
 int in1Pin = A0;
@@ -37,7 +37,7 @@ void disconnect_callback(uint16_t conn_handle, uint8_t reason);
 void write_callback(BLECharacteristic& chr, uint8_t* data, uint16_t len, uint16_t offset);
 void updateWeight();
 
-Stepper motor(512, in1Pin, in2Pin, in3Pin, in4Pin);
+Stepper motor(200, in1Pin, in2Pin, in3Pin, in4Pin);
 HX711 scale(DOUT, CLK);
 
 // Runs once at power up
@@ -82,9 +82,9 @@ void setup()
   pinMode(in3Pin, OUTPUT);
   pinMode(in4Pin, OUTPUT);
   
-  motor.setSpeed(10);
+  motor.setSpeed(30);
 
-  homeStepper();
+//  homeStepper();
 }
 
 void startAdv(void)
@@ -152,7 +152,9 @@ void homeStepper() {
 }
 
 void updateWeight() {
-  weight = (int)scale.get_units();
+  Serial.print("Updating wieght");
+  //weight = (int)scale.get_units();
+  weight = weight + 1;
   Serial.print("Wieght: "); Serial.println(weight);
 }
 
@@ -160,7 +162,6 @@ void updateWeight() {
 void loop()
 {
   digitalToggle(LED_RED);
-
   if ( Bluefruit.connected() ) {
     updateWeight();
     weightArray[0]=weight & 0xff;
@@ -183,6 +184,8 @@ void loop()
     long steps = (depth - desiredDepth)*mmToSteps;
 
     while (steps != 0) {
+      Serial.println("Motor Moving:");
+      Serial.println(steps);
       if (steps > 0) {
         motor.step(1);
         steps--; // move stepper
@@ -191,28 +194,29 @@ void loop()
         motor.step(-1);
         steps++; // move stepper
       }
-      // Check limit switches
-      if (homeButton) {
-        steps = 0;
-      }
-      else if (toFarButton){
-        steps = 0;
-      }
+//      // Check limit switches
+//      if (homeButton) {
+//        steps = 0;
+//      }
+//      else if (toFarButton){
+//        steps = 0;
+//      }
     }
 
     // Check limit switches
     // Update current depth
     if (homeButton) {
+      Serial.println("Home Button Hit!!!");
       depth = 0;
     }
     else if (toFarButton){
+      Serial.println("Limit Button Hit!!!");
       depth = 100;  // TODO: change to max depth when we know what that is
     }
     else {
       depth = desiredDepth;
     }
     
-    Serial.println("Motor Moving");
   }
   
   delay(1000);

@@ -20,13 +20,13 @@ public interface WorkoutLogDAO {
     @Delete
     void delete(WorkoutLog workout);
 
-    @Query("SELECT * FROM workout")
+    @Query("SELECT * FROM workoutLog")
     LiveData<List<WorkoutLog>> getWorkouts();
 
-    @Query("SELECT * FROM workout WHERE workoutTitle = :title")
+    @Query("SELECT * FROM workoutLog WHERE workoutTitle = :title")
     LiveData<WorkoutLog> getWorkoutWithTitle(String title);
 
-    @Query("SELECT * FROM workout WHERE workoutTitle = :title")
+    @Query("SELECT * FROM workoutLog WHERE workoutTitle = :title")
     WorkoutLog getWorkoutWithTitleDirect(String title);
 
 }

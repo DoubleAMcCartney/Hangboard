@@ -2,11 +2,15 @@ package com.example.android.hangboard.WorkoutLogDB;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.TypeConverters;
 import android.support.annotation.NonNull;
+
+import com.example.android.hangboard.Converters;
 
 import java.util.Date;
 
 @Entity(tableName = "workoutLog")
+@TypeConverters({Converters.class})
 public class WorkoutLog {
     @NonNull
     @PrimaryKey
