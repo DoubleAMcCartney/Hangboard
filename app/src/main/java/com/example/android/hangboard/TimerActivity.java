@@ -253,7 +253,7 @@ public class TimerActivity extends AppCompatActivity {
                     weightText.setText(weight + "lbs"); // update weight text with new value
                 }
 
-                // Skip timer if user hangs early
+                // Auto-skip timer if user hangs early
                 if (weight > 5) {
                     String timerStatus = (String)timerStatusText.getText();
                     if (timerStatus == "Prepare" || timerStatus == "Rest" || timerStatus == "Break") {
