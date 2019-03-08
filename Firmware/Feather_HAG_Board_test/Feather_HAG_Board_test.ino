@@ -20,10 +20,13 @@ BLEBas  blebas;
 bool homeButton = false;
 bool toFarButton = false;
  
-int in1Pin = A0;
-int in2Pin = A1;
-int in3Pin = A2;
-int in4Pin = A3;
+int const in1Pin = A0;
+int const in2Pin = A1;
+int const in3Pin = A2;
+int const in4Pin = A3;
+int const motorSpeed = 100;
+int const mmPerRot = 4;
+int const stepsPerRot = 200;
 
 uint8_t angle = 0;
 uint8_t depth = 0;
@@ -37,7 +40,7 @@ void disconnect_callback(uint16_t conn_handle, uint8_t reason);
 void write_callback(BLECharacteristic& chr, uint8_t* data, uint16_t len, uint16_t offset);
 void updateWeight();
 
-Stepper motor(200, in1Pin, in2Pin, in3Pin, in4Pin);
+Stepper motor(stepsPerRot, in1Pin, in2Pin, in3Pin, in4Pin);
 HX711 scale(DOUT, CLK);
 
 // Runs once at power up
@@ -82,7 +85,7 @@ void setup()
   pinMode(in3Pin, OUTPUT);
   pinMode(in4Pin, OUTPUT);
   
-  motor.setSpeed(30);
+  motor.setSpeed(motorSpeed);
 
 //  homeStepper();
 }
@@ -152,16 +155,14 @@ void homeStepper() {
 }
 
 void updateWeight() {
-  Serial.print("Updating wieght");
+  //Serial.print("Updating wieght");
   //weight = (int)scale.get_units();
-  weight = weight + 1;
-  Serial.print("Wieght: "); Serial.println(weight);
+  //Serial.print("Wieght: "); Serial.println(weight);
 }
 
 // main loop
 void loop()
 {
-  digitalToggle(LED_RED);
   if ( Bluefruit.connected() ) {
     updateWeight();
     weightArray[0]=weight & 0xff;
@@ -179,9 +180,7 @@ void loop()
   //update depth
   if (depth != desiredDepth) {
     // calculate steps to be moved
-    // TODO: calculate the conversion for mm to steps and update mmToSteps appropriatly
-    int mmToSteps = 100;
-    long steps = (depth - desiredDepth)*mmToSteps;
+    long steps = (depth - desiredDepth)*stepsPerRot/mmPerRot;
 
     while (steps != 0) {
       Serial.println("Motor Moving:");
@@ -202,6 +201,7 @@ void loop()
 //        steps = 0;
 //      }
     }
+    delay(10);
 
     // Check limit switches
     // Update current depth
@@ -218,9 +218,7 @@ void loop()
     }
     
   }
-  
   delay(1000);
-
 
 }
 
@@ -247,6 +245,10 @@ void write_callback(BLECharacteristic& chr, uint8_t* data, uint16_t len, uint16_
 {
   desiredAngle = data[0];
   desiredDepth = data[1];
+  if ((desiredDepth < 0) || (desiredDepth > 100)) {
+    Serial.print("Error. Desired depth is out of bounds!!!");
+    desiredDepth = 0;
+  }
   Serial.print("Desired depth updated to: "); Serial.println(desiredDepth);
   Serial.print("Desired angle updated to: "); Serial.println(desiredAngle);
 }

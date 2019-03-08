@@ -4,6 +4,8 @@ provides the user with workout timers and controls the depth and angle of the HA
 the current workout.
  */
 
+//todo record weight; during prepare, rest, and break skip when weight is above a threshold; calculate score; add dialog at end of workout
+
 package com.example.android.hangboard;
 
 import android.arch.lifecycle.Observer;
@@ -37,6 +39,7 @@ import com.example.android.hangboard.ChooseWorkout.ViewWorkoutsActivity;
 import com.example.android.hangboard.WorkoutDB.Workout;
 import com.example.android.hangboard.WorkoutLog.LogActivity;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
@@ -240,13 +243,22 @@ public class TimerActivity extends AppCompatActivity {
 
 
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
+                int weight = 0;
                 if (HAGActual != null) {
                     // Get weight data and convert from two bytes to an int
-                    int weight = HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8,
+                    weight = HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8,
                             2);
                     weight += HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8,
                             3)*256;
                     weightText.setText(weight + "lbs"); // update weight text with new value
+                }
+
+                // Skip timer if user hangs early
+                if (weight > 5) {
+                    String timerStatus = (String)timerStatusText.getText();
+                    if (timerStatus == "Prepare" || timerStatus == "Rest" || timerStatus == "Break") {
+                        mModel.skipTimer();
+                    }
                 }
             }
         }
@@ -259,6 +271,13 @@ public class TimerActivity extends AppCompatActivity {
         @Override
         public void onChanged(@Nullable final String newValue) {
             timerStatusText.setText(newValue); // Update timer text
+            if (newValue == "Done") {
+                mModel.addLogEntry(currentWorkout.getWorkoutTitle(), reps, sets,
+                        currentWorkout.getWorkTime(), currentWorkout.getRestTime(),
+                        currentWorkout.getBreakTime(), currentWorkout.getDepths().get(0),
+                        currentWorkout.getAngles().get(0), 100, 100, 100,
+                        Calendar.getInstance().getTime(), "Weight, actualWorkTime, and score N/A");
+            }
         }
     };
 
@@ -388,6 +407,7 @@ public class TimerActivity extends AppCompatActivity {
                     value[0] = (byte)(int)currentWorkout.getAngles().get(0);
                     value[1] = (byte)(int)currentWorkout.getDepths().get(0);
                     HAGDesired.setValue(value);
+                    mBluetoothLeService.writeCharac(HAGDesired, value);
                 }
 
                 // Update text

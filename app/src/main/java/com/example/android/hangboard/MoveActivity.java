@@ -182,8 +182,8 @@ public class MoveActivity extends AppCompatActivity {
         shallowerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (desiredDepth >= 0) {
-                    desiredDepth--;
+                if (desiredDepth >= 10) {
+                    desiredDepth-=10;
                     byte[] value = new byte[2];
                     value[0] = desiredAngle;
                     value[1] = desiredDepth;
@@ -195,8 +195,8 @@ public class MoveActivity extends AppCompatActivity {
         deeperButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (desiredDepth <= 100) {
-                    desiredDepth++;
+                if (desiredDepth <= 190) {
+                    desiredDepth+=10;
                     byte[] value = new byte[2];
                     value[0] = desiredAngle;
                     value[1] = desiredDepth;

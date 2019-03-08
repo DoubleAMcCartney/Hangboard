@@ -10,6 +10,11 @@ import android.os.CountDownTimer;
 
 import com.example.android.hangboard.WorkoutDB.Workout;
 import com.example.android.hangboard.WorkoutDB.WorkoutRepository;
+import com.example.android.hangboard.WorkoutLogDB.WorkoutLog;
+import com.example.android.hangboard.WorkoutLogDB.WorkoutLogRepository;
+
+import java.util.Calendar;
+import java.util.Date;
 
 public class TimerViewModel extends AndroidViewModel {
     private CountDownTimer timer;
@@ -19,7 +24,8 @@ public class TimerViewModel extends AndroidViewModel {
     private int totalReps;
     private int totalSets;
     private int totalExercises;
-    private WorkoutRepository repository;
+    private WorkoutRepository workoutRepository;
+    private WorkoutLogRepository logRepository;
 
     // Define  LiveData
     private LiveData<Workout> mCurrentWorkout;
@@ -36,9 +42,10 @@ public class TimerViewModel extends AndroidViewModel {
     //Constructor
     public TimerViewModel(Application application) {
         super(application);
-        repository = new WorkoutRepository(application);
+        workoutRepository = new WorkoutRepository(application);
+        logRepository = new WorkoutLogRepository(application);
 
-        mCurrentWorkout = repository.getWorkoutWithTitle("Intermediate");
+        mCurrentWorkout = workoutRepository.getWorkoutWithTitle("Intermediate");
 
         getConnected().setValue(false);
         getPrepareTime().setValue(10000);
@@ -119,7 +126,7 @@ public class TimerViewModel extends AndroidViewModel {
     }
 
     public LiveData<Workout> getWorkoutByTitle(String workoutTitle) {
-        this.mCurrentWorkout = this.repository.getWorkoutWithTitle(workoutTitle);
+        this.mCurrentWorkout = this.workoutRepository.getWorkoutWithTitle(workoutTitle);
         return mCurrentWorkout;
     }
 
@@ -235,5 +242,14 @@ public class TimerViewModel extends AndroidViewModel {
             getTimerValue().setValue((long) workTime);
         }
         if (getTimerStarted().getValue()) startTimer();
+    }
+
+    void addLogEntry(String workoutTitle, int reps, int sets, int workTime, int restTime, int breakTime,
+                     int angle, int depth, int weight, int actualWorkTime, int score, Date date, String notes) {
+
+        logRepository.insert(
+                new WorkoutLog(workoutTitle, reps, sets, workTime, restTime, breakTime, angle, depth, weight, actualWorkTime, score, date, notes)
+        );
+
     }
 }
