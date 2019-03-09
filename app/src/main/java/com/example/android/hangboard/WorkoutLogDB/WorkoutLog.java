@@ -13,8 +13,6 @@ import java.util.Date;
 @Entity(tableName = "workoutLog")
 @TypeConverters({Converters.class})
 public class WorkoutLog {
-    @NonNull
-    @PrimaryKey
     private String workoutTitle;
     private int sets;
     private int reps;
@@ -23,10 +21,11 @@ public class WorkoutLog {
     private int breakTime;
     private int angle;
     private int depth;
-
     private int weight;
     private int actualWorkTime;
     private int score;
+    @NonNull
+    @PrimaryKey
     private Date date;
     private String notes;
 

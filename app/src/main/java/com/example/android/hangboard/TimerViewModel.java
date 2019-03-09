@@ -194,7 +194,7 @@ public class TimerViewModel extends AndroidViewModel {
         if (timer != null) {
             timer.cancel();
         }
-        mTimeRemaining.setValue(mTimeRemaining.getValue()-mTimerValue.getValue());
+        mTimeRemaining.setValue(mTimeRemaining.getValue()-mTimerValue.getValue()+1000);
         timerFinished();
     }
 

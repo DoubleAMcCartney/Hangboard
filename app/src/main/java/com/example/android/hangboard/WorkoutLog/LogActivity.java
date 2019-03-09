@@ -5,16 +5,13 @@ view completed workouts and track their progress.
 
 package com.example.android.hangboard.WorkoutLog;
 
-import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -25,8 +22,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
-import com.example.android.hangboard.ChooseWorkout.ViewWorkoutsActivity;
-import com.example.android.hangboard.ChooseWorkout.WorkoutListAdapter;
 import com.example.android.hangboard.R;
 import com.example.android.hangboard.WorkoutLogDB.WorkoutLog;
 
