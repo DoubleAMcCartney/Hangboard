@@ -123,7 +123,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         mViewWorkoutsViewModel.getAllWorkouts().observe(this, new Observer<List<Workout>>() {
             @Override
             public void onChanged(@Nullable List<Workout> workouts) {
-                // Update the cached copy of the words in the adapter.
+                // Update the cached copy of the workouts in the adapter.
                 workoutListAdapter.submitList(workouts);
             }
         });

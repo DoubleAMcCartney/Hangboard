@@ -22,6 +22,7 @@ import android.content.res.Configuration;
 import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -278,42 +279,7 @@ public class TimerActivity extends AppCompatActivity {
         public void onChanged(@Nullable final String newValue) {
             timerStatusText.setText(newValue); // Update timer text
             if (newValue == "Done") {
-                // todo: have a dialog that shows the results of the workout and asks to save it in log
-
-                // Create data points from weight and work lists
-                int dataPoints = weightList.size();
-                weightDP = new DataPoint[dataPoints];
-                workDP = new DataPoint[dataPoints];
-                int count = 0;
-                long totWeight = 0;
-
-                for (int x=0; x<=dataPoints; x++) {
-                    int weight = weightList.get(dataPoints-x);
-                    int work = workList.get(dataPoints-x)? 1:0;
-
-                    weightDP[x] = new DataPoint(x, weight);
-                    workDP[x] = new DataPoint(x, work);
-
-                    // Calculate average weight during work periods
-                    if (weight > 10) {
-                        count++;
-                        totWeight += weight;
-                    }
-                }
-
-                int avgWeight = (int)(totWeight / count);
-
-                // TODO: Calculate desiredWorkTime
-
-                // Calculate score
-                // avgWeight*(desiredWorkTime/actualWorkTime)*[(maxDepth-depth)/maxDepth]
-
-                // Add log entry
-                mModel.addLogEntry(currentWorkout.getWorkoutTitle(), reps, sets,
-                        currentWorkout.getWorkTime(), currentWorkout.getRestTime(),
-                        currentWorkout.getBreakTime(), currentWorkout.getDepths().get(0),
-                        currentWorkout.getAngles().get(0), avgWeight, count, count,
-                        Calendar.getInstance().getTime(), "Weight, actualWorkTime, and score N/A");
+                workOutComplete();
                 workState = false;
             }
             else if (newValue == "Work") {
@@ -728,6 +694,63 @@ public class TimerActivity extends AppCompatActivity {
         setText.setText("Set: " + Integer.toString(set) + " of " + Integer.toString(sets));
         exerciseText.setText("Exercise: " + Integer.toString(exercise) + " of " +
                 Integer.toString(exercises));
+    }
+
+    private void workOutComplete() {
+        // create and show dialog
+        DialogFragment addWorkout = new WorkoutCompleteDialogFragment();
+        addWorkout.show(getSupportFragmentManager(), "AddWorkout");
+        getSupportFragmentManager().executePendingTransactions();
+
+
+
+    }
+
+    void addWorkout() {
+        if (mConnected) {
+            // Create data points from weight and work lists
+            int dataPoints = weightList.size();
+            weightDP = new DataPoint[dataPoints];
+            workDP = new DataPoint[dataPoints];
+            int actualWorkTime = 0;
+            long totWeight = 0;
+
+            for (int x=0; x<=dataPoints; x++) {
+                int weight = weightList.get(dataPoints-x);
+                int work = workList.get(dataPoints-x)? 1:0;
+
+                weightDP[x] = new DataPoint(x, weight);
+                workDP[x] = new DataPoint(x, work);
+
+                // Calculate average weight during work periods
+                if (weight > 10) {
+                    actualWorkTime++;
+                    totWeight += weight;
+                }
+            }
+
+            int avgWeight = (int)(totWeight / actualWorkTime);
+
+            // TODO: Calculate desiredWorkTime
+
+            // Calculate score
+            int score = avgWeight*actualWorkTime*((100-currentWorkout.getDepths().get(0))/100);
+
+            // Add log entry
+            mModel.addLogEntry(currentWorkout.getWorkoutTitle(), reps, sets,
+                    currentWorkout.getWorkTime(), currentWorkout.getRestTime(),
+                    currentWorkout.getBreakTime(), currentWorkout.getDepths().get(0),
+                    currentWorkout.getAngles().get(0), avgWeight, actualWorkTime, score,
+                    Calendar.getInstance().getTime(), "");
+        }
+        else {
+            // Add log entry
+            mModel.addLogEntry(currentWorkout.getWorkoutTitle(), reps, sets,
+                    currentWorkout.getWorkTime(), currentWorkout.getRestTime(),
+                    currentWorkout.getBreakTime(), currentWorkout.getDepths().get(0),
+                    currentWorkout.getAngles().get(0), 0, 0, 0,
+                    Calendar.getInstance().getTime(), "H.A.G. Board not connected!");
+        }
     }
 
 }
