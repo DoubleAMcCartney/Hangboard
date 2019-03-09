@@ -4,7 +4,7 @@ provides the user with workout timers and controls the depth and angle of the HA
 the current workout.
  */
 
-//todo record weight; during prepare, rest, and break skip when weight is above a threshold; calculate score; add dialog at end of workout
+//todo record weight; calculate score; add dialog at end of workout
 
 package com.example.android.hangboard;
 
@@ -38,13 +38,13 @@ import android.widget.Toast;
 import com.example.android.hangboard.ChooseWorkout.ViewWorkoutsActivity;
 import com.example.android.hangboard.WorkoutDB.Workout;
 import com.example.android.hangboard.WorkoutLog.LogActivity;
+import com.jjoe64.graphview.series.DataPoint;
 
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
 
 //TODO: fix issue where activity disconnects from bluetooth when device is still connected
-//TODO: Use weight to control timer
 
 public class TimerActivity extends AppCompatActivity {
     private final static String TAG = MoveActivity.class.getSimpleName();
@@ -78,6 +78,13 @@ public class TimerActivity extends AppCompatActivity {
     private int sets = 0;
     private int exercise = 0;
     private int exercises = 0;
+    private int weight = 0;
+    private DataPoint[] weightDP;
+    private DataPoint[] workDP;
+    private List<Integer> weightList;
+    private List<Boolean> workList;
+    private boolean timerStarted = false;
+    private boolean workState = false;
 
     private TimerViewModel mModel;
     protected TextView timerStatusText;
@@ -161,7 +168,7 @@ public class TimerActivity extends AppCompatActivity {
             }
         }
 
-        // Called everytime the Bluetooth LE service is disconnected
+        // Called every time the Bluetooth LE service is disconnected
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             mBluetoothLeService = null;
@@ -243,7 +250,6 @@ public class TimerActivity extends AppCompatActivity {
 
 
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                int weight = 0;
                 if (HAGActual != null) {
                     // Get weight data and convert from two bytes to an int
                     weight = HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8,
@@ -272,11 +278,49 @@ public class TimerActivity extends AppCompatActivity {
         public void onChanged(@Nullable final String newValue) {
             timerStatusText.setText(newValue); // Update timer text
             if (newValue == "Done") {
+                // todo: have a dialog that shows the results of the workout and asks to save it in log
+
+                // Create data points from weight and work lists
+                int dataPoints = weightList.size();
+                weightDP = new DataPoint[dataPoints];
+                workDP = new DataPoint[dataPoints];
+                int count = 0;
+                long totWeight = 0;
+
+                for (int x=0; x<=dataPoints; x++) {
+                    int weight = weightList.get(dataPoints-x);
+                    int work = workList.get(dataPoints-x)? 1:0;
+
+                    weightDP[x] = new DataPoint(x, weight);
+                    workDP[x] = new DataPoint(x, work);
+
+                    // Calculate average weight during work periods
+                    if (weight > 10) {
+                        count++;
+                        totWeight += weight;
+                    }
+                }
+
+                int avgWeight = (int)(totWeight / count);
+
+                // TODO: Calculate desiredWorkTime
+
+                // Calculate score
+                // avgWeight*(desiredWorkTime/actualWorkTime)*[(maxDepth-depth)/maxDepth]
+
+                // Add log entry
                 mModel.addLogEntry(currentWorkout.getWorkoutTitle(), reps, sets,
                         currentWorkout.getWorkTime(), currentWorkout.getRestTime(),
                         currentWorkout.getBreakTime(), currentWorkout.getDepths().get(0),
-                        currentWorkout.getAngles().get(0), 100, 100, 100,
+                        currentWorkout.getAngles().get(0), avgWeight, count, count,
                         Calendar.getInstance().getTime(), "Weight, actualWorkTime, and score N/A");
+                workState = false;
+            }
+            else if (newValue == "Work") {
+                workState = true;
+            }
+            else {
+                workState = false;
             }
         }
     };
@@ -306,6 +350,7 @@ public class TimerActivity extends AppCompatActivity {
     private final Observer<Boolean> timerStartedObserver = new Observer<Boolean>() {
         @Override
         public void onChanged(@Nullable final Boolean newValue) {
+            timerStarted = newValue;
             if (newValue) {
                 startPauseButton.setText("Pause");
 
@@ -385,6 +430,12 @@ public class TimerActivity extends AppCompatActivity {
             int minutes = seconds / 60;
             seconds = seconds % 60;
             timeRemainingText.setText("Remaining: " + String.format("%d:%02d", minutes, seconds));
+
+            // Every millisecond store the current weight in a list
+            if (mConnected && timerStarted) {
+                weightList.add(seconds, weight);
+                workList.add(seconds, workState);
+            }
         }
     };
 
@@ -504,6 +555,8 @@ public class TimerActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mModel.stopTimer();
+                weightList.clear();
+                workList.clear();
             }
         });
 
