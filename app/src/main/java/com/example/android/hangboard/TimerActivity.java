@@ -33,6 +33,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,7 +42,10 @@ import com.example.android.hangboard.WorkoutDB.Workout;
 import com.example.android.hangboard.WorkoutLog.LogActivity;
 import com.jjoe64.graphview.series.DataPoint;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -702,8 +706,70 @@ public class TimerActivity extends AppCompatActivity {
         addWorkout.show(getSupportFragmentManager(), "AddWorkout");
         getSupportFragmentManager().executePendingTransactions();
 
+        TextView dateText = addWorkout.getDialog().findViewById(R.id.logDFDate);
+        TextView title = addWorkout.getDialog().findViewById(R.id.logDFWorkoutTitle);
+        TextView scoreText = addWorkout.getDialog().findViewById(R.id.logDFScore);
+        TextView weightText = addWorkout.getDialog().findViewById(R.id.logDFTotalWeight);
+        TextView depthText = addWorkout.getDialog().findViewById(R.id.logDFDepth);
+        TextView angleText = addWorkout.getDialog().findViewById(R.id.logDFAngle);
+        TextView hangTimeText = addWorkout.getDialog().findViewById(R.id.logDFHangTime);
+        TextView repsText = addWorkout.getDialog().findViewById(R.id.logDFReps);
+        TextView setsText = addWorkout.getDialog().findViewById(R.id.logDFSets);
+        TextView workTimeText = addWorkout.getDialog().findViewById(R.id.logDFWorktime);
+        TextView restTimeText = addWorkout.getDialog().findViewById(R.id.logDFRestTime);
+        TextView breakTimeText = addWorkout.getDialog().findViewById(R.id.logDFBreakTime);
+        EditText notesText = addWorkout.getDialog().findViewById(R.id.logDFNotes);
 
+        DateFormat dateFormat = new SimpleDateFormat("MMM. dd yyyy");
+        Date date = Calendar.getInstance().getTime();
 
+        int workTime = 0; // todo
+
+        dateText.setText(dateFormat.format(date));
+        title.setText(currentWorkout.getWorkoutTitle());
+        repsText.setText("Reps: " + reps);
+        setsText.setText("Sets: " + sets);
+        workTimeText.setText("Work Time: " + Integer.toString(currentWorkout.getWorkTime()/1000) + "sec");
+        restTimeText.setText("Rest Time: " + Integer.toString(currentWorkout.getRestTime()/1000) + "sec");
+        breakTimeText.setText("Break Time: " + Integer.toString(currentWorkout.getBreakTime()/60000) + "min");
+        notesText.setText("Click here to add notes.");
+        depthText.setText("Depth: " + currentWorkout.getDepths().get(0));
+        angleText.setText("Angle: " + currentWorkout.getAngles().get(0));
+
+        if (mConnected) {
+            // Create data points from weight and work lists
+            int dataPoints = weightList.size();
+            weightDP = new DataPoint[dataPoints];
+            workDP = new DataPoint[dataPoints];
+            int actualWorkTime = 0;
+            long totWeight = 0;
+
+            for (int x = 0; x <= dataPoints; x++) {
+                int weight = weightList.get(dataPoints - x);
+                int work = workList.get(dataPoints - x) ? 1 : 0;
+
+                weightDP[x] = new DataPoint(x, weight);
+                workDP[x] = new DataPoint(x, work);
+
+                // Calculate average weight during work periods
+                if (weight > 10) {
+                    actualWorkTime++;
+                    totWeight += weight;
+                }
+            }
+
+            int avgWeight = (int) (totWeight / actualWorkTime);
+            int score = avgWeight * actualWorkTime * ((100 - currentWorkout.getDepths().get(0)) / 100);
+
+            scoreText.setText("Score: " + score);
+            weightText.setText("Weight: " + avgWeight);
+            hangTimeText.setText("Hang Time: " + actualWorkTime + " of " + workTime);
+        }
+        else {
+            scoreText.setText("Score: N/A");
+            weightText.setText("Weight: N/A");
+            hangTimeText.setText("Hang Time: N/A" + " of " + workTime);
+        }
     }
 
     void addWorkout() {
