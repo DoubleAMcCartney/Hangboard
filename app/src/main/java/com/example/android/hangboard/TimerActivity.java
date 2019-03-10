@@ -40,6 +40,7 @@ import android.widget.Toast;
 import com.example.android.hangboard.ChooseWorkout.ViewWorkoutsActivity;
 import com.example.android.hangboard.WorkoutDB.Workout;
 import com.example.android.hangboard.WorkoutLog.LogActivity;
+import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 
 import java.text.DateFormat;
@@ -719,7 +720,7 @@ public class TimerActivity extends AppCompatActivity {
         TextView restTimeText = addWorkout.getDialog().findViewById(R.id.logDFRestTime);
         TextView breakTimeText = addWorkout.getDialog().findViewById(R.id.logDFBreakTime);
         EditText notesText = addWorkout.getDialog().findViewById(R.id.logDFNotes);
-
+        GraphView graph = addWorkout.getDialog().findViewById(R.id.graph);
         DateFormat dateFormat = new SimpleDateFormat("MMM. dd yyyy");
         Date date = Calendar.getInstance().getTime();
 
@@ -732,7 +733,7 @@ public class TimerActivity extends AppCompatActivity {
         workTimeText.setText("Work Time: " + Integer.toString(currentWorkout.getWorkTime()/1000) + "sec");
         restTimeText.setText("Rest Time: " + Integer.toString(currentWorkout.getRestTime()/1000) + "sec");
         breakTimeText.setText("Break Time: " + Integer.toString(currentWorkout.getBreakTime()/60000) + "min");
-        notesText.setText("Click here to add notes.");
+        notesText.setText("Tap here to add notes.");
         depthText.setText("Depth: " + currentWorkout.getDepths().get(0));
         angleText.setText("Angle: " + currentWorkout.getAngles().get(0));
 
@@ -766,6 +767,7 @@ public class TimerActivity extends AppCompatActivity {
             hangTimeText.setText("Hang Time: " + actualWorkTime + " of " + workTime);
         }
         else {
+            graph.setVisibility(View.GONE);
             scoreText.setText("Score: N/A");
             weightText.setText("Weight: N/A");
             hangTimeText.setText("Hang Time: N/A" + " of " + workTime);

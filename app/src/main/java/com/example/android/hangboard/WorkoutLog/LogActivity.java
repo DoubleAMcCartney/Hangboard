@@ -8,6 +8,7 @@ package com.example.android.hangboard.WorkoutLog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -17,12 +18,14 @@ import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.GestureDetector;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
 import com.example.android.hangboard.R;
+import com.example.android.hangboard.TimerActivity;
 import com.example.android.hangboard.WorkoutLogDB.WorkoutLog;
 
 import java.util.List;
@@ -109,6 +112,35 @@ public class LogActivity extends AppCompatActivity {
                 workoutLogListAdapter.submitList(workouts);
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        menu.findItem(R.id.action_connect).setVisible(false);
+        menu.findItem(R.id.action_disconnect).setVisible(false);
+        menu.findItem(R.id.action_freeHang).setVisible(false);
+        menu.findItem(R.id.action_editWorkout).setVisible(false);
+        menu.findItem(R.id.action_workoutLog).setVisible(false);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+
+            case R.id.action_timer:
+                final Intent intent1 = new Intent(this, TimerActivity.class);
+                startActivity(intent1);
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+
+        }
     }
 
     /**
