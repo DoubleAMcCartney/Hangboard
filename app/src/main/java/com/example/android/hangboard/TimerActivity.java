@@ -42,6 +42,7 @@ import com.example.android.hangboard.WorkoutDB.Workout;
 import com.example.android.hangboard.WorkoutLog.LogActivity;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -91,6 +92,10 @@ public class TimerActivity extends AppCompatActivity {
     private List<Boolean> workList;
     private boolean timerStarted = false;
     private boolean workState = false;
+    private int actualWorkTime = 0;
+    private int avgWeight = 0;
+    private int score = 0;
+    private int workTime = 0;
 
     private TimerViewModel mModel;
     protected TextView timerStatusText;
@@ -105,6 +110,7 @@ public class TimerActivity extends AppCompatActivity {
     protected Button startPauseButton;
     protected Button stopButton;
     protected Button skipButton;
+    private DialogFragment addWorkout;
 
     // Timer sounds
     private MediaPlayer pitch1;
@@ -268,7 +274,8 @@ public class TimerActivity extends AppCompatActivity {
                 // Auto-skip timer if user hangs early
                 if (weight > 5) {
                     String timerStatus = (String)timerStatusText.getText();
-                    if (timerStatus == "Prepare" || timerStatus == "Rest" || timerStatus == "Break") {
+                    if (timerStatus.equals("Prepare") || timerStatus.equals("Rest") ||
+                            timerStatus.equals("Break")) {
                         mModel.skipTimer();
                     }
                 }
@@ -703,7 +710,7 @@ public class TimerActivity extends AppCompatActivity {
 
     private void workOutComplete() {
         // create and show dialog
-        DialogFragment addWorkout = new WorkoutCompleteDialogFragment();
+        addWorkout = new WorkoutCompleteDialogFragment();
         addWorkout.show(getSupportFragmentManager(), "AddWorkout");
         getSupportFragmentManager().executePendingTransactions();
 
@@ -724,15 +731,18 @@ public class TimerActivity extends AppCompatActivity {
         DateFormat dateFormat = new SimpleDateFormat("MMM. dd yyyy");
         Date date = Calendar.getInstance().getTime();
 
-        int workTime = 0; // todo
+        workTime = (currentWorkout.getWorkTime()/1000)*sets*reps*exercises;
 
         dateText.setText(dateFormat.format(date));
         title.setText(currentWorkout.getWorkoutTitle());
         repsText.setText("Reps: " + reps);
         setsText.setText("Sets: " + sets);
-        workTimeText.setText("Work Time: " + Integer.toString(currentWorkout.getWorkTime()/1000) + "sec");
-        restTimeText.setText("Rest Time: " + Integer.toString(currentWorkout.getRestTime()/1000) + "sec");
-        breakTimeText.setText("Break Time: " + Integer.toString(currentWorkout.getBreakTime()/60000) + "min");
+        workTimeText.setText("Work Time: " + Integer.toString(
+                currentWorkout.getWorkTime()/1000) + "sec");
+        restTimeText.setText("Rest Time: " + Integer.toString(
+                currentWorkout.getRestTime()/1000) + "sec");
+        breakTimeText.setText("Break Time: " + Integer.toString(
+                currentWorkout.getBreakTime()/60000) + "min");
         notesText.setText("Tap here to add notes.");
         depthText.setText("Depth: " + currentWorkout.getDepths().get(0));
         angleText.setText("Angle: " + currentWorkout.getAngles().get(0));
@@ -742,7 +752,7 @@ public class TimerActivity extends AppCompatActivity {
             int dataPoints = weightList.size();
             weightDP = new DataPoint[dataPoints];
             workDP = new DataPoint[dataPoints];
-            int actualWorkTime = 0;
+
             long totWeight = 0;
 
             for (int x = 0; x <= dataPoints; x++) {
@@ -759,57 +769,34 @@ public class TimerActivity extends AppCompatActivity {
                 }
             }
 
-            int avgWeight = (int) (totWeight / actualWorkTime);
-            int score = avgWeight * actualWorkTime * ((100 - currentWorkout.getDepths().get(0)) / 100);
+            // add data to graph
+            LineGraphSeries<DataPoint> series = new LineGraphSeries<>(weightDP);
+            graph.addSeries(series);
+
+            avgWeight = (int) (totWeight / actualWorkTime);
+            score = avgWeight * actualWorkTime * ((100 - currentWorkout.getDepths().get(0)) / 100);
 
             scoreText.setText("Score: " + score);
             weightText.setText("Weight: " + avgWeight);
-            hangTimeText.setText("Hang Time: " + actualWorkTime + " of " + workTime);
+            hangTimeText.setText("Hang Time: " + actualWorkTime + " of " + workTime + "sec");
         }
         else {
             graph.setVisibility(View.GONE);
             scoreText.setText("Score: N/A");
             weightText.setText("Weight: N/A");
-            hangTimeText.setText("Hang Time: N/A" + " of " + workTime);
+            hangTimeText.setText("Hang Time: N/A" + " of " + workTime + "sec");
         }
     }
 
     void addWorkout() {
         if (mConnected) {
-            // Create data points from weight and work lists
-            int dataPoints = weightList.size();
-            weightDP = new DataPoint[dataPoints];
-            workDP = new DataPoint[dataPoints];
-            int actualWorkTime = 0;
-            long totWeight = 0;
-
-            for (int x=0; x<=dataPoints; x++) {
-                int weight = weightList.get(dataPoints-x);
-                int work = workList.get(dataPoints-x)? 1:0;
-
-                weightDP[x] = new DataPoint(x, weight);
-                workDP[x] = new DataPoint(x, work);
-
-                // Calculate average weight during work periods
-                if (weight > 10) {
-                    actualWorkTime++;
-                    totWeight += weight;
-                }
-            }
-
-            int avgWeight = (int)(totWeight / actualWorkTime);
-
-            // TODO: Calculate desiredWorkTime
-
-            // Calculate score
-            int score = avgWeight*actualWorkTime*((100-currentWorkout.getDepths().get(0))/100);
-
             // Add log entry
             mModel.addLogEntry(currentWorkout.getWorkoutTitle(), reps, sets,
                     currentWorkout.getWorkTime(), currentWorkout.getRestTime(),
                     currentWorkout.getBreakTime(), currentWorkout.getDepths().get(0),
                     currentWorkout.getAngles().get(0), avgWeight, actualWorkTime, score,
-                    Calendar.getInstance().getTime(), "");
+                    Calendar.getInstance().getTime(),
+                    addWorkout.getDialog().findViewById(R.id.logDFNotes).toString());
         }
         else {
             // Add log entry
@@ -817,8 +804,8 @@ public class TimerActivity extends AppCompatActivity {
                     currentWorkout.getWorkTime(), currentWorkout.getRestTime(),
                     currentWorkout.getBreakTime(), currentWorkout.getDepths().get(0),
                     currentWorkout.getAngles().get(0), 0, 0, 0,
-                    Calendar.getInstance().getTime(), "H.A.G. Board not connected!");
+                    Calendar.getInstance().getTime(),
+                    addWorkout.getDialog().findViewById(R.id.logDFNotes).toString());
         }
     }
-
 }

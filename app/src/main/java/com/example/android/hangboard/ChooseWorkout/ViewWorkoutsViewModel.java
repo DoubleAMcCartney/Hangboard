@@ -45,13 +45,4 @@ public class ViewWorkoutsViewModel extends AndroidViewModel {
         repository.update(workout);
     }
 
-    // determine if a workout is valid or not
-    public boolean isValid(Workout workout) {
-        Workout test = repository.getWorkoutWithTitleDirect(workout.getWorkoutTitle());
-        return (workout.getReps()!=0)&(workout.getSets()!=0)&(workout.getExercises()!=0)&
-                (workout.getRestTime()!=0)&(workout.getWorkTime()!=0)&(workout.getSets()!=0)&
-                (workout.getAngles().size()==workout.getExercises())&
-                (workout.getDepths().size()==workout.getExercises())&
-                (workout.getWorkoutTitle()!="")&(test==null);
-    }
 }

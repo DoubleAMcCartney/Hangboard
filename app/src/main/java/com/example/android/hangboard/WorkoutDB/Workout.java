@@ -10,7 +10,8 @@ import java.util.List;
 @Entity(tableName = "workout")
 public class Workout {
     @NonNull
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
+    private int id;
     private String workoutTitle;
     private int sets;
     private int reps;
@@ -36,6 +37,10 @@ public class Workout {
 
     // Getters
     @NonNull
+    public int getId() {
+        return id;
+    }
+
     public String getWorkoutTitle() {
         return workoutTitle;
     }
@@ -73,6 +78,10 @@ public class Workout {
     }
 
     // Setters
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public void setWorkoutTitle(String workoutTitle) {
         this.workoutTitle = workoutTitle;
     }

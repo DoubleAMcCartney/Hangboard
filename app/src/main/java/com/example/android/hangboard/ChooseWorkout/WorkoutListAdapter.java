@@ -32,7 +32,7 @@ public class WorkoutListAdapter extends
             new DiffUtil.ItemCallback<Workout>() {
         @Override
         public boolean areItemsTheSame(@NonNull Workout oldItem, @NonNull Workout newItem) {
-            return oldItem.getWorkoutTitle().equals(newItem.getWorkoutTitle());
+            return oldItem.getId() == newItem.getId();
         }
 
         @Override

@@ -102,6 +102,10 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                                         // Delete workout from the database
                                         mViewWorkoutsViewModel.deleteWorkout(workoutListAdapter.getWorkout(position));
                                         return true;
+
+                                    case R.id.itemEdit:
+                                        updateWorkoutDialog(workoutListAdapter.getWorkout(position));
+                                        return true;
                                 }
                                 return false;
                             }
@@ -143,6 +147,139 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
         super.finish();
         // add animation to the changing of activities
         overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+    }
+
+    void updateWorkoutDialog(Workout workout) {
+        // create and show dialog
+        DialogFragment updateWorkout = new UpdateWorkoutDialogFragment();
+        updateWorkout.show(getSupportFragmentManager(), "UpdateWorkout");
+        getSupportFragmentManager().executePendingTransactions();
+
+        newWorkout = workout;
+
+        // Define UI components
+        NumberPicker repsNP = updateWorkout.getDialog().findViewById(R.id.repsNumberPicker);
+        NumberPicker setsNP = updateWorkout.getDialog().findViewById(R.id.setsNumberPicker);
+        NumberPicker workNP = updateWorkout.getDialog().findViewById(R.id.workNumberPicker);
+        NumberPicker restNP = updateWorkout.getDialog().findViewById(R.id.restNumberPicker);
+        NumberPicker breakNP = updateWorkout.getDialog().findViewById(R.id.breakNumberPicker);
+        angleNP = updateWorkout.getDialog().findViewById(R.id.addExAngleNP);
+        depthNP = updateWorkout.getDialog().findViewById(R.id.addExDepthNP);
+        EditText workoutTitleET = updateWorkout.getDialog().findViewById(R.id.titleEditText);
+        ImageButton addExButton = updateWorkout.getDialog().findViewById(R.id.addExerciseButton);
+        RecyclerView exerciseRecyclerView = updateWorkout.getDialog().findViewById(R.id.exercisesRecyclerView);
+        positiveButton = ((AlertDialog) updateWorkout.getDialog()).getButton(Dialog.BUTTON_POSITIVE);
+
+        // Set listeners
+        repsNP.setOnValueChangedListener(repsNPListener);
+        setsNP.setOnValueChangedListener(setsNPListener);
+        workNP.setOnValueChangedListener(workNPListener);
+        restNP.setOnValueChangedListener(restNPListener);
+        breakNP.setOnValueChangedListener(breakNPListener);
+        workoutTitleET.addTextChangedListener(workoutTitleETListener);
+        addExButton.setOnClickListener(addExButtonListener);
+
+        // Set MinValue for each number picker
+        repsNP.setMinValue(1);
+        setsNP.setMinValue(1);
+        workNP.setMinValue(1);
+        restNP.setMinValue(1);
+        breakNP.setMinValue(1);
+        angleNP.setMinValue(0);
+        depthNP.setMinValue(0);
+
+        // Set MaxValues for each number picker
+        repsNP.setMaxValue(10);
+        setsNP.setMaxValue(10);
+        workNP.setMaxValue(60);
+        restNP.setMaxValue(60);
+        breakNP.setMaxValue(60);
+        depthNP.setMaxValue(100);
+        angleNP.setMaxValue(60);
+
+        // Set the number pickers to not wrap around
+        repsNP.setWrapSelectorWheel(false);
+        setsNP.setWrapSelectorWheel(false);
+        workNP.setWrapSelectorWheel(false);
+        restNP.setWrapSelectorWheel(false);
+        breakNP.setWrapSelectorWheel(false);
+        angleNP.setWrapSelectorWheel(false);
+        depthNP.setWrapSelectorWheel(false);
+
+        // Set formatters for the number pickers
+        workNP.setFormatter(secFormatter);
+        restNP.setFormatter(secFormatter);
+        breakNP.setFormatter(minFormatter);
+        depthNP.setFormatter(mmFormatter);
+        angleNP.setFormatter(degFormatter);
+
+        // Below is a workaround to fix an android bug that causes the first value of number pickers
+        //      to not format until touched.
+        View firstItem = workNP.getChildAt(0);
+        if (firstItem != null) {
+            firstItem.setVisibility(View.INVISIBLE);
+        }
+        firstItem = restNP.getChildAt(0);
+        if (firstItem != null) {
+            firstItem.setVisibility(View.INVISIBLE);
+        }
+        firstItem = breakNP.getChildAt(0);
+        if (firstItem != null) {
+            firstItem.setVisibility(View.INVISIBLE);
+        }
+        firstItem = depthNP.getChildAt(0);
+        if (firstItem != null) {
+            firstItem.setVisibility(View.INVISIBLE);
+        }
+        firstItem = angleNP.getChildAt(0);
+        if (firstItem != null) {
+            firstItem.setVisibility(View.INVISIBLE);
+        }
+
+        repsNP.setValue(workout.getReps());
+        setsNP.setValue(workout.getSets());
+        workNP.setValue(workout.getWorkTime()/1000);
+        restNP.setValue(workout.getRestTime()/1000);
+        breakNP.setValue(workout.getBreakTime()/60000);
+        workoutTitleET.setText(workout.getWorkoutTitle());
+
+        // set exercise list
+        exerciseListAdapter = new ExerciseListAdapter(updateWorkout.getDialog().getContext());
+        exerciseRecyclerView.setAdapter(exerciseListAdapter);
+        mLayoutManager = new LinearLayoutManager(exerciseRecyclerView.getContext());
+        exerciseRecyclerView.setLayoutManager(mLayoutManager);
+        exerciseRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
+                exerciseRecyclerView, new ClickListener() {
+            // set click listeners for delete exercise buttons
+            @Override
+            public void onClick(View view, final int position) {
+                ImageButton delete = view.findViewById(R.id.deleteExerciseIB);
+                delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // delete the exercise
+                        exerciseListAdapter.deleteExercise(position);
+                        // dis/enable add workout button according to if workout is valid
+                        if (isValid()){
+                            positiveButton.setEnabled(true);
+                        }
+                        else {
+                            positiveButton.setEnabled(false);
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+
+            }
+        }));
+
+        for (int i=0; i<workout.getDepths().size(); i++) {
+            Exercise exercise = new Exercise(workout.getAngles().get(i), workout.getDepths().get(i));
+            exerciseListAdapter.addExercise(exercise);
+        }
     }
 
     void createNewWorkout() {
@@ -233,6 +370,8 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
             firstItem.setVisibility(View.INVISIBLE);
         }
 
+
+
         // set exercise list
         exerciseListAdapter = new ExerciseListAdapter(addWorkout.getDialog().getContext());
         exerciseRecyclerView.setAdapter(exerciseListAdapter);
@@ -250,7 +389,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                         // delete the exercise
                         exerciseListAdapter.deleteExercise(position);
                         // dis/enable add workout button according to if workout is valid
-                        if (mViewWorkoutsViewModel.isValid(newWorkout)){
+                        if (isValid()){
                             positiveButton.setEnabled(true);
                         }
                         else {
@@ -268,10 +407,27 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
 
     }
 
+    boolean isValid() {
+        return (newWorkout.getReps()!=0)&(newWorkout.getSets()!=0)&(newWorkout.getExercises()!=0)&
+                (newWorkout.getRestTime()!=0)&(newWorkout.getWorkTime()!=0)&(newWorkout.getSets()!=0)&
+                (newWorkout.getAngles().size()==newWorkout.getExercises())&
+                (newWorkout.getDepths().size()==newWorkout.getExercises())&
+                (newWorkout.getWorkoutTitle()!="");
+    }
+
     void addWorkout() {
         if (newWorkout!=null) {
-            if (mViewWorkoutsViewModel.isValid(newWorkout)){
+            if (isValid()){
                 mViewWorkoutsViewModel.addWorkout(newWorkout);
+            }
+        }
+    }
+
+    void updateWorkout() {
+        if (newWorkout!=null) {
+            if (isValid()){
+                mViewWorkoutsViewModel.updateWorkout(newWorkout);
+                workoutListAdapter.notifyDataSetChanged();
             }
         }
     }
@@ -314,7 +470,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                 public void onValueChange(NumberPicker numberPicker, int i, int i1) {
                     newWorkout.setSets(numberPicker.getValue());
                     // dis/enable add workout button according to if workout is valid
-                    if (mViewWorkoutsViewModel.isValid(newWorkout)){
+                    if (isValid()){
                         positiveButton.setEnabled(true);
                     }
                     else {
@@ -329,7 +485,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                 public void onValueChange(NumberPicker numberPicker, int i, int i1) {
                     newWorkout.setReps(numberPicker.getValue());
                     // dis/enable add workout button according to if workout is valid
-                    if (mViewWorkoutsViewModel.isValid(newWorkout)){
+                    if (isValid()){
                         positiveButton.setEnabled(true);
                     }
                     else {
@@ -344,7 +500,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                 public void onValueChange(NumberPicker numberPicker, int i, int i1) {
                     newWorkout.setWorkTime(numberPicker.getValue()*1000); // milliseconds to seconds
                     // dis/enable add workout button according to if workout is valid
-                    if (mViewWorkoutsViewModel.isValid(newWorkout)){
+                    if (isValid()){
                         positiveButton.setEnabled(true);
                     }
                     else {
@@ -359,7 +515,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                 public void onValueChange(NumberPicker numberPicker, int i, int i1) {
                     newWorkout.setRestTime(numberPicker.getValue()*1000); // milliseconds to seconds
                     // dis/enable add workout button according to if workout is valid
-                    if (mViewWorkoutsViewModel.isValid(newWorkout)){
+                    if (isValid()){
                         positiveButton.setEnabled(true);
                     }
                     else {
@@ -374,7 +530,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                 public void onValueChange(NumberPicker numberPicker, int i, int i1) {
                     newWorkout.setBreakTime(numberPicker.getValue()*60000); // milliseconds to min
                     // dis/enable add workout button according to if workout is valid
-                    if (mViewWorkoutsViewModel.isValid(newWorkout)){
+                    if (isValid()){
                         positiveButton.setEnabled(true);
                     }
                     else {
@@ -401,7 +557,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
             // Fires right after the text has changed
             newWorkout.setWorkoutTitle(s.toString());
             // dis/enable add workout button according to if workout is valid
-            if (mViewWorkoutsViewModel.isValid(newWorkout)){
+            if (isValid()){
                 positiveButton.setEnabled(true);
             }
             else {
@@ -421,7 +577,7 @@ public class ViewWorkoutsActivity extends AppCompatActivity {
                     newWorkout.setAngles(exerciseListAdapter.getAngles());
                     newWorkout.setDepths(exerciseListAdapter.getDepths());
                     // dis/enable add workout button according to if workout is valid
-                    if (mViewWorkoutsViewModel.isValid(newWorkout)){
+                    if (isValid()){
                         positiveButton.setEnabled(true);
                     }
                     else {

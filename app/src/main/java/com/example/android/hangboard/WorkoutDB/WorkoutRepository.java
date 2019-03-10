@@ -36,8 +36,16 @@ public class WorkoutRepository {
         return WorkoutDAO.getWorkoutWithTitle(title);
     }
 
+    public LiveData<Workout> getWorkoutWithId(int id) {
+        return WorkoutDAO.getWorkoutWithId(id);
+    }
+
     public Workout getWorkoutWithTitleDirect(String title) {
         return WorkoutDAO.getWorkoutWithTitleDirect(title);
+    }
+
+    public Workout getWorkoutWithIdDirect(int id) {
+        return WorkoutDAO.getWorkoutWithIdDirect(id);
     }
 
     private static class InsertWorkoutAsyncTask extends AsyncTask<Workout, Void, Void> {
