@@ -533,8 +533,10 @@ public class TimerActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mModel.stopTimer();
-                weightList.clear();
-                workList.clear();
+                if (weightList != null) {
+                    weightList.clear();
+                    workList.clear();
+                }
             }
         });
 
@@ -743,7 +745,6 @@ public class TimerActivity extends AppCompatActivity {
                 currentWorkout.getRestTime()/1000) + "sec");
         breakTimeText.setText("Break Time: " + Integer.toString(
                 currentWorkout.getBreakTime()/60000) + "min");
-        notesText.setText("Tap here to add notes.");
         depthText.setText("Depth: " + currentWorkout.getDepths().get(0));
         angleText.setText("Angle: " + currentWorkout.getAngles().get(0));
 
@@ -793,8 +794,8 @@ public class TimerActivity extends AppCompatActivity {
             // Add log entry
             mModel.addLogEntry(currentWorkout.getWorkoutTitle(), reps, sets,
                     currentWorkout.getWorkTime(), currentWorkout.getRestTime(),
-                    currentWorkout.getBreakTime(), currentWorkout.getDepths().get(0),
-                    currentWorkout.getAngles().get(0), avgWeight, actualWorkTime, score,
+                    currentWorkout.getBreakTime(), currentWorkout.getAngles().get(0),
+                    currentWorkout.getDepths().get(0), avgWeight, actualWorkTime, score,
                     Calendar.getInstance().getTime(),
                     addWorkout.getDialog().findViewById(R.id.logDFNotes).toString());
         }
@@ -802,8 +803,8 @@ public class TimerActivity extends AppCompatActivity {
             // Add log entry
             mModel.addLogEntry(currentWorkout.getWorkoutTitle(), reps, sets,
                     currentWorkout.getWorkTime(), currentWorkout.getRestTime(),
-                    currentWorkout.getBreakTime(), currentWorkout.getDepths().get(0),
-                    currentWorkout.getAngles().get(0), 0, 0, 0,
+                    currentWorkout.getBreakTime(), currentWorkout.getAngles().get(0),
+                    currentWorkout.getDepths().get(0), 0, 0, 0,
                     Calendar.getInstance().getTime(),
                     addWorkout.getDialog().findViewById(R.id.logDFNotes).toString());
         }

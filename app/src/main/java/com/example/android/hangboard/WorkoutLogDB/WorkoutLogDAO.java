@@ -20,7 +20,7 @@ public interface WorkoutLogDAO {
     @Delete
     void delete(WorkoutLog workout);
 
-    @Query("SELECT * FROM workoutLog")
+    @Query("SELECT * FROM workoutLog ORDER BY date")
     LiveData<List<WorkoutLog>> getWorkouts();
 
     @Query("SELECT * FROM workoutLog WHERE workoutTitle = :title")

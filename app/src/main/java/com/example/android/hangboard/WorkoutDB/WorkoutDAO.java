@@ -23,7 +23,7 @@ public interface WorkoutDAO {
     @Delete
     void delete(Workout workout);
 
-    @Query("SELECT * FROM workout")
+    @Query("SELECT * FROM workout ORDER BY workoutTitle")
     LiveData<List<Workout>> getWorkouts();
 
     @Query("SELECT * FROM workout WHERE workoutTitle = :Id")
