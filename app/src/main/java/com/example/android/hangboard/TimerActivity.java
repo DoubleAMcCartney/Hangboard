@@ -18,6 +18,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.media.MediaPlayer;
 import android.os.IBinder;
@@ -291,6 +292,7 @@ public class TimerActivity extends AppCompatActivity {
         public void onChanged(@Nullable final String newValue) {
             timerStatusText.setText(newValue); // Update timer text
             if (newValue == "Done") {
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT); // run only in portrait mode
                 workOutComplete();
                 workState = false;
             }
@@ -686,7 +688,7 @@ public class TimerActivity extends AppCompatActivity {
         if (requestCode == 1 && resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
             String workoutTitle = (String) extras.get("result");
-            mModel.getWorkoutByTitle(workoutTitle).getValue();
+            mModel.getWorkoutByTitle(workoutTitle);
             mModel.getWorkout().observe(this, currentWorkoutObserver);
         }
 
@@ -716,6 +718,8 @@ public class TimerActivity extends AppCompatActivity {
         addWorkout.show(getSupportFragmentManager(), "AddWorkout");
         getSupportFragmentManager().executePendingTransactions();
 
+        currentWorkout = mModel.getWorkout().getValue(); // needed to prevent currentWorkout from being null
+
         TextView dateText = addWorkout.getDialog().findViewById(R.id.logDFDate);
         TextView title = addWorkout.getDialog().findViewById(R.id.logDFWorkoutTitle);
         TextView scoreText = addWorkout.getDialog().findViewById(R.id.logDFScore);
@@ -728,10 +732,10 @@ public class TimerActivity extends AppCompatActivity {
         TextView workTimeText = addWorkout.getDialog().findViewById(R.id.logDFWorktime);
         TextView restTimeText = addWorkout.getDialog().findViewById(R.id.logDFRestTime);
         TextView breakTimeText = addWorkout.getDialog().findViewById(R.id.logDFBreakTime);
-        EditText notesText = addWorkout.getDialog().findViewById(R.id.logDFNotes);
         GraphView graph = addWorkout.getDialog().findViewById(R.id.graph);
         DateFormat dateFormat = new SimpleDateFormat("MMM. dd yyyy");
         Date date = Calendar.getInstance().getTime();
+
 
         workTime = (currentWorkout.getWorkTime()/1000)*sets*reps*exercises;
 
@@ -808,5 +812,6 @@ public class TimerActivity extends AppCompatActivity {
                     Calendar.getInstance().getTime(),
                     addWorkout.getDialog().findViewById(R.id.logDFNotes).toString());
         }
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED); // run in portrait or landscape
     }
 }
