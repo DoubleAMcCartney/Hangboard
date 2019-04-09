@@ -221,7 +221,7 @@ static void advertising_init(void)
     ble_advdata_t advdata;
     ble_advdata_t srdata;
 
-    ble_uuid_t adv_uuids[] = {{LBS_UUID_SERVICE, m_lbs.uuid_type}};
+    ble_uuid_t adv_uuids[] = {{BLE_UUID_HAG_SERVICE_BASE_UUID, BLE_UUID_TYPE_VENDOR_BEGIN}};
 
     // Build and set advertising data.
     memset(&advdata, 0, sizeof(advdata));
@@ -599,8 +599,8 @@ int main(void)
         m_weight_array[1] = (m_current_weight >> 8);
         uint8_t hagCurrentData [4] = {m_current_angle, m_current_depth, m_weight_array[0], m_weight_array[1]};
 
-        err_code = ble_hag_current_value_update(&m_hag, hagCurrentData);
-        APP_ERROR_CHECK(err_code);
+    //    err_code = ble_hag_current_value_update(&m_hag, hagCurrentData);
+    //    APP_ERROR_CHECK(err_code);
     }
 }
 
