@@ -2,10 +2,8 @@
 #define HAG_SERVICE_H
  
 #include <string.h>
-#include "boards.h"
 #include "ble.h"
 #include "ble_srv_common.h"
-#include "nrf_sdh_ble.h"
  
 /**@brief   Macro for defining a ble_hag_service instance.
  *
@@ -19,7 +17,7 @@
 static ble_hag_service_t _name;                                                                             \
 NRF_SDH_BLE_OBSERVER(_name ## _obs,                                                                         \
                      BLE_HAG_SERVICE_BLE_OBSERVER_PRIO,                                                     \
-                     ble_hag_service_on_ble_evt, &_name)
+                     ble_hag_on_ble_evt, &_name)
  
 //    HAG service:              53E74E5A-D192-47A0-8F06-35EC90C73A3A
 //    Desired characteristic:   2D0319D8-DE15-11E8-9F32F-2801F1B9FD1
@@ -39,53 +37,103 @@ NRF_SDH_BLE_OBSERVER(_name ## _obs,                                             
 #define BLE_UUID_CURRENT_CHAR_UUID  0x0003
 #define BLE_UUID_MOVE_CHAR_UUID     0x0004
  
-// Forward declaration of the custom_service_t type.
+/**@brief HAG Service event type. */
+typedef enum
+{
+    BLE_HAG_EVT_NOTIFICATION_ENABLED,                             /**< HAG value notification enabled event. */
+    BLE_HAG_EVT_NOTIFICATION_DISABLED,                             /**< HAG value notification disabled event. */
+    BLE_HAG_EVT_DISCONNECTED,
+    BLE_HAG_EVT_CONNECTED
+} ble_hag_evt_type_t;
+
+/**@brief HAG Service event. */
+typedef struct
+{
+    ble_hag_evt_type_t evt_type;                                  /**< Type of event. */
+} ble_hag_evt_t;
+
+// Forward declaration of the ble_hag_service_t type.
 typedef struct ble_hag_service_s ble_hag_service_t;
- 
-typedef void (*ble_hag_service_hag_write_handler_t) (uint16_t conn_handle, ble_hag_service_t * p_hag_service, uint8_t new_state);
- 
-/** @brief HAG Service init structure. This structure contains all options and data needed for
+
+
+/**@brief HAG Service event handler type. */
+typedef void (*ble_hag_evt_handler_t) (ble_hag_service_t * p_bas, ble_hag_evt_t * p_evt);
+
+/**@brief HAG Service init structure. This contains all options and data needed for
  *        initialization of the service.*/
 typedef struct
 {
-    ble_hag_service_hag_write_handler_t hag_write_handler; /**&lt; Event handler to be called when the HAG Characteristic is written. */
-} ble_hag_service_init_t;
- 
-/**@brief HAG Service structure.
- *        This contains various status information
- *        for the service.
- */
-typedef struct ble_hag_service_s
+    ble_hag_evt_handler_t         evt_handler;                    /**< Event handler to be called for handling events in the HAG Service. */
+    uint8_t                       initial_desired_value;          /**< Initial desired value */
+    uint8_t                       initial_current_value;          /**< Initial current value */
+    uint8_t                       initial_move_value;             /**< Initial move value */
+    ble_srv_cccd_security_mode_t  desired_value_char_attr_md;     /**< Initial security level for Desired characteristics attribute */
+    ble_srv_cccd_security_mode_t  current_value_char_attr_md;     /**< Initial security level for Current characteristics attribute */
+    ble_srv_cccd_security_mode_t  move_value_char_attr_md;        /**< Initial security level for Move characteristics attribute */
+} ble_hag_init_t;
+
+/**@brief HAG Service structure. This contains various status information for the service. */
+struct ble_hag_service_s
 {
-    uint16_t                            conn_handle;
-    uint16_t                            service_handle;
-    uint8_t                             uuid_type;
-    ble_gatts_char_handles_t            desired_char_handles;
-    ble_gatts_char_handles_t            current_char_handles;
-    ble_gatts_char_handles_t            move_char_handles;
-    ble_hag_service_hag_write_handler_t hag_write_handler;
- 
-} ble_hag_service_t;
- 
-// Function Declarations
- 
+    ble_hag_evt_handler_t         evt_handler;                    /**< Event handler to be called for handling events in the HAG Service. */
+    uint16_t                      service_handle;                 /**< Handle of HAG Service (as provided by the BLE stack). */
+    ble_gatts_char_handles_t      desired_value_handles;          /**< Handles related to the Desired Value characteristic. */
+    ble_gatts_char_handles_t      current_value_handles;          /**< Handles related to the Current Value characteristic. */
+    ble_gatts_char_handles_t      move_value_handles;             /**< Handles related to the Move Value characteristic. */
+    uint16_t                      conn_handle;                    /**< Handle of the current connection (as provided by the BLE stack, is BLE_CONN_HANDLE_INVALID if not in a connection). */
+    uint8_t                       uuid_type; 
+};
+
 /**@brief Function for initializing the HAG Service.
  *
- * @param[out]  p_hag_service  HAG Service structure. This structure will have to be supplied by
- *                                the application. It will be initialized by this function, and will later
- *                                be used to identify this particular service instance.
+ * @param[out]  p_hag       HAG Service structure. This structure will have to be supplied by
+ *                          the application. It will be initialized by this function, and will later
+ *                          be used to identify this particular service instance.
+ * @param[in]   p_hag_init  Information needed to initialize the service.
  *
  * @return      NRF_SUCCESS on successful initialization of service, otherwise an error code.
  */
-uint32_t ble_hag_service_init(ble_hag_service_t * p_hag_service, const ble_hag_service_init_t * p_hag_service_init);
- 
-/**@brief Function for handling the application's BLE stack events.
+uint32_t ble_hag_init(ble_hag_service_t * p_hag, const ble_hag_init_t * p_hag_init);
+
+/**@brief Function for handling the Application's BLE Stack events.
  *
- * @details This function handles all events from the BLE stack that are of interest to the HAG Service.
+ * @details Handles all events from the BLE stack of interest to the HAG Service.
  *
- * @param[in] p_ble_evt  Event received from the BLE stack.
- * @param[in] p_context  HAG Service structure.
+ * @note 
+ *
+ * @param[in]   p_hag      HAG Service structure.
+ * @param[in]   p_ble_evt  Event received from the BLE stack.
  */
-void ble_hag_service_on_ble_evt(ble_evt_t const * p_ble_evt, void * p_context);
- 
+void ble_hag_on_ble_evt( ble_evt_t const * p_ble_evt, void * p_context);
+
+/**@brief Function for updating the current value.
+ *
+ * @details The application calls this function when the current value should be updated. If
+ *          notification has been enabled, the current value characteristic is sent to the client.
+ *
+ * @note 
+ *       
+ * @param[in]   p_bas          HAG Service structure.
+ * @param[in]   HAG value 
+ *
+ * @return      NRF_SUCCESS on success, otherwise an error code.
+ */
+
+uint32_t ble_hag_current_value_update(ble_hag_service_t * p_hag, uint8_t current_value[]);
+
+/**@brief Function for updating the move value.
+ *
+ * @details The application calls this function when the move value should be updated. If
+ *          notification has been enabled, the current value characteristic is sent to the client.
+ *
+ * @note 
+ *       
+ * @param[in]   p_bas          HAG Service structure.
+ * @param[in]   HAG value 
+ *
+ * @return      NRF_SUCCESS on success, otherwise an error code.
+ */
+
+uint32_t ble_hag_move_value_update(ble_hag_service_t * p_hag, uint8_t move_value);
+
 #endif /* HAG_SERVICE_H */

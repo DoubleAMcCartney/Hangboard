@@ -103,13 +103,18 @@ NRF_BLE_GATT_DEF(m_gatt);                                                       
 NRF_BLE_QWR_DEF(m_qwr);
 
 /**< Structure used to identify the HAG service. */
-BLE_HAG_SERVICE_DEF(m_hag_service);                                                         /**< Context for the Queued Write module.*/
+BLE_HAG_SERVICE_DEF(m_hag);                                                         /**< Context for the Queued Write module.*/
 
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        /**< Handle of the current connection. */
 
 static uint8_t m_adv_handle = BLE_GAP_ADV_SET_HANDLE_NOT_SET;                   /**< Advertising handle used to identify an advertising set. */
 static uint8_t m_enc_advdata[BLE_GAP_ADV_SET_DATA_SIZE_MAX];                    /**< Buffer for storing an encoded advertising set. */
 static uint8_t m_enc_scan_response_data[BLE_GAP_ADV_SET_DATA_SIZE_MAX];         /**< Buffer for storing an encoded scan data. */
+
+static uint8_t m_current_depth = 0;
+static uint8_t m_current_angle = 0;
+static uint16_t m_current_weight = 0;
+static uint8_t m_weight_array[2];
 
 /**@brief Struct that contains pointers to the encoded advertising data. */
 static ble_gap_adv_data_t m_adv_data =
@@ -266,34 +271,14 @@ static void nrf_qwr_error_handler(uint32_t nrf_error)
 }
 
 
-/**@brief Function for handling write events to the LED characteristic.
- *
- * @param[in] p_lbs     Instance of LED Button Service to which the write applies.
- * @param[in] led_state Written/desired state of the LED.
- */
-static void led_write_handler(uint16_t conn_handle, ble_lbs_t * p_lbs, uint8_t led_state)
-{
-    if (led_state)
-    {
-        bsp_board_led_on(LEDBUTTON_LED);
-        NRF_LOG_INFO("Received LED ON!");
-    }
-    else
-    {
-        bsp_board_led_off(LEDBUTTON_LED);
-        NRF_LOG_INFO("Received LED OFF!");
-    }
-}
-
-
 /**@brief Function for handling write events to the HAG characteristic.
  *
  * @param[in] p_hag_service  Instance of HAG Service to which the write applies.
  * @param[in] hag_state      Written/desired state of the HAG.
  */
-static void hag_write_handler(uint16_t conn_handle, ble_hag_service_t * p_hag_service, uint8_t hag_state)
+static void on_hag_evt(ble_hag_service_t * p_hag_service, ble_hag_evt_t * p_evt)
 {
-    // todo
+    NRF_LOG_INFO("Desired charactoristic updated");
 }
 
 
@@ -301,10 +286,9 @@ static void hag_write_handler(uint16_t conn_handle, ble_hag_service_t * p_hag_se
  */
 static void services_init(void)
 {
-    ret_code_t         err_code;
-    ble_hag_service_init_t hag_init;
-    ble_lbs_init_t     init     = {0};
-    nrf_ble_qwr_init_t qwr_init = {0};
+    ret_code_t          err_code;
+    nrf_ble_qwr_init_t  qwr_init = {0};
+    ble_hag_init_t      hag_init = {0};
 
     // Initialize Queued Write Module.
     qwr_init.error_handler = nrf_qwr_error_handler;
@@ -312,16 +296,17 @@ static void services_init(void)
     err_code = nrf_ble_qwr_init(&m_qwr, &qwr_init);
     APP_ERROR_CHECK(err_code);
 
-    // Initialize LBS.
-    init.led_write_handler = led_write_handler;
-
-    err_code = ble_lbs_init(&m_lbs, &init);
-    APP_ERROR_CHECK(err_code);
-
     // 1. Initialize the HAG service
-    hag_init.hag_write_handler = hag_write_handler;
+    hag_init.evt_handler = on_hag_evt;
+
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&hag_init.current_value_char_attr_md.cccd_write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&hag_init.desired_value_char_attr_md.cccd_write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&hag_init.move_value_char_attr_md.cccd_write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&hag_init.current_value_char_attr_md.write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&hag_init.desired_value_char_attr_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&hag_init.move_value_char_attr_md.read_perm);
  
-    err_code = ble_hag_service_init(&m_hag_service, &hag_init);
+    err_code = ble_hag_init(&m_hag, &hag_init);
     APP_ERROR_CHECK(err_code);
 }
 
@@ -607,6 +592,15 @@ int main(void)
     for (;;)
     {
         idle_state_handle();
+
+        ret_code_t          err_code;
+
+        m_weight_array[0] = m_current_weight & 0xff;
+        m_weight_array[1] = (m_current_weight >> 8);
+        uint8_t hagCurrentData [4] = {m_current_angle, m_current_depth, m_weight_array[0], m_weight_array[1]};
+
+        err_code = ble_hag_current_value_update(&m_hag, hagCurrentData);
+        APP_ERROR_CHECK(err_code);
     }
 }
 

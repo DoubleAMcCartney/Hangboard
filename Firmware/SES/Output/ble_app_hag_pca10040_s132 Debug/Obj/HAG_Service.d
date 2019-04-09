@@ -40,34 +40,9 @@ Output/ble_app_hag_pca10040_s132\ Debug/Obj/HAG_Service.o: \
  nRF5_SDK_15.3.0_59ac345/components/libraries/log/nrf_log_types.h \
  nRF5_SDK_15.3.0_59ac345/components/libraries/log/nrf_log_types.h \
  D:\Documents\Hangboard\Firmware\SES\HAG_Service.h \
- nRF5_SDK_15.3.0_59ac345/components/boards/boards.h \
- nRF5_SDK_15.3.0_59ac345/modules/nrfx/hal/nrf_gpio.h \
- nRF5_SDK_15.3.0_59ac345/modules/nrfx/nrfx.h \
- nRF5_SDK_15.3.0_59ac345/integration/nrfx/nrfx_config.h \
- nRF5_SDK_15.3.0_59ac345/modules/nrfx/drivers/nrfx_common.h \
- nRF5_SDK_15.3.0_59ac345/modules/nrfx/mdk/nrf_peripherals.h \
- nRF5_SDK_15.3.0_59ac345/modules/nrfx/mdk/nrf52832_peripherals.h \
- nRF5_SDK_15.3.0_59ac345/integration/nrfx/nrfx_glue.h \
- nRF5_SDK_15.3.0_59ac345/integration/nrfx/legacy/apply_old_config.h \
- nRF5_SDK_15.3.0_59ac345/modules/nrfx/soc/nrfx_irqs.h \
- nRF5_SDK_15.3.0_59ac345/modules/nrfx/soc/nrfx_irqs_nrf52832.h \
- nRF5_SDK_15.3.0_59ac345/components/libraries/util/nrf_assert.h \
- nRF5_SDK_15.3.0_59ac345/components/libraries/util/app_util_platform.h \
- nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers/nrf_soc.h \
+ nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers/ble.h \
  nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers/nrf_svc.h \
  nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers/nrf_error.h \
- nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers/nrf_error_soc.h \
- nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers/nrf_nvic.h \
- nRF5_SDK_15.3.0_59ac345/components/libraries/util/app_error.h \
- D:/Programs/SEGGER/SEGGER\ Embedded\ Studio\ for\ ARM\ 4.12/include/stdio.h \
- nRF5_SDK_15.3.0_59ac345/components/libraries/util/app_error_weak.h \
- nRF5_SDK_15.3.0_59ac345/modules/nrfx/soc/nrfx_coredep.h \
- nRF5_SDK_15.3.0_59ac345/modules/nrfx/soc/nrfx_atomic.h \
- nRF5_SDK_15.3.0_59ac345/components/libraries/util/sdk_resources.h \
- nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers/nrf_sd_def.h \
- nRF5_SDK_15.3.0_59ac345/modules/nrfx/drivers/nrfx_errors.h \
- nRF5_SDK_15.3.0_59ac345/components/boards/pca10040.h \
- nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers/ble.h \
  nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers/ble_err.h \
  nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers/ble_gap.h \
  nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers/ble_hci.h \
@@ -80,7 +55,4 @@ Output/ble_app_hag_pca10040_s132\ Debug/Obj/HAG_Service.o: \
  nRF5_SDK_15.3.0_59ac345/components/ble/common/ble_srv_common.h \
  nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers/ble_types.h \
  nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers/ble_gap.h \
- nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers/ble_gatt.h \
- nRF5_SDK_15.3.0_59ac345/components/softdevice/common/nrf_sdh_ble.h \
- nRF5_SDK_15.3.0_59ac345/components/libraries/experimental_section_vars/nrf_section_iter.h \
- nRF5_SDK_15.3.0_59ac345/components/libraries/experimental_section_vars/nrf_section.h
+ nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers/ble_gatt.h
