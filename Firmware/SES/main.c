@@ -168,8 +168,7 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
  */
 static void get_current_weight(void)
 {
-    // todo
-
+    // TODO: read HX711
     m_current_weight++; // for testing
 }
 
@@ -251,7 +250,7 @@ static void change_depth(int desired_depth)
         int mm_to_move = m_current_depth - desired_depth;
         int steps_to_move = mm_to_move * STEPS_PER_ROT / MM_PER_ROT;
 
-        while (steps_to_move != 0)
+        while (steps_to_move != 0  && desired_depth <= MAX_HOLD_DEPTH)
         {
             // Check limit switches
             switch (check_limit_switches())
@@ -279,9 +278,9 @@ static void change_depth(int desired_depth)
                     break;
 
                 case 2:
-                    // too far limit swith triggered
+                    // too far (deep) limit switch triggered
+                    // TODO: Trigger flag in move char and re-home
                     steps_to_move = 0;
-                    m_current_depth = MAX_HOLD_DEPTH;
                     break;
 
                 default:
@@ -289,6 +288,7 @@ static void change_depth(int desired_depth)
             }
         }
     }
+    m_current_depth = desired_depth;
     
 }
 
