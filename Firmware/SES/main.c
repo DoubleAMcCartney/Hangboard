@@ -63,17 +63,22 @@
 #include "nrf_ble_gatt.h"
 #include "nrf_ble_qwr.h"
 #include "nrf_pwr_mgmt.h"
-
+#include "nrf_delay.h"
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
 #include "HAG_Service.h"
 
 
-#define ADVERTISING_LED                 BSP_BOARD_LED_0                         /**< Is on when device is advertising. */
-#define CONNECTED_LED                   BSP_BOARD_LED_1                         /**< Is on when device has connected. */
-#define LEDBUTTON_LED                   BSP_BOARD_LED_2                         /**< LED to be toggled with the help of the LED Button Service. */
-#define LEDBUTTON_BUTTON                BSP_BUTTON_0                            /**< Button that will trigger the notification event with the LED Button Service */
+#define TOO_FAR_SWITCH                  17
+#define HOME_SWITCH                     19
+#define HX711_DOUT                      12
+#define HX711_CLK                       11
+#define MOTOR_PIN_1                     13
+#define MOTOR_PIN_2                     15
+#define MOTOR_PIN_3                     16
+#define MOTOR_PIN_4                     20
+
 
 #define DEVICE_NAME                     "H.A.G. Board"                         /**< Name of device. Will be included in the advertising data. */
 
@@ -99,6 +104,10 @@
 
 #define DEAD_BEEF                       0xDEADBEEF                              /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
 
+#define MM_PER_ROT                      4
+#define STEPS_PER_ROT                   200
+#define MOTOR_DELAY                     10
+#define MAX_HOLD_DEPTH                  100
 
 BLE_LBS_DEF(m_lbs);                                                             /**< LED Button Service instance. */
 NRF_BLE_GATT_DEF(m_gatt);                                                       /**< GATT module instance. */
@@ -154,9 +163,139 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
 }
 
 
-/**@brief Function for handling the Battery measurement timer timeout.
+/**@brief Function for getting weight from HX711.
  *
- * @details This function will be called each time the battery level measurement timer expires.
+ */
+static void get_current_weight(void)
+{
+    // todo
+
+    m_current_weight++; // for testing
+}
+
+
+/**@brief Function for checking limit switches.
+ *
+ */
+static uint8_t check_limit_switches(void)
+{
+    if (!nrf_gpio_pin_read(HOME_SWITCH))
+    {
+        return 1;
+    }
+    if (!nrf_gpio_pin_read(TOO_FAR_SWITCH))
+    {
+        return 2;
+    }
+
+    return 0;
+}
+
+
+/**@brief Function stepping the motor.
+ *
+ * The sequence of control signals for 4 control wires is as follows:
+ *
+ * Step C0 C1 C2 C3
+ *    1  1  0  1  0
+ *    2  0  1  1  0
+ *    3  0  1  0  1
+ *    4  1  0  0  1
+ *
+ */
+static void step_motor(int this_step)
+{
+    switch (this_step)
+    {
+        case 0:
+            nrf_gpio_pin_set(MOTOR_PIN_1);
+            nrf_gpio_pin_clear(MOTOR_PIN_2);
+            nrf_gpio_pin_set(MOTOR_PIN_3);
+            nrf_gpio_pin_clear(MOTOR_PIN_4);
+            break;
+
+        case 1:
+            nrf_gpio_pin_clear(MOTOR_PIN_1);
+            nrf_gpio_pin_set(MOTOR_PIN_2);
+            nrf_gpio_pin_set(MOTOR_PIN_3);
+            nrf_gpio_pin_clear(MOTOR_PIN_4);
+            break;
+
+        case 2:
+            nrf_gpio_pin_clear(MOTOR_PIN_1);
+            nrf_gpio_pin_set(MOTOR_PIN_2);
+            nrf_gpio_pin_clear(MOTOR_PIN_3);
+            nrf_gpio_pin_set(MOTOR_PIN_4);
+            break;
+
+        case 3:
+            nrf_gpio_pin_clear(MOTOR_PIN_1);
+            nrf_gpio_pin_set(MOTOR_PIN_2);
+            nrf_gpio_pin_clear(MOTOR_PIN_3);
+            nrf_gpio_pin_set(MOTOR_PIN_4);
+            break;
+
+        default:
+            break;
+    }
+}
+
+
+/**@brief Function for changing depth of hold.
+ *
+ */
+static void change_depth(int desired_depth)
+{
+    if (m_current_depth != desired_depth)
+    {
+        int mm_to_move = m_current_depth - desired_depth;
+        int steps_to_move = mm_to_move * STEPS_PER_ROT / MM_PER_ROT;
+
+        while (steps_to_move != 0)
+        {
+            // Check limit switches
+            switch (check_limit_switches())
+            {
+                case 0:
+                    // limit switches not triggered
+                    if (steps_to_move <= 0)
+                    {
+                        step_motor(steps_to_move % 4);
+                        steps_to_move ++;
+                        nrf_delay_ms(10);
+                    }
+                    else
+                    {
+                        step_motor(steps_to_move % 4);
+                        steps_to_move --;
+                        nrf_delay_ms(10);
+                    }
+                    break;
+
+                case 1:
+                    // home limit switch triggered
+                    steps_to_move = 0;
+                    m_current_depth = 0;
+                    break;
+
+                case 2:
+                    // too far limit swith triggered
+                    steps_to_move = 0;
+                    m_current_depth = MAX_HOLD_DEPTH;
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+    
+}
+
+
+/**@brief Function for handling the weight measurement timer timeout.
+ *
+ * @details This function will be called each time the weight measurement timer expires.
  *
  * @param[in] p_context  Pointer used for passing some arbitrary information (context) from the
  *                       app_start_timer() call to the timeout handler.
@@ -165,11 +304,12 @@ static void notification_timeout_handler(void * p_context)
 {
     UNUSED_PARAMETER(p_context);
     ret_code_t err_code;
-    
-    // Increment the value of m_current_weigh before notifing it.         
-    m_current_weight++; 
+
+    get_current_weight();
+    m_current_weight = m_current_weight;  
     m_weight_array[0] = m_current_weight & 0xff;
     m_weight_array[1] = (m_current_weight >> 8);
+
     uint8_t hagCurrentData [4] = {m_current_angle, m_current_depth, m_weight_array[0], m_weight_array[1]};
 
     err_code = ble_hag_current_value_update(&m_hag, hagCurrentData);
@@ -333,6 +473,7 @@ static void on_hag_evt(ble_hag_service_t * p_hag_service, ble_hag_evt_t * p_evt)
         case BLE_HAG_EVT_DESIRED_UPDATED:
               m_desired_angle = p_evt->desired_angle;
               m_desired_depth = p_evt->desired_depth;
+              change_depth(m_desired_depth);
 
         default:
               // No implementation needed.
@@ -434,8 +575,6 @@ static void advertising_start(void)
 
     err_code = sd_ble_gap_adv_start(m_adv_handle, APP_BLE_CONN_CFG_TAG);
     APP_ERROR_CHECK(err_code);
-
-    bsp_board_led_on(ADVERTISING_LED);
 }
 
 
@@ -543,51 +682,23 @@ static void ble_stack_init(void)
 }
 
 
-/**@brief Function for handling events from the button handler module.
- *
- * @param[in] pin_no        The pin that the event applies to.
- * @param[in] button_action The button action (press/release).
+/**@brief Function for configuring GPIO.
  */
-static void button_event_handler(uint8_t pin_no, uint8_t button_action)
+static void gpio_config(void)
 {
-    ret_code_t err_code;
+    // motor driver
+    nrf_gpio_cfg_output(MOTOR_PIN_1);
+    nrf_gpio_cfg_output(MOTOR_PIN_2);
+    nrf_gpio_cfg_output(MOTOR_PIN_3);
+    nrf_gpio_cfg_output(MOTOR_PIN_4);
 
-    switch (pin_no)
-    {
-        case LEDBUTTON_BUTTON:
-            NRF_LOG_INFO("Send button state change.");
-            err_code = ble_lbs_on_button_change(m_conn_handle, &m_lbs, button_action);
-            if (err_code != NRF_SUCCESS &&
-                err_code != BLE_ERROR_INVALID_CONN_HANDLE &&
-                err_code != NRF_ERROR_INVALID_STATE &&
-                err_code != BLE_ERROR_GATTS_SYS_ATTR_MISSING)
-            {
-                APP_ERROR_CHECK(err_code);
-            }
-            break;
+    // hx711
+    nrf_gpio_cfg_output(HX711_CLK);
+    nrf_gpio_cfg_input(HX711_DOUT, NRF_GPIO_PIN_PULLDOWN);
 
-        default:
-            APP_ERROR_HANDLER(pin_no);
-            break;
-    }
-}
-
-
-/**@brief Function for initializing the button handler module.
- */
-static void buttons_init(void)
-{
-    ret_code_t err_code;
-
-    //The array must be static because a pointer to it will be saved in the button handler module.
-    static app_button_cfg_t buttons[] =
-    {
-        {LEDBUTTON_BUTTON, false, BUTTON_PULL, button_event_handler}
-    };
-
-    err_code = app_button_init(buttons, ARRAY_SIZE(buttons),
-                               BUTTON_DETECTION_DELAY);
-    APP_ERROR_CHECK(err_code);
+    // limit switches
+    nrf_gpio_cfg_input(HOME_SWITCH, NRF_GPIO_PIN_PULLUP);
+    nrf_gpio_cfg_input(TOO_FAR_SWITCH, NRF_GPIO_PIN_PULLUP);
 }
 
 
@@ -622,6 +733,10 @@ static void idle_state_handle(void)
     }
 }
 
+static void home_stepper_motor(void)
+{
+    change_depth(-1000);
+}
 
 /**@brief Function for application main entry.
  */
@@ -630,7 +745,6 @@ int main(void)
     // Initialize.
     log_init();
     timers_init();
-    buttons_init();
     power_management_init();
     ble_stack_init();
     gap_params_init();
@@ -638,6 +752,9 @@ int main(void)
     services_init();
     advertising_init();
     conn_params_init();
+    gpio_config();
+    home_stepper_motor();
+    // tar_hx7ll();
 
     // Start execution.
     NRF_LOG_INFO("HAG started.");
@@ -647,10 +764,6 @@ int main(void)
     for (;;)
     {
         idle_state_handle();
-
-
-            
-
     }
 }
 
