@@ -89,6 +89,8 @@
 #define SLAVE_LATENCY                   0                                       /**< Slave latency. */
 #define CONN_SUP_TIMEOUT                MSEC_TO_UNITS(4000, UNIT_10_MS)         /**< Connection supervisory time-out (4 seconds). */
 
+#define NOTIFICATION_INTERVAL           APP_TIMER_TICKS(1000)
+
 #define FIRST_CONN_PARAMS_UPDATE_DELAY  APP_TIMER_TICKS(20000)                  /**< Time from initiating event (connect or start of notification) to first time sd_ble_gap_conn_param_update is called (15 seconds). */
 #define NEXT_CONN_PARAMS_UPDATE_DELAY   APP_TIMER_TICKS(5000)                   /**< Time between each call to sd_ble_gap_conn_param_update after the first call (5 seconds). */
 #define MAX_CONN_PARAMS_UPDATE_COUNT    3                                       /**< Number of attempts before giving up the connection parameter negotiation. */
@@ -103,7 +105,8 @@ NRF_BLE_GATT_DEF(m_gatt);                                                       
 NRF_BLE_QWR_DEF(m_qwr);
 
 /**< Structure used to identify the HAG service. */
-BLE_HAG_SERVICE_DEF(m_hag);                                                         /**< Context for the Queued Write module.*/
+BLE_HAG_SERVICE_DEF(m_hag);          
+APP_TIMER_DEF(m_notification_timer_id);                                         /**< Context for the Queued Write module.*/
 
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        /**< Handle of the current connection. */
 
@@ -115,6 +118,8 @@ static uint8_t m_current_depth = 0;
 static uint8_t m_current_angle = 0;
 static uint16_t m_current_weight = 0;
 static uint8_t m_weight_array[2];
+static uint8_t m_desired_depth = 0;
+static uint8_t m_desired_angle = 0;
 
 /**@brief Struct that contains pointers to the encoded advertising data. */
 static ble_gap_adv_data_t m_adv_data =
@@ -149,13 +154,34 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
 }
 
 
-/**@brief Function for the LEDs initialization.
+/**@brief Function for handling the Battery measurement timer timeout.
  *
- * @details Initializes all LEDs used by the application.
+ * @details This function will be called each time the battery level measurement timer expires.
+ *
+ * @param[in] p_context  Pointer used for passing some arbitrary information (context) from the
+ *                       app_start_timer() call to the timeout handler.
  */
-static void leds_init(void)
+static void notification_timeout_handler(void * p_context)
 {
-    bsp_board_init(BSP_INIT_LEDS);
+    UNUSED_PARAMETER(p_context);
+    ret_code_t err_code;
+    
+    // Increment the value of m_current_weigh before notifing it.         
+    m_current_weight++; 
+    m_weight_array[0] = m_current_weight & 0xff;
+    m_weight_array[1] = (m_current_weight >> 8);
+    uint8_t hagCurrentData [4] = {m_current_angle, m_current_depth, m_weight_array[0], m_weight_array[1]};
+
+    err_code = ble_hag_current_value_update(&m_hag, hagCurrentData);
+
+    if ((err_code != NRF_SUCCESS) &&
+        (err_code != NRF_ERROR_INVALID_STATE) &&
+        (err_code != NRF_ERROR_RESOURCES) &&
+        (err_code != BLE_ERROR_GATTS_SYS_ATTR_MISSING)
+       )
+    {
+        APP_ERROR_HANDLER(err_code);
+    }
 }
 
 
@@ -167,6 +193,10 @@ static void timers_init(void)
 {
     // Initialize timer module, making it use the scheduler
     ret_code_t err_code = app_timer_init();
+    APP_ERROR_CHECK(err_code);
+
+    // Create timers.
+    err_code = app_timer_create(&m_notification_timer_id, APP_TIMER_MODE_REPEATED, notification_timeout_handler);
     APP_ERROR_CHECK(err_code);
 }
 
@@ -278,7 +308,36 @@ static void nrf_qwr_error_handler(uint32_t nrf_error)
  */
 static void on_hag_evt(ble_hag_service_t * p_hag_service, ble_hag_evt_t * p_evt)
 {
-    NRF_LOG_INFO("Desired charactoristic updated");
+    ret_code_t err_code;
+    
+    switch(p_evt->evt_type)
+    {
+        case BLE_HAG_EVT_NOTIFICATION_ENABLED:
+            
+             err_code = app_timer_start(m_notification_timer_id, NOTIFICATION_INTERVAL, NULL);
+             APP_ERROR_CHECK(err_code);
+             break;
+
+        case BLE_HAG_EVT_NOTIFICATION_DISABLED:
+
+            err_code = app_timer_stop(m_notification_timer_id);
+            APP_ERROR_CHECK(err_code);
+            break;
+
+        case BLE_HAG_EVT_CONNECTED:
+            break;
+
+        case BLE_HAG_EVT_DISCONNECTED:
+              break;
+
+        case BLE_HAG_EVT_DESIRED_UPDATED:
+              m_desired_angle = p_evt->desired_angle;
+              m_desired_depth = p_evt->desired_depth;
+
+        default:
+              // No implementation needed.
+              break;
+    }
 }
 
 
@@ -393,8 +452,6 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
     {
         case BLE_GAP_EVT_CONNECTED:
             NRF_LOG_INFO("Connected");
-            bsp_board_led_on(CONNECTED_LED);
-            bsp_board_led_off(ADVERTISING_LED);
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
             err_code = nrf_ble_qwr_conn_handle_assign(&m_qwr, m_conn_handle);
             APP_ERROR_CHECK(err_code);
@@ -404,7 +461,6 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
 
         case BLE_GAP_EVT_DISCONNECTED:
             NRF_LOG_INFO("Disconnected");
-            bsp_board_led_off(CONNECTED_LED);
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
             err_code = app_button_disable();
             APP_ERROR_CHECK(err_code);
@@ -573,7 +629,6 @@ int main(void)
 {
     // Initialize.
     log_init();
-    leds_init();
     timers_init();
     buttons_init();
     power_management_init();
@@ -585,7 +640,7 @@ int main(void)
     conn_params_init();
 
     // Start execution.
-    NRF_LOG_INFO("Blinky example started.");
+    NRF_LOG_INFO("HAG started.");
     advertising_start();
 
     // Enter main loop.
@@ -593,14 +648,9 @@ int main(void)
     {
         idle_state_handle();
 
-        ret_code_t          err_code;
 
-        m_weight_array[0] = m_current_weight & 0xff;
-        m_weight_array[1] = (m_current_weight >> 8);
-        uint8_t hagCurrentData [4] = {m_current_angle, m_current_depth, m_weight_array[0], m_weight_array[1]};
+            
 
-    //    err_code = ble_hag_current_value_update(&m_hag, hagCurrentData);
-    //    APP_ERROR_CHECK(err_code);
     }
 }
 

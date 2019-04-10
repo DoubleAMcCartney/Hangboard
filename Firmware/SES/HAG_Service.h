@@ -32,10 +32,10 @@ NRF_SDH_BLE_OBSERVER(_name ## _obs,                                             
 #define BLE_UUID_HAG_SERVICE_BASE_UUID  {0x3A, 0x3A, 0xC7, 0x90, 0xEC, 0x35, 0x06, 0x8F, 0xA0, 0x47, 0x92, 0xD1, 0x5A, 0x4E, 0xE7, 0x53}
  
 // Service &amp; characteristics UUIDs
-#define BLE_UUID_HAG_SERVICE_UUID   0x0001
-#define BLE_UUID_DESIRED_CHAR_UUID  0x0002
-#define BLE_UUID_CURRENT_CHAR_UUID  0x0003
-#define BLE_UUID_MOVE_CHAR_UUID     0x0004
+#define BLE_UUID_HAG_SERVICE_UUID   0x3a3a
+#define BLE_UUID_DESIRED_CHAR_UUID  0x9fd1
+#define BLE_UUID_CURRENT_CHAR_UUID  0x9fd2
+#define BLE_UUID_MOVE_CHAR_UUID     0x9fd3
  
 /**@brief HAG Service event type. */
 typedef enum
@@ -43,13 +43,16 @@ typedef enum
     BLE_HAG_EVT_NOTIFICATION_ENABLED,                             /**< HAG value notification enabled event. */
     BLE_HAG_EVT_NOTIFICATION_DISABLED,                             /**< HAG value notification disabled event. */
     BLE_HAG_EVT_DISCONNECTED,
-    BLE_HAG_EVT_CONNECTED
+    BLE_HAG_EVT_CONNECTED,
+    BLE_HAG_EVT_DESIRED_UPDATED
 } ble_hag_evt_type_t;
 
 /**@brief HAG Service event. */
 typedef struct
 {
     ble_hag_evt_type_t evt_type;                                  /**< Type of event. */
+    uint8_t desired_angle;
+    uint8_t desired_depth;
 } ble_hag_evt_t;
 
 // Forward declaration of the ble_hag_service_t type.

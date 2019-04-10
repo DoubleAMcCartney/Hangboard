@@ -45,6 +45,15 @@ static void on_write(ble_hag_service_t * p_hag_service, ble_evt_t const * p_ble_
 {
     ble_gatts_evt_write_t const * p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
  
+    if (p_evt_write->handle == p_hag_service->desired_value_handles.value_handle)
+    {
+        ble_hag_evt_t evt;
+
+        evt.desired_angle = p_evt_write->data[0];
+        evt.desired_depth = p_evt_write->data[1];
+        evt.evt_type = BLE_HAG_EVT_DESIRED_UPDATED;
+        p_hag_service->evt_handler(p_hag_service, &evt);
+    }
     if (   (p_evt_write->handle == p_hag_service->desired_value_handles.cccd_handle)
         && (p_evt_write->len == 2)
         && (p_hag_service->evt_handler != NULL))
@@ -109,7 +118,7 @@ static uint32_t desired_char_add(ble_hag_service_t * p_hag_service)
     memset(&attr_md, 0, sizeof(attr_md));
     memset(&attr_char_value, 0, sizeof(attr_char_value));
  
-    char_md.char_props.read          = 1;
+    char_md.char_props.read          = 0;
     char_md.char_props.write         = 1;
     char_md.char_props.notify        = 0;
     char_md.p_char_user_desc         = DesiredCharName;
@@ -163,8 +172,8 @@ static uint32_t current_char_add(ble_hag_service_t * p_hag_service)
     memset(&cccd_md, 0, sizeof(cccd_md));
     memset(&attr_char_value, 0, sizeof(attr_char_value));
  
-    char_md.char_props.read          = 1;
-    char_md.char_props.write         = 1;
+    char_md.char_props.read          = 0;
+    char_md.char_props.write         = 0;
     char_md.char_props.notify        = 1;
     char_md.p_char_user_desc         = CurrentCharName;
     char_md.char_user_desc_size      = sizeof(CurrentCharName);
@@ -198,7 +207,8 @@ static uint32_t current_char_add(ble_hag_service_t * p_hag_service)
     attr_char_value.init_len     = 4;
     attr_char_value.init_offs    = 0;
     attr_char_value.max_len      = 4;
-    attr_char_value.p_value      = NULL;
+    uint8_t hagCurrentData [4]   = {0,0,0,0};
+    attr_char_value.p_value      = hagCurrentData;
  
     return sd_ble_gatts_characteristic_add(p_hag_service->service_handle, &char_md,
                                            &attr_char_value,
@@ -221,8 +231,8 @@ static uint32_t move_char_add(ble_hag_service_t * p_hag_service)
     memset(&cccd_md, 0, sizeof(cccd_md));
     memset(&attr_char_value, 0, sizeof(attr_char_value));
  
-    char_md.char_props.read          = 1;
-    char_md.char_props.write         = 1;
+    char_md.char_props.read          = 0;
+    char_md.char_props.write         = 0;
     char_md.char_props.notify        = 1;
     char_md.p_char_user_desc         = MoveCharName;
     char_md.char_user_desc_size      = sizeof(MoveCharName);
@@ -256,7 +266,8 @@ static uint32_t move_char_add(ble_hag_service_t * p_hag_service)
     attr_char_value.init_len     = sizeof(uint8_t); // 1 byte
     attr_char_value.init_offs    = 0;
     attr_char_value.max_len      = sizeof(uint8_t);
-    attr_char_value.p_value      = NULL;
+    uint8_t hagMoveData [1]      = {0x00000000};
+    attr_char_value.p_value      = hagMoveData;
  
     return sd_ble_gatts_characteristic_add(p_hag_service->service_handle, &char_md,
                                            &attr_char_value,
