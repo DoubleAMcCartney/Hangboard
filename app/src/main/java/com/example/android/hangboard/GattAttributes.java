@@ -8,10 +8,10 @@ import java.util.HashMap;
 
 public class GattAttributes {
     private static HashMap<String, String> attributes = new HashMap();
-    public static String HAG_CURRENT = "00009fd2-0000-1000-8000-00805f9b34fb";
-    public static String HAG_DESIRED = "00009fd1-0000-1000-8000-00805f9b34fb";
-    public static String HAG_MOVE = "00009fd3-0000-1000-8000-00805f9b34fb";
-    public static String HAG_SERVICE = "00003a3a-0000-1000-8000-00805f9b34fb";
+    public static String HAG_CURRENT = "53E70003-D192-47A0-8F06-35EC90C73A3A";
+    public static String HAG_DESIRED = "53E70002-D192-47A0-8F06-35EC90C73A3A";
+    public static String HAG_MOVE = "53E70004-D192-47A0-8F06-35EC90C73A3A";
+    public static String HAG_SERVICE = "53E70001-D192-47A0-8F06-35EC90C73A3A";
     public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
 
     static {
