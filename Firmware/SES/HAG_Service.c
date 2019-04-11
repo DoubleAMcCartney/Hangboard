@@ -71,6 +71,23 @@ static void on_write(ble_hag_service_t * p_hag_service, ble_evt_t const * p_ble_
         // Call the application event handler.
         p_hag_service->evt_handler(p_hag_service, &evt);
     }
+    if (   (p_evt_write->handle == p_hag_service->current_value_handles.cccd_handle)
+        && (p_evt_write->len == 2)
+        && (p_hag_service->evt_handler != NULL))
+    {
+        ble_hag_evt_t evt;
+
+        if (ble_srv_is_notification_enabled(p_evt_write->data))
+        {
+            evt.evt_type = BLE_HAG_EVT_NOTIFICATION_ENABLED;
+        }
+        else
+        {
+            evt.evt_type = BLE_HAG_EVT_NOTIFICATION_DISABLED;
+        }
+        // Call the application event handler.
+        p_hag_service->evt_handler(p_hag_service, &evt);
+    }
 }
 
 void ble_hag_on_ble_evt( ble_evt_t const * p_ble_evt, void * p_context)
@@ -271,7 +288,7 @@ static uint32_t move_char_add(ble_hag_service_t * p_hag_service)
  
     return sd_ble_gatts_characteristic_add(p_hag_service->service_handle, &char_md,
                                            &attr_char_value,
-                                           &p_hag_service->desired_value_handles);
+                                           &p_hag_service->move_value_handles);
 }
  
 
