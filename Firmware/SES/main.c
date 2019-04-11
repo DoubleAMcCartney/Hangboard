@@ -245,6 +245,10 @@ static void step_motor(int this_step)
  */
 static void change_depth(int desired_depth)
 {
+    if (desired_depth > MAX_HOLD_DEPTH)
+    {
+        return;
+    }
     if (m_current_depth != desired_depth)
     {
         int mm_to_move = m_current_depth - desired_depth;
@@ -255,30 +259,27 @@ static void change_depth(int desired_depth)
             // Check limit switches
             switch (check_limit_switches())
             {
-                case 0:
-                    // limit switches not triggered
+                case 0: // limit switches not triggered
                     if (steps_to_move <= 0)
                     {
                         step_motor(steps_to_move % 4);
                         steps_to_move ++;
-                        nrf_delay_ms(10);
+                        nrf_delay_ms(MOTOR_DELAY);
                     }
                     else
                     {
                         step_motor(steps_to_move % 4);
                         steps_to_move --;
-                        nrf_delay_ms(10);
+                        nrf_delay_ms(MOTOR_DELAY);
                     }
                     break;
 
-                case 1:
-                    // home limit switch triggered
+                case 1: // home limit switch triggered
                     steps_to_move = 0;
                     m_current_depth = 0;
                     break;
 
-                case 2:
-                    // too far (deep) limit switch triggered
+                case 2: // too far (deep) limit switch triggered
                     // TODO: Trigger flag in move char and re-home
                     steps_to_move = 0;
                     break;
@@ -287,8 +288,15 @@ static void change_depth(int desired_depth)
                     break;
             }
         }
+
+        m_current_depth = desired_depth;
+
+        // turn outputs to motor off
+        nrf_gpio_pin_clear(MOTOR_PIN_1);
+        nrf_gpio_pin_clear(MOTOR_PIN_2);
+        nrf_gpio_pin_clear(MOTOR_PIN_3);
+        nrf_gpio_pin_clear(MOTOR_PIN_4);
     }
-    m_current_depth = desired_depth;
     
 }
 
@@ -732,6 +740,7 @@ static void idle_state_handle(void)
         nrf_pwr_mgmt_run();
     }
 }
+
 
 static void home_stepper_motor(void)
 {
