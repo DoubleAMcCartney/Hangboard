@@ -45,6 +45,7 @@ import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
+import java.nio.ByteBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -265,10 +266,18 @@ public class TimerActivity extends AppCompatActivity {
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 if (HAGActual != null) {
                     // Get weight data and convert from two bytes to an int
-                    weight = HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8,
-                            2);
-                    weight += HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8,
-                            3)*256;
+                    // weight = HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8,
+                    //         2);
+                    // weight += HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8,
+                    //         3)*256;
+
+                    byte data[] = HAGActual.getValue();
+                    byte weightArray[] = new byte[4];
+                    for (int i=2; i<6; i++) {
+                       weightArray[i-2] = data[i];
+                    }
+                    weight = ByteBuffer.wrap(weightArray).getInt();
+
                     weightText.setText(weight + "lbs"); // update weight text with new value
                 }
 

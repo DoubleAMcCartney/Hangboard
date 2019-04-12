@@ -221,10 +221,10 @@ static uint32_t current_char_add(ble_hag_service_t * p_hag_service)
     // Attribute Value settings
     attr_char_value.p_uuid       = &ble_uuid;
     attr_char_value.p_attr_md    = &attr_md;
-    attr_char_value.init_len     = 4;
+    attr_char_value.init_len     = 6;
     attr_char_value.init_offs    = 0;
-    attr_char_value.max_len      = 4;
-    uint8_t hagCurrentData [4]   = {0,0,0,0};
+    attr_char_value.max_len      = 6;
+    uint8_t hagCurrentData [6]   = {0,0,0,0,0,0};
     attr_char_value.p_value      = hagCurrentData;
  
     return sd_ble_gatts_characteristic_add(p_hag_service->service_handle, &char_md,
@@ -360,7 +360,7 @@ uint32_t ble_hag_current_value_update(ble_hag_service_t * p_hag, uint8_t current
     // Initialize value struct.
     memset(&gatts_value, 0, sizeof(gatts_value));
 
-    gatts_value.len     = 4;
+    gatts_value.len     = 6;
     gatts_value.offset  = 0;
     gatts_value.p_value = current_value;
 

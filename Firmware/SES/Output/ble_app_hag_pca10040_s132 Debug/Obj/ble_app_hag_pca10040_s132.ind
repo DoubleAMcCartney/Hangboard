@@ -37,6 +37,7 @@
 "Output/ble_app_hag_pca10040_s132 Debug/Obj/nrfx_prs.o"
 "Output/ble_app_hag_pca10040_s132 Debug/Obj/nrfx_uart.o"
 "Output/ble_app_hag_pca10040_s132 Debug/Obj/nrfx_uarte.o"
+"Output/ble_app_hag_pca10040_s132 Debug/Obj/hx711.o"
 "Output/ble_app_hag_pca10040_s132 Debug/Obj/main.o"
 "Output/ble_app_hag_pca10040_s132 Debug/Obj/SEGGER_RTT.o"
 "Output/ble_app_hag_pca10040_s132 Debug/Obj/SEGGER_RTT_Syscalls_SES.o"

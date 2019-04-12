@@ -103,4 +103,5 @@ Output/ble_app_hag_pca10040_s132\ Debug/Obj/main.o: \
  D:/Programs/SEGGER/SEGGER\ Embedded\ Studio\ for\ ARM\ 4.12/include/stdlib.h \
  nRF5_SDK_15.3.0_59ac345/components/libraries/balloc/nrf_balloc.h \
  nRF5_SDK_15.3.0_59ac345/components/libraries/log/nrf_log_default_backends.h \
- D:\Documents\Hangboard\Firmware\SES\HAG_Service.h
+ D:\Documents\Hangboard\Firmware\SES\HAG_Service.h \
+ D:\Documents\Hangboard\Firmware\SES\hx711.h

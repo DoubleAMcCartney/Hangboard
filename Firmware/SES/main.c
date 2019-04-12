@@ -68,12 +68,11 @@
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
 #include "HAG_Service.h"
+#include "hx711.h"
 
 
 #define TOO_FAR_SWITCH                  17
 #define HOME_SWITCH                     19
-#define HX711_DOUT                      12
-#define HX711_CLK                       11
 #define MOTOR_PIN_1                     13
 #define MOTOR_PIN_2                     15
 #define MOTOR_PIN_3                     16
@@ -125,10 +124,13 @@ static uint8_t m_enc_scan_response_data[BLE_GAP_ADV_SET_DATA_SIZE_MAX];         
 
 static uint8_t m_current_depth = 0;
 static uint8_t m_current_angle = 0;
-static uint16_t m_current_weight = 0;
-static uint8_t m_weight_array[2];
+static int m_current_weight = 0;
+static uint8_t m_weight_array[6];
 static uint8_t m_desired_depth = 0;
 static uint8_t m_desired_angle = 0;
+
+static long sample = 0;
+static float val = 120;
 
 /**@brief Struct that contains pointers to the encoded advertising data. */
 static ble_gap_adv_data_t m_adv_data =
@@ -163,13 +165,20 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
 }
 
 
-/**@brief Function for getting weight from HX711.
- *
- */
-static void get_current_weight(void)
+void hx711_callback(hx711_evt_t evt, int value)
 {
-    // TODO: read HX711
-    m_current_weight++; // for testing
+    if(evt == DATA_READY)
+    {
+        m_current_weight = value;
+        NRF_LOG_INFO("ADC measuremement %d", value);
+    }
+    else
+    {
+        /*Invalid ADC readout. A non-zero value would indicate that the readout was interrupted 
+         by a higher priority interrupt during readout (i.e., Softdevice radio event).
+         */
+        NRF_LOG_INFO("ADC readout error. %d 0x%x", value, value);
+    }
 }
 
 
@@ -312,13 +321,13 @@ static void notification_timeout_handler(void * p_context)
 {
     UNUSED_PARAMETER(p_context);
     ret_code_t err_code;
+ 
+    m_weight_array[0] = m_current_weight & 0x000000ff;
+    m_weight_array[1] = (m_current_weight & 0x0000ff00) >> 8;
+    m_weight_array[2] = (m_current_weight & 0x00ff0000) >> 16;
+    m_weight_array[3] = (m_current_weight & 0xff000000) >> 24;
 
-    get_current_weight();
-    m_current_weight = m_current_weight;  
-    m_weight_array[0] = m_current_weight & 0xff;
-    m_weight_array[1] = (m_current_weight >> 8);
-
-    uint8_t hagCurrentData [4] = {m_current_angle, m_current_depth, m_weight_array[0], m_weight_array[1]};
+    uint8_t hagCurrentData [6] = {m_current_angle, m_current_depth, m_weight_array[3], m_weight_array[2], m_weight_array[1], m_weight_array[0]};
 
     err_code = ble_hag_current_value_update(&m_hag, hagCurrentData);
 
@@ -696,10 +705,6 @@ static void gpio_config(void)
     nrf_gpio_cfg_output(MOTOR_PIN_3);
     nrf_gpio_cfg_output(MOTOR_PIN_4);
 
-    // hx711
-    nrf_gpio_cfg_output(HX711_CLK);
-    nrf_gpio_cfg_input(HX711_DOUT, NRF_GPIO_PIN_PULLDOWN);
-
     // limit switches
     nrf_gpio_cfg_input(HOME_SWITCH, NRF_GPIO_PIN_PULLUP);
     nrf_gpio_cfg_input(TOO_FAR_SWITCH, NRF_GPIO_PIN_PULLUP);
@@ -758,11 +763,16 @@ int main(void)
     advertising_init();
     conn_params_init();
     gpio_config();
-    //home_stepper_motor();
-    // tar_hx7ll();
+    hx711_init(INPUT_CH_A_128, hx711_callback);
 
     // Start execution.
     NRF_LOG_INFO("HAG started.");
+
+    /* Start continous sampling. Sampling rate is either
+       10Hz or 80 Hz, depending on hx711 HW configuration*/
+    hx711_start(false);
+            
+    //home_stepper_motor();
     advertising_start();
 
     // Enter main loop.
