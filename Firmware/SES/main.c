@@ -105,6 +105,8 @@
 #define STEPS_PER_ROT                   200
 #define MOTOR_DELAY                     10
 #define MAX_HOLD_DEPTH                  100
+#define HX711_OFFSET                    4230
+#define HX711_SCALE                     -7050
 
 NRF_BLE_GATT_DEF(m_gatt);                                                       /**< GATT module instance. */
 NRF_BLE_QWR_DEF(m_qwr);
@@ -165,7 +167,7 @@ void hx711_callback(hx711_evt_t evt, int value)
 {
     if(evt == DATA_READY)
     {
-        m_current_weight = (value/-7050)-6;
+        m_current_weight = (value + HX711_OFFSET) / HX711_SCALE;
         NRF_LOG_INFO("ADC measuremement %d", value);
     }
     else
@@ -256,7 +258,7 @@ static void change_depth(int desired_depth)
     }
     if (m_current_depth != desired_depth)
     {
-        int mm_to_move = m_current_depth - desired_depth;
+        int mm_to_move =  desired_depth - m_current_depth;
         int steps_to_move = mm_to_move * STEPS_PER_ROT / MM_PER_ROT;
 
         while (steps_to_move != 0  && desired_depth <= MAX_HOLD_DEPTH)
@@ -267,7 +269,7 @@ static void change_depth(int desired_depth)
                 case 0: // limit switches not triggered
                     if (steps_to_move <= 0)
                     {
-                        step_motor(steps_to_move % 4);
+                        step_motor(3-(abs(steps_to_move) % 4));
                         steps_to_move ++;
                         nrf_delay_ms(MOTOR_DELAY);
                     }
@@ -280,13 +282,31 @@ static void change_depth(int desired_depth)
                     break;
 
                 case 1: // home limit switch triggered
-                    steps_to_move = 0;
-                    m_current_depth = 0;
+                    if (steps_to_move < 0)
+                    {
+                        steps_to_move = 0;
+                        m_current_depth = 0;
+                    }
+                    else
+                    {
+                        step_motor(steps_to_move % 4);
+                        steps_to_move --;
+                        nrf_delay_ms(MOTOR_DELAY);
+                    }
                     break;
 
                 case 2: // too far (deep) limit switch triggered
                     // TODO: Trigger flag in move char and re-home
-                    steps_to_move = 0;
+                    if (steps_to_move > 0)
+                    {
+                        steps_to_move = 0;
+                    }
+                    else
+                    {
+                        step_motor(3-(abs(steps_to_move) % 4));
+                        steps_to_move ++;
+                        nrf_delay_ms(MOTOR_DELAY);
+                    }
                     break;
 
                 default:
@@ -296,7 +316,7 @@ static void change_depth(int desired_depth)
 
         m_current_depth = desired_depth;
 
-        // turn outputs to motor off
+        // turn outputs to motor off. this will save the battery but may allow the hold to drift
         nrf_gpio_pin_clear(MOTOR_PIN_1);
         nrf_gpio_pin_clear(MOTOR_PIN_2);
         nrf_gpio_pin_clear(MOTOR_PIN_3);

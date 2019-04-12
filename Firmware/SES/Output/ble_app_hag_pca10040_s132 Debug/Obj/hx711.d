@@ -1,12 +1,16 @@
-Output/ble_app_hag_pca10040_s132\ Debug/Obj/nrfx_prs.o: \
- C:\Users\aaron.mccartney\Documents\GitHub\Hangboard\Firmware\SES\nRF5_SDK_15.3.0_59ac345\modules\nrfx\drivers\src\prs\nrfx_prs.c \
+Output/ble_app_hag_pca10040_s132\ Debug/Obj/hx711.o: \
+ C:\Users\aaron.mccartney\Documents\GitHub\Hangboard\Firmware\SES\hx711.c \
+ C:/Program\ Files/SEGGER/SEGGER\ Embedded\ Studio\ for\ ARM\ 4.10/include/stdint.h \
+ C:/Program\ Files/SEGGER/SEGGER\ Embedded\ Studio\ for\ ARM\ 4.10/include/string.h \
+ C:/Program\ Files/SEGGER/SEGGER\ Embedded\ Studio\ for\ ARM\ 4.10/include/__crossworks.h \
+ C:\Users\aaron.mccartney\Documents\GitHub\Hangboard\Firmware\SES\hx711.h \
+ C:/Program\ Files/SEGGER/SEGGER\ Embedded\ Studio\ for\ ARM\ 4.10/include/stdbool.h \
+ nRF5_SDK_15.3.0_59ac345/integration/nrfx/legacy/nrf_drv_gpiote.h \
+ nRF5_SDK_15.3.0_59ac345/modules/nrfx/drivers/include/nrfx_gpiote.h \
  nRF5_SDK_15.3.0_59ac345/modules/nrfx/nrfx.h \
  nRF5_SDK_15.3.0_59ac345/integration/nrfx/nrfx_config.h sdk_config.h \
  nRF5_SDK_15.3.0_59ac345/modules/nrfx/drivers/nrfx_common.h \
- C:/Program\ Files/SEGGER/SEGGER\ Embedded\ Studio\ for\ ARM\ 4.10/include/stdint.h \
  C:/Program\ Files/SEGGER/SEGGER\ Embedded\ Studio\ for\ ARM\ 4.10/include/stddef.h \
- C:/Program\ Files/SEGGER/SEGGER\ Embedded\ Studio\ for\ ARM\ 4.10/include/__crossworks.h \
- C:/Program\ Files/SEGGER/SEGGER\ Embedded\ Studio\ for\ ARM\ 4.10/include/stdbool.h \
  nRF5_SDK_15.3.0_59ac345/modules/nrfx/mdk/nrf.h \
  nRF5_SDK_15.3.0_59ac345/modules/nrfx/mdk/nrf52.h \
  nRF5_SDK_15.3.0_59ac345/components/toolchain/cmsis/include/core_cm4.h \
@@ -50,11 +54,14 @@ Output/ble_app_hag_pca10040_s132\ Debug/Obj/nrfx_prs.o: \
  nRF5_SDK_15.3.0_59ac345/components/libraries/util/sdk_resources.h \
  nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers/nrf_sd_def.h \
  nRF5_SDK_15.3.0_59ac345/modules/nrfx/drivers/nrfx_errors.h \
- C:\Users\aaron.mccartney\Documents\GitHub\Hangboard\Firmware\SES\nRF5_SDK_15.3.0_59ac345\modules\nrfx\drivers\src\prs\nrfx_prs.h \
- nRF5_SDK_15.3.0_59ac345/integration/nrfx/nrfx_log.h \
+ nRF5_SDK_15.3.0_59ac345/modules/nrfx/hal/nrf_gpiote.h \
+ nRF5_SDK_15.3.0_59ac345/modules/nrfx/hal/nrf_gpio.h \
+ nRF5_SDK_15.3.0_59ac345/components/boards/boards.h \
+ nRF5_SDK_15.3.0_59ac345/modules/nrfx/hal/nrf_gpio.h \
+ nRF5_SDK_15.3.0_59ac345/components/boards/pca10040.h \
+ nRF5_SDK_15.3.0_59ac345/components/libraries/delay/nrf_delay.h \
  nRF5_SDK_15.3.0_59ac345/components/libraries/log/nrf_log.h \
  nRF5_SDK_15.3.0_59ac345/components/libraries/util/sdk_common.h \
- C:/Program\ Files/SEGGER/SEGGER\ Embedded\ Studio\ for\ ARM\ 4.10/include/string.h \
  nRF5_SDK_15.3.0_59ac345/components/libraries/util/sdk_os.h \
  nRF5_SDK_15.3.0_59ac345/components/libraries/util/app_util.h \
  nRF5_SDK_15.3.0_59ac345/components/libraries/util/sdk_macros.h \
