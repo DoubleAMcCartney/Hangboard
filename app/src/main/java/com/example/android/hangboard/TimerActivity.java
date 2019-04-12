@@ -48,6 +48,7 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 import java.nio.ByteBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -265,12 +266,6 @@ public class TimerActivity extends AppCompatActivity {
 
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 if (HAGActual != null) {
-                    // Get weight data and convert from two bytes to an int
-                    // weight = HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8,
-                    //         2);
-                    // weight += HAGActual.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8,
-                    //         3)*256;
-
                     byte data[] = HAGActual.getValue();
                     byte weightArray[] = new byte[4];
                     for (int i=2; i<6; i++) {
@@ -282,7 +277,7 @@ public class TimerActivity extends AppCompatActivity {
                 }
 
                 // Auto-skip timer if user hangs early
-                if (weight > 5) {
+                if (weight > 5 & timerStarted) {
                     String timerStatus = (String)timerStatusText.getText();
                     if (timerStatus.equals("Prepare") || timerStatus.equals("Rest") ||
                             timerStatus.equals("Break")) {
@@ -326,10 +321,10 @@ public class TimerActivity extends AppCompatActivity {
 
             // Play sound at two, one and zero seconds if timer is started
             if (startPauseButton.getText()=="Pause") {
-                if (seconds == 1 && minutes == 0 || seconds==2 && minutes == 0) {
+                if (seconds == 1 & minutes == 0 || seconds==2 & minutes == 0) {
                     pitch1.start();
                 }
-                else if (seconds==0 && minutes == 0) {
+                else if (seconds==0 & minutes == 0) {
                     pitch2.start();
                 }
             }
@@ -397,7 +392,7 @@ public class TimerActivity extends AppCompatActivity {
                     byte[] value = new byte[2];
                     value[0] = (byte)(int)currentWorkout.getAngles().get(exercise-1);
                     value[1] = (byte)(int)currentWorkout.getDepths().get(exercise-1);
-                    HAGDesired.setValue(value);
+                    mBluetoothLeService.writeCharac(HAGDesired,value);
                 }
                 // Update text with new values
                 depthText.setText(currentWorkout.getDepths().get(exercise-1) + "mm");
@@ -415,16 +410,22 @@ public class TimerActivity extends AppCompatActivity {
         @Override
         public void onChanged(@Nullable final Long newValue) {
             // calculate seconds and minutes from milliseconds
-            int seconds =  (int)(newValue / 1000);
-            int minutes = seconds / 60;
-            seconds = seconds % 60;
+            int totSeconds =  (int)(newValue / 1000);
+            int minutes = totSeconds / 60;
+            int seconds = totSeconds % 60;
             timeRemainingText.setText("Remaining: " + String.format("%d:%02d", minutes, seconds));
 
-            // Every millisecond store the current weight in a list
-            if (mConnected && timerStarted) {
-                weightList.add(seconds, weight);
-                workList.add(seconds, workState);
+            // Every second store the current weight in a list
+            if (weightList==null) {
+                return;
             }
+            if (weightList.size()>=totSeconds) {
+                if ((weightList.get(totSeconds)==0) & (weight >= 0)) {
+                    weightList.add(totSeconds, weight);
+                    workList.add(totSeconds, workState);
+                }
+            }
+
         }
     };
 
@@ -471,6 +472,13 @@ public class TimerActivity extends AppCompatActivity {
                 reps = 0;
                 exercises = 0;
                 updateText();
+            }
+
+            weightList = new ArrayList<>();
+            workList = new ArrayList<>();
+            for (long i = 0; i <= mModel.getTimeRemaining().getValue()/1000; i++) {
+                weightList.add(0);
+                workList.add(false);
             }
 
         }
@@ -694,7 +702,7 @@ public class TimerActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // If a current workout was chosen, update to that workout
-        if (requestCode == 1 && resultCode == RESULT_OK) {
+        if (requestCode == 1 & resultCode == RESULT_OK) {
             Bundle extras = data.getExtras();
             String workoutTitle = (String) extras.get("result");
             mModel.getWorkoutByTitle(workoutTitle);
@@ -769,9 +777,9 @@ public class TimerActivity extends AppCompatActivity {
 
             long totWeight = 0;
 
-            for (int x = 0; x <= dataPoints; x++) {
-                int weight = weightList.get(dataPoints - x);
-                int work = workList.get(dataPoints - x) ? 1 : 0;
+            for (int x = 0; x < dataPoints; x++) {
+                int weight = weightList.get(x);
+                int work = workList.get(x) ? 1 : 0;
 
                 weightDP[x] = new DataPoint(x, weight);
                 workDP[x] = new DataPoint(x, work);
@@ -787,8 +795,13 @@ public class TimerActivity extends AppCompatActivity {
             LineGraphSeries<DataPoint> series = new LineGraphSeries<>(weightDP);
             graph.addSeries(series);
 
-            avgWeight = (int) (totWeight / actualWorkTime);
-            score = avgWeight * actualWorkTime * ((100 - currentWorkout.getDepths().get(0)) / 100);
+            if (actualWorkTime != 0) {
+                avgWeight = (int) (totWeight / actualWorkTime);
+            }
+            else {
+                avgWeight = 0;
+            }
+            score = avgWeight * actualWorkTime * ((100 - currentWorkout.getDepths().get(0)));
 
             scoreText.setText("Score: " + score);
             weightText.setText("Weight: " + avgWeight);
