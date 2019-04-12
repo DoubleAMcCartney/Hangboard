@@ -322,21 +322,21 @@ uint32_t ble_hag_init(ble_hag_service_t * p_hag, const ble_hag_init_t * p_hag_in
     }
 
     // Add the different characteristics in the service:
-    //   Desired characteristic:   2D0319D8-DE15-11E8-9F32F-2801F1B9FD1
+    //   Desired characteristic:   53E70002-D192-47A0-8F06-35EC90C73A3A
     err_code = desired_char_add(p_hag);
     if (err_code != NRF_SUCCESS)
     {
         return err_code;
     }
 
-    //   Current characteristic:   4E0F43C2-DE15-11E8-9F32F-2801F1B9FD2
+    //   Current characteristic:   53E70003-D192-47A0-8F06-35EC90C73A3A
     err_code = current_char_add(p_hag);
     if (err_code != NRF_SUCCESS)
     {
         return err_code;
     }
 
-    //   Move characteristic:   2d0317b2-DE15-11E8-9F32F-2801F1B9FD3
+    //   Move characteristic:   53E70004-D192-47A0-8F06-35EC90C73A3A
     err_code = move_char_add(p_hag);
     if (err_code != NRF_SUCCESS)
     {

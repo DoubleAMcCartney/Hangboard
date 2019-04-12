@@ -60,7 +60,7 @@ Output/ble_app_hag_pca10040_s132\ Debug/Obj/main.o: \
  nRF5_SDK_15.3.0_59ac345/components/libraries/experimental_section_vars/nrf_section.h \
  nRF5_SDK_15.3.0_59ac345/components/libraries/util/nrf_assert.h \
  nRF5_SDK_15.3.0_59ac345/components/softdevice/common/nrf_sdh_ble.h \
- nRF5_SDK_15.3.0_59ac345/components/boards/boards.h \
+ nRF5_SDK_15.3.0_59ac345/components/libraries/timer/app_timer.h \
  nRF5_SDK_15.3.0_59ac345/modules/nrfx/hal/nrf_gpio.h \
  nRF5_SDK_15.3.0_59ac345/modules/nrfx/nrfx.h \
  nRF5_SDK_15.3.0_59ac345/integration/nrfx/nrfx_config.h \
@@ -81,13 +81,8 @@ Output/ble_app_hag_pca10040_s132\ Debug/Obj/main.o: \
  nRF5_SDK_15.3.0_59ac345/components/libraries/util/sdk_resources.h \
  nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers/nrf_sd_def.h \
  nRF5_SDK_15.3.0_59ac345/modules/nrfx/drivers/nrfx_errors.h \
- nRF5_SDK_15.3.0_59ac345/components/boards/pca10040.h \
- nRF5_SDK_15.3.0_59ac345/components/libraries/timer/app_timer.h \
- nRF5_SDK_15.3.0_59ac345/components/libraries/button/app_button.h \
- nRF5_SDK_15.3.0_59ac345/components/ble/ble_services/ble_lbs/ble_lbs.h \
  nRF5_SDK_15.3.0_59ac345/components/ble/nrf_ble_gatt/nrf_ble_gatt.h \
  nRF5_SDK_15.3.0_59ac345/components/ble/nrf_ble_qwr/nrf_ble_qwr.h \
- nRF5_SDK_15.3.0_59ac345/components/libraries/pwr_mgmt/nrf_pwr_mgmt.h \
  nRF5_SDK_15.3.0_59ac345/components/libraries/delay/nrf_delay.h \
  nRF5_SDK_15.3.0_59ac345/components/libraries/log/nrf_log.h \
  nRF5_SDK_15.3.0_59ac345/components/libraries/experimental_section_vars/nrf_section.h \

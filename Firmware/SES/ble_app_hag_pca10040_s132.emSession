@@ -15,7 +15,9 @@
   <ProjectSessionItem path="ble_app_hag_pca10040_s132;ble_app_hag_pca10040_s132"/>
   <ProjectSessionItem path="ble_app_hag_pca10040_s132;ble_app_hag_pca10040_s132;Application"/>
   <ProjectSessionItem path="ble_app_hag_pca10040_s132;ble_app_hag_pca10040_s132;Board Definition"/>
+  <ProjectSessionItem path="ble_app_hag_pca10040_s132;ble_app_hag_pca10040_s132;nRF_BLE"/>
   <ProjectSessionItem path="ble_app_hag_pca10040_s132;ble_app_hag_pca10040_s132;nRF_BLE_Services"/>
+  <ProjectSessionItem path="ble_app_hag_pca10040_s132;ble_app_hag_pca10040_s132;nRF_SoftDevice"/>
  </Project>
  <Register1/>
  <Register2/>
@@ -40,9 +42,15 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="1" y="172" useTextEdit="1" useBinaryEdit="0" left="0" path="main.c" selected="1" top="725" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="47" y="31" useTextEdit="1" useBinaryEdit="0" left="0" path="HAG_Service.h" selected="0" top="9" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="12" y="439" useTextEdit="1" useBinaryEdit="0" left="0" path="main.c" selected="1" top="344" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="1" y="25" useTextEdit="1" useBinaryEdit="0" left="0" path="HAG_Service.h" selected="0" top="81" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="542" useTextEdit="1" useBinaryEdit="0" left="0" path="nRF5_SDK_15.3.0_59ac345/modules/nrfx/hal/nrf_gpio.h" selected="0" top="519" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="339" useTextEdit="1" useBinaryEdit="0" left="0" path="nRF5_SDK_15.3.0_59ac345/components/libraries/pwr_mgmt/nrf_pwr_mgmt.c" selected="0" top="322" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="338" useTextEdit="1" useBinaryEdit="0" left="0" path="HAG_Service.c" selected="0" top="45" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="69" useTextEdit="1" useBinaryEdit="0" left="0" path="nRF5_SDK_15.3.0_59ac345/components/libraries/button/app_button.h" selected="0" top="42" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" useBinaryEdit="0" left="0" path="nRF5_SDK_15.3.0_59ac345/components/libraries/pwr_mgmt/nrf_pwr_mgmt.h" selected="0" top="39" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="1845" useTextEdit="1" useBinaryEdit="0" left="0" path="nRF5_SDK_15.3.0_59ac345/components/softdevice/s132/headers/ble_gap.h" selected="0" top="1807" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="71" useTextEdit="1" useBinaryEdit="0" left="0" path="nRF5_SDK_15.3.0_59ac345/components/ble/common/ble_conn_params.h" selected="0" top="48" codecName="Default"/>
  </Files>
  <ARMCrossStudioWindow activeProject="ble_app_hag_pca10040_s132" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" debugSearchFileMap="" fileDialogInitialDirectory="" debugSearchPath="" autoConnectCapabilities="3199"/>
 </session>

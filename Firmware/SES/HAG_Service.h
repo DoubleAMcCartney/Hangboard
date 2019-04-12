@@ -19,10 +19,10 @@ NRF_SDH_BLE_OBSERVER(_name ## _obs,                                             
                      BLE_HAG_SERVICE_BLE_OBSERVER_PRIO,                                                     \
                      ble_hag_on_ble_evt, &_name)
  
-//    HAG service:              53E74E5A-D192-47A0-8F06-35EC90C73A3A
-//    Desired characteristic:   2D0319D8-DE15-11E8-9F32F-2801F1B9FD1
-//    Current characteristic:   4E0F43C2-DE15-11E8-9F32F-2801F1B9FD2
-//    Move characteristic:      2d0317b2-DE15-11E8-9F32F-2801F1B9FD3
+//    HAG service:              53E70001-D192-47A0-8F06-35EC90C73A3A
+//    Desired characteristic:   53E70002-D192-47A0-8F06-35EC90C73A3A
+//    Current characteristic:   53E70003-D192-47A0-8F06-35EC90C73A3A
+//    Move characteristic:      53E70004-D192-47A0-8F06-35EC90C73A3A
  
 // The bytes are stored in little-endian format, meaning the
 // Least Significant Byte is stored first
@@ -31,7 +31,7 @@ NRF_SDH_BLE_OBSERVER(_name ## _obs,                                             
 // Base UUID: 53E74E5A-D192-47A0-8F06-35EC90C73A3A
 #define BLE_UUID_HAG_SERVICE_BASE_UUID  {0x3A, 0x3A, 0xC7, 0x90, 0xEC, 0x35, 0x06, 0x8F, 0xA0, 0x47, 0x92, 0xD1, 0x5A, 0x4E, 0xE7, 0x53}
  
-// Service &amp; characteristics UUIDs
+// Service & characteristics UUIDs
 #define BLE_UUID_HAG_SERVICE_UUID   0x0001
 #define BLE_UUID_DESIRED_CHAR_UUID  0x0002
 #define BLE_UUID_CURRENT_CHAR_UUID  0x0003
