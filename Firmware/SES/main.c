@@ -63,8 +63,8 @@
 #define STEPS_PER_ROT                   200
 #define MOTOR_DELAY                     10
 #define MAX_HOLD_DEPTH                  100
-#define HX711_OFFSET                    4230
 #define HX711_SCALE                     -7050
+#define WEIGHT_BUFFER_SIZE              10
 
 NRF_BLE_GATT_DEF(m_gatt);                                                       /**< GATT module instance. */
 NRF_BLE_QWR_DEF(m_qwr);
@@ -82,9 +82,10 @@ static uint8_t m_enc_scan_response_data[BLE_GAP_ADV_SET_DATA_SIZE_MAX];         
 static uint8_t m_current_depth = 0;
 static uint8_t m_current_angle = 0;
 static int m_current_weight = 0;
+static int m_weight_buffer[WEIGHT_BUFFER_SIZE];
+static uint8_t m_weight_buffer_ind = 0;
+static int m_hx711_offset = 42300;  // initial offset
 static uint8_t m_weight_array[6];
-static uint8_t m_desired_depth = 0;
-static uint8_t m_desired_angle = 0;
 
 
 /**@brief Struct that contains pointers to the encoded advertising data. */
@@ -102,6 +103,7 @@ static ble_gap_adv_data_t m_adv_data =
 
     }
 };
+
 
 /**@brief Function for assert macro callback.
  *
@@ -121,11 +123,30 @@ void assert_nrf_callback(uint16_t line_num, const uint8_t * p_file_name)
 }
 
 
+/**@brief Function for setting m_hx711_offset
+ *
+ */
+static void hx711_tare(void)
+{
+    long temp_hx711_offset = 0;
+
+    for (uint8_t i=0; i<WEIGHT_BUFFER_SIZE; i++)
+    {
+        temp_hx711_offset += m_weight_buffer[i];
+    }
+
+    m_hx711_offset = temp_hx711_offset / WEIGHT_BUFFER_SIZE;
+    NRF_LOG_INFO("hx711 offset updated to %d", m_hx711_offset);
+}
+
+
 void hx711_callback(hx711_evt_t evt, int value)
 {
     if(evt == DATA_READY)
     {
-        m_current_weight = (value + HX711_OFFSET) / HX711_SCALE;
+        m_current_weight = (value + m_hx711_offset) / HX711_SCALE;
+        m_weight_buffer[m_weight_buffer_ind] = value;
+        m_weight_buffer_ind = (m_weight_buffer_ind + 1) % WEIGHT_BUFFER_SIZE;
         NRF_LOG_INFO("ADC measuremement %d", value);
     }
     else
@@ -227,7 +248,7 @@ static void change_depth(int desired_depth)
                 case 0: // limit switches not triggered
                     if (steps_to_move <= 0)
                     {
-                        step_motor(3-(abs(steps_to_move) % 4));
+                        step_motor(3 - abs(steps_to_move % 4));
                         steps_to_move ++;
                         nrf_delay_ms(MOTOR_DELAY);
                     }
@@ -261,7 +282,7 @@ static void change_depth(int desired_depth)
                     }
                     else
                     {
-                        step_motor(3-(abs(steps_to_move) % 4));
+                        step_motor(3 - abs(steps_to_move % 4));
                         steps_to_move ++;
                         nrf_delay_ms(MOTOR_DELAY);
                     }
@@ -274,7 +295,7 @@ static void change_depth(int desired_depth)
 
         m_current_depth = desired_depth;
 
-        // turn outputs to motor off. this will save the battery but may allow the hold to drift
+        // Turn outputs to motor off. This should save the battery but may allow the hold to drift
         nrf_gpio_pin_clear(MOTOR_PIN_1);
         nrf_gpio_pin_clear(MOTOR_PIN_2);
         nrf_gpio_pin_clear(MOTOR_PIN_3);
@@ -296,6 +317,7 @@ static void notification_timeout_handler(void * p_context)
     UNUSED_PARAMETER(p_context);
     ret_code_t err_code;
  
+    // Encode m_current_weight into 4 bytes of data
     m_weight_array[0] = m_current_weight & 0x000000ff;
     m_weight_array[1] = (m_current_weight & 0x0000ff00) >> 8;
     m_weight_array[2] = (m_current_weight & 0x00ff0000) >> 16;
@@ -444,13 +466,12 @@ static void on_hag_evt(ble_hag_service_t * p_hag_service, ble_hag_evt_t * p_evt)
     switch(p_evt->evt_type)
     {
         case BLE_HAG_EVT_NOTIFICATION_ENABLED:
-            
+             hx711_tare();
              err_code = app_timer_start(m_notification_timer_id, NOTIFICATION_INTERVAL, NULL);
              APP_ERROR_CHECK(err_code);
              break;
 
         case BLE_HAG_EVT_NOTIFICATION_DISABLED:
-
             err_code = app_timer_stop(m_notification_timer_id);
             APP_ERROR_CHECK(err_code);
             break;
@@ -462,9 +483,8 @@ static void on_hag_evt(ble_hag_service_t * p_hag_service, ble_hag_evt_t * p_evt)
               break;
 
         case BLE_HAG_EVT_DESIRED_UPDATED:
-              m_desired_angle = p_evt->desired_angle;
-              m_desired_depth = p_evt->desired_depth;
-              change_depth(m_desired_depth);
+              change_depth(p_evt->desired_depth);
+              break;
 
         default:
               // No implementation needed.
@@ -716,11 +736,28 @@ static void idle_state_handle(void)
     }
 }
 
-
+/**@brief Function for "homing" the stepper motor
+ *
+ */
 static void home_stepper_motor(void)
 {
     change_depth(-500);
+    NRF_LOG_INFO("Homing stepper motor");
 }
+
+
+/**@brief Function initializing the values in m_weight_buffer
+ *
+ * @details This is to prevent the buffer from not being full prior to hx711_tare() being called
+ */
+static void weight_buffer_init(void)
+{
+    for (uint8_t i=0; i<WEIGHT_BUFFER_SIZE; i++)
+    {
+        m_weight_buffer[i] = m_hx711_offset;
+    }
+}
+
 
 /**@brief Function for application main entry.
  */
@@ -738,15 +775,16 @@ int main(void)
     conn_params_init();
     gpio_config();
     hx711_init(INPUT_CH_A_128, hx711_callback);
+    weight_buffer_init();
+
+    /* Start continous sampling. Sampling rate is either
+       10Hz or 80 Hz, depending on hx711 HW configuration*/
+    hx711_start(false); // HW set to 10Hz
+//    home_stepper_motor();
 
     // Start execution.
     NRF_LOG_INFO("HAG started.");
 
-    /* Start continous sampling. Sampling rate is either
-       10Hz or 80 Hz, depending on hx711 HW configuration*/
-    hx711_start(false);
-            
-    //home_stepper_motor();
     advertising_start();
 
     // Enter main loop.
