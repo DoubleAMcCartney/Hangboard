@@ -31,10 +31,10 @@
 
 #define TOO_FAR_SWITCH                  17
 #define HOME_SWITCH                     19
-#define MOTOR_PIN_1                     13
-#define MOTOR_PIN_2                     15
-#define MOTOR_PIN_3                     16
-#define MOTOR_PIN_4                     20
+#define MOTOR_PIN_1                     13  //13
+#define MOTOR_PIN_2                     15  //15
+#define MOTOR_PIN_3                     16  //16
+#define MOTOR_PIN_4                     20  //20
 
 
 #define DEVICE_NAME                     "H.A.G. Board"                         /**< Name of device. Will be included in the advertising data. */
@@ -59,7 +59,7 @@
 
 #define DEAD_BEEF                       0xDEADBEEF                              /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
 
-#define MM_PER_ROT                      4
+#define MM_PER_ROT                      10
 #define STEPS_PER_ROT                   200
 #define MOTOR_DELAY                     10
 #define MAX_HOLD_DEPTH                  100
@@ -144,7 +144,7 @@ void hx711_callback(hx711_evt_t evt, int value)
 {
     if(evt == DATA_READY)
     {
-        m_current_weight = (value + m_hx711_offset) / HX711_SCALE;
+        m_current_weight = (value - m_hx711_offset) / HX711_SCALE;
         m_weight_buffer[m_weight_buffer_ind] = value;
         m_weight_buffer_ind = (m_weight_buffer_ind + 1) % WEIGHT_BUFFER_SIZE;
         NRF_LOG_INFO("ADC measuremement %d", value);
@@ -214,8 +214,8 @@ static void step_motor(int this_step)
             break;
 
         case 3:
-            nrf_gpio_pin_clear(MOTOR_PIN_1);
-            nrf_gpio_pin_set(MOTOR_PIN_2);
+            nrf_gpio_pin_set(MOTOR_PIN_1);
+            nrf_gpio_pin_clear(MOTOR_PIN_2);
             nrf_gpio_pin_clear(MOTOR_PIN_3);
             nrf_gpio_pin_set(MOTOR_PIN_4);
             break;

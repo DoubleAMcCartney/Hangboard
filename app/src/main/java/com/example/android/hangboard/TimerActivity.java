@@ -20,6 +20,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -42,6 +43,8 @@ import com.example.android.hangboard.ChooseWorkout.ViewWorkoutsActivity;
 import com.example.android.hangboard.WorkoutDB.Workout;
 import com.example.android.hangboard.WorkoutLog.LogActivity;
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.ValueDependentColor;
+import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
@@ -89,8 +92,6 @@ public class TimerActivity extends AppCompatActivity {
     private int exercise = 0;
     private int exercises = 0;
     private int weight = 0;
-    private DataPoint[] weightDP;
-    private DataPoint[] workDP;
     private List<Integer> weightList;
     private List<Boolean> workList;
     private boolean timerStarted = false;
@@ -276,8 +277,8 @@ public class TimerActivity extends AppCompatActivity {
                     weightText.setText(weight + "lbs"); // update weight text with new value
                 }
 
-                // Auto-skip timer if user hangs early
-                if (weight > 5 & timerStarted) {
+                // Auto-skip timer if user hangs early and there is less than one second remaining
+                if (weight > 10 & timerStarted & mModel.getTimeRemaining().getValue()<1000) {
                     String timerStatus = (String)timerStatusText.getText();
                     if (timerStatus.equals("Prepare") || timerStatus.equals("Rest") ||
                             timerStatus.equals("Break")) {
@@ -419,10 +420,10 @@ public class TimerActivity extends AppCompatActivity {
             if (weightList==null) {
                 return;
             }
-            if (weightList.size()>=totSeconds) {
+            if (weightList.size()>totSeconds && totSeconds >=0) {
                 if ((weightList.get(totSeconds)==0) & (weight >= 0)) {
-                    weightList.add(totSeconds, weight);
-                    workList.add(totSeconds, workState);
+                    weightList.set(totSeconds, weight);
+                    workList.set(totSeconds, workState);
                 }
             }
 
@@ -772,28 +773,78 @@ public class TimerActivity extends AppCompatActivity {
         if (mConnected) {
             // Create data points from weight and work lists
             int dataPoints = weightList.size();
-            weightDP = new DataPoint[dataPoints];
-            workDP = new DataPoint[dataPoints];
+            DataPoint[] weightDP = new DataPoint[dataPoints];
+            DataPoint[] workDP = new DataPoint[dataPoints];
 
             long totWeight = 0;
+            int maxWeight = 0;
 
             for (int x = 0; x < dataPoints; x++) {
                 int weight = weightList.get(x);
-                int work = workList.get(x) ? 1 : 0;
 
-                weightDP[x] = new DataPoint(x, weight);
-                workDP[x] = new DataPoint(x, work);
+                weightDP[dataPoints-x-1] = new DataPoint((dataPoints-x-1), weight);
+
+                // find max weight
+                if (weight > maxWeight) {
+                    maxWeight = weight;
+                }
 
                 // Calculate average weight during work periods
-                if (weight > 10) {
+                if (weight > 20) {
                     actualWorkTime++;
                     totWeight += weight;
                 }
             }
 
+            for (int x = 0; x < dataPoints; x++) {
+                int work;
+
+                if (workList.get(x)) {
+                    if (weightList.get(x) >= 10) {
+                        work = 1000;
+                    }
+                    else {
+                        work = 2000;
+                    }
+                }
+                else {
+                    work = 3000;
+                }
+
+                workDP[dataPoints-x-1] = new DataPoint((dataPoints-x-1), work);
+            }
+
+
             // add data to graph
-            LineGraphSeries<DataPoint> series = new LineGraphSeries<>(weightDP);
-            graph.addSeries(series);
+            LineGraphSeries<DataPoint> lineSeries = new LineGraphSeries<>(weightDP);
+            BarGraphSeries<DataPoint> barSeries = new BarGraphSeries<>(workDP);
+
+            graph.getViewport().setXAxisBoundsManual(true);
+            graph.getViewport().setYAxisBoundsManual(true);
+            graph.getViewport().setMaxY(maxWeight+10);
+            graph.getViewport().setMaxX(60);
+            graph.getViewport().setScrollable(true);
+            graph.getGridLabelRenderer().setHorizontalAxisTitle("Time (seconds)");
+            graph.getGridLabelRenderer().setVerticalAxisTitle("Weight (LBS)");
+            graph.addSeries(lineSeries);
+            graph.addSeries(barSeries);
+
+            // set color of bar graph
+            barSeries.setValueDependentColor(new ValueDependentColor<DataPoint>() {
+                @Override
+                public int get(DataPoint data) {
+
+                    if (data.getY() == 1000) {
+                        return Color.argb(100,0,255,0);
+                    }
+                    else if (data.getY() == 2000){
+                        return Color.argb(100,255,0,0);
+                    }
+                    return android.R.color.transparent;
+                }
+            });
+
+            barSeries.setSpacing(0);
 
             if (actualWorkTime != 0) {
                 avgWeight = (int) (totWeight / actualWorkTime);
@@ -801,11 +852,21 @@ public class TimerActivity extends AppCompatActivity {
             else {
                 avgWeight = 0;
             }
-            score = avgWeight * actualWorkTime * ((100 - currentWorkout.getDepths().get(0)));
+
+            // calculate score
+            if (currentWorkout.getDepths().get(0) > 0) {
+                score = avgWeight * 10 / currentWorkout.getDepths().get(0); // lbs per cm
+            }
+            else {
+                score = 0;
+            }
 
             scoreText.setText("Score: " + score);
             weightText.setText("Weight: " + avgWeight);
             hangTimeText.setText("Hang Time: " + actualWorkTime + " of " + workTime + "sec");
+
+            weightList.clear();
+            workList.clear();
         }
         else {
             graph.setVisibility(View.GONE);
